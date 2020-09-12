@@ -6,8 +6,7 @@
 	3) $ docker-compose down // close porcess
 
 #### Manual Instructions ####
-
-	### Build and run nodeJS container ###
+### 	Build and run nodeJS container ###
 		1) make sure docker is running in the background
 			- you can check if docker is running by running the following command in cmd/shell:
 			   $ docker images
