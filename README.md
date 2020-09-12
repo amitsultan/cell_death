@@ -6,28 +6,25 @@
 	3) $ docker-compose down // close porcess
 
 #### Manual Instructions ####
-### Build and run nodeJS container ###
 
-Instructions:
-	1) make sure docker is running in the background
-		- you can check if docker is running by running the following command in cmd/shell:
-		   $ docker images
-		   if you get a list of images docker is running.
-	2) Run the following command inside the nodeJS folder
-		$ docker build -t cell-death-server .
-	3) After successfully building you can check again the docker images by running this command:
-		$ docker images
-		you should see our new image created
-	4) Run docker container with the following command:
-		$ docker run -p 3000:3000 -d cell-death-server
-		run the following command to check if the image run correctly:
-		$ docker logs <container id>
-		# Example output
-		Running on http://localhost:3000
+	### Build and run nodeJS container ###
+		1) make sure docker is running in the background
+			- you can check if docker is running by running the following command in cmd/shell:
+			   $ docker images
+			   if you get a list of images docker is running.
+		2) Run the following command inside the nodeJS folder
+			$ docker build -t cell-death-server .
+		3) After successfully building you can check again the docker images by running this command:
+			$ docker images
+			you should see our new image created
+		4) Run docker container with the following command:
+			$ docker run -p 3000:3000 -d cell-death-server
+			run the following command to check if the image run correctly:
+			$ docker logs <container id>
+			# Example output
+			Running on http://localhost:3000
 
 ### Build and run VueJS container ###
-
-Instructions:
 	1) make sure docker is running in the background
 		- you can check if docker is running by running the following command in cmd/shell:
 		   $ docker images
