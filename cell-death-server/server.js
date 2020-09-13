@@ -6,10 +6,14 @@ const corsConfig = {
   credentials: true,
 };
 
+//routes import 
+const auth = require("./routes/auth");
+
+var port = process.env.PORT;
+
 app.use(cors(corsConfig));
 app.options("*", cors(corsConfig));
-// Constants
-const PORT = 8081;
+app.use(auth)
 
 // App
 app.get('/test', (req, res) => {
@@ -17,5 +21,5 @@ app.get('/test', (req, res) => {
 });
 
 
-app.listen(PORT);
-console.log(`Running on PORT: ${PORT}`);
+app.listen(port);
+console.log(`Running on PORT: ${port}`);
