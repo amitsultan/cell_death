@@ -1,25 +1,34 @@
-const express = require('express');
-let app = express();
-var cors = require("cors");
+// require("dotenv").config();
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+
+//routes import
+const auth = require("./routes/auth");
+
+var app = express();
+var port = 8081;
+
+//parse application/x-www-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+//parse application/json
+app.use(bodyParser.json());
+
+//settings cors
 const corsConfig = {
   origin: true,
   credentials: true,
 };
-
-//routes import 
-const auth = require("./routes/auth");
-
-var port = process.env.PORT;
-
 app.use(cors(corsConfig));
 app.options("*", cors(corsConfig));
-app.use(auth)
 
-// App
-app.get('/test', (req, res) => {
-  res.send('Msg from server');
+//Routing
+app.use(auth);
+
+app.use(function (err, req, res, next) {
+  console.error(err);
+  res.status(err.status || 500).send({ message: err.message, success: false });
 });
-
 
 app.listen(port);
 console.log(`Running on PORT: ${port}`);
