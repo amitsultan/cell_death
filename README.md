@@ -1,7 +1,7 @@
 "# cell_death" 
 
 #### Automated Instructions ####
-	1) $ docker-compose --build
+	1) $ docker-compose build --force-rm
 	2) $ docker-compose up -d // start process
 	3) $ docker-compose down // close porcess
 
