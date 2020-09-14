@@ -25,7 +25,7 @@ router.use(function (req, res, next) {
 
 // });
 
-router.get("/process", (req, res) => {
+router.get("/process/:numberOfImages", (req, res) => {
 
 
 });
