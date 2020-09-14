@@ -5,6 +5,7 @@ const cors = require("cors");
 
 //routes import
 const auth = require("./routes/auth");
+const data = require("./routes/data");
 
 var app = express();
 var port = 8081;
@@ -23,6 +24,8 @@ app.use(cors(corsConfig));
 app.options("*", cors(corsConfig));
 
 //Routing
+
+app.use("/data", data);
 app.use(auth);
 
 app.use(function (err, req, res, next) {
