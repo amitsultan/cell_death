@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 
 services:
   client:
@@ -16,7 +16,26 @@ services:
       - 8081:8081
     volumes:
       - ./server:/data
-    # depends_on: 
-    #   - server-database
+    depends_on:
+      - db
+    # network_mode: "host"
     environment:
-      - DATABASE_URL=server-database:27017
+      - DATABASE_URL=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=1973aA4682!
+      - MYSQL_DATABASE=dbo
+
+
+  db:
+    image: mysql
+    restart: always
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 1973aA4682!
+      MYSQL_PASSWORD: 1973aA4682!
+      MYSQL_DATABASE: dbo
+      ACCEPT_EULA: Y
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-dump:/docker-entrypoint-initdb.d
