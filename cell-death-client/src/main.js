@@ -49,7 +49,7 @@ import {
 
 
 const shared_data = {
-  username: localStorage.username,
+  username: undefined,
   login(username) {
     localStorage.setItem("username", username);
     this.username = username;

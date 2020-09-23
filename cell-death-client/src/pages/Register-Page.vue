@@ -2,19 +2,14 @@
 <div class="container shadow-lg p-3 mb-5 bg-white rounded">
     <h1 class="title">Register</h1>
     <b-form @submit.prevent="onRegister" @reset.prevent="onReset">
-        <b-form-group id="input-group-username" label-cols-sm="3" label="Username:" label-for="username">
-            <b-form-input id="username" v-model="$v.form.username.$model" type="text" :state="validateState('username')"></b-form-input>
-            <b-form-invalid-feedback v-if="!$v.form.username.required">
-                Username is required
+
+        <b-form-group id="input-group-email" label-cols-sm="3" label="Email:" label-for="email">
+            <b-form-input id="email" type="text" v-model="$v.form.email.$model" :state="validateState('email')"></b-form-input>
+            <b-form-invalid-feedback v-if="!$v.form.email.required">
+                Email is required
             </b-form-invalid-feedback>
-            <b-form-invalid-feedback v-else-if="!$v.form.username.length">
-                Username length should be between 3-8 characters long
-            </b-form-invalid-feedback>
-            <b-form-invalid-feedback v-else-if="!$v.form.username.characters">
-                Username cannot contain numbers
-            </b-form-invalid-feedback>
-            <b-form-invalid-feedback v-else>
-                Username cannot special characters
+            <b-form-invalid-feedback v-else-if="!$v.form.email.valid">
+                Email must be vaild! (Exmaple: some@domain.com)
             </b-form-invalid-feedback>
         </b-form-group>
 
@@ -58,16 +53,6 @@
             </b-form-invalid-feedback>
         </b-form-group>
 
-        <b-form-group id="input-group-email" label-cols-sm="3" label="Email:" label-for="email">
-            <b-form-input id="email" type="text" v-model="$v.form.email.$model" :state="validateState('email')"></b-form-input>
-            <b-form-invalid-feedback v-if="!$v.form.email.required">
-                Email is required
-            </b-form-invalid-feedback>
-            <b-form-invalid-feedback v-else-if="!$v.form.email.valid">
-                Email must be vaild! (Exmaple: some@domain.com)
-            </b-form-invalid-feedback>
-        </b-form-group>
-
         <div class='buttons'>
 
             <b-button type="reset" variant="danger" style="width:240px;margin-right:5px;">Reset</b-button>
@@ -103,7 +88,6 @@ export default {
     data() {
         return {
             form: {
-                username: "",
                 firstName: "",
                 lastName: "",
                 password: "",
@@ -117,12 +101,6 @@ export default {
     },
     validations: {
         form: {
-            username: {
-                required,
-                length: (u) => minLength(3)(u) && maxLength(8)(u),
-                characters: (u) => !(/\d/.test(u)),
-                alpha
-            },
             firstName: {
                 required
             },
@@ -156,23 +134,27 @@ export default {
             try {
                 const response = await this.axios.post(
                     this.$root.API_BASE + "/Register", {
-                        username: this.form.username,
+                        email: this.form.email,
                         password: this.form.password,
-                        fname: this.form.firstName,
-                        lname: this.form.lastName,
-                        email: this.form.email
+                        firstname: this.form.firstName,
+                        lastname: this.form.lastName,
                     }
                 );
-                this.$router.push("/Login");
+                if(response.status === 200){
+                    this.$root.toast(
+                        "successful",
+                        "User successfully logged in",
+                        "success"
+                    );
+                    this.$router.push("/Login");
+                }else{
+                    this.form.submitError = response.data.message;   
+                }
             } catch (err) {
-                if (err.response.status === 400)
-                    this.form.submitError = 'Username already taken!';
-                else
-                    this.form.submitError = 'An error occurd with the server';
+                this.form.submitError = err.response.data.message;
             }
         },
         onRegister() {
-            console.log("register method called");
             this.$v.form.$touch();
             if (this.$v.form.$anyError) {
                 return;
@@ -187,7 +169,8 @@ export default {
                 lastName: "Reyes",
                 password: "aA123456!",
                 confirmedPassword: "aA123456!",
-                email: "reyes@post.bgu.ac.il"
+                email: "reyes@post.bgu.ac.il",
+                submitError: undefined
             };
             this.$nextTick(() => {
                 this.$v.$reset();

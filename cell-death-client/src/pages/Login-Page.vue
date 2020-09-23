@@ -3,19 +3,19 @@
     <h1 class="title">Login</h1>
     <b-form @submit.prevent="onLogin">
       <b-form-group
-        id="input-group-Username"
+        id="input-group-email"
         label-cols-sm="3"
-        label="Username:"
-        label-for="Username"
+        label="Email:"
+        label-for="Email"
       >
         <b-form-input
-          id="Username"
-          v-model="$v.form.username.$model"
+          id="Email"
+          v-model="$v.form.email.$model"
           type="text"
-          :state="validateState('username')"
+          :state="validateState('email')"
         ></b-form-input>
         <b-form-invalid-feedback>
-          Username is required
+          email is required
         </b-form-invalid-feedback>
       </b-form-group>
 
@@ -69,7 +69,7 @@ export default {
   data() {
     return {
       form: {
-        username: "",
+        email: "",
         password: "",
         submitError: undefined,
       },
@@ -77,7 +77,7 @@ export default {
   },
   validations: {
     form: {
-      username: {
+      email: {
         required,
       },
       password: {
@@ -94,9 +94,9 @@ export default {
       try {
         this.axios.defaults.withCredentials = true;
         const response = await this.axios.post(
-          this.API_BASE+"/users/login",
+          this.$root.API_BASE+"/Login",
           {
-            username: this.form.username,
+            email: this.form.email,
             password: this.form.password,
           }
         );
@@ -106,23 +106,12 @@ export default {
             "User successfully logged in",
             "success"
           );
-          this.$root.store.login(this.form.username);
-          this.axios
-            .get(this.API_BASE+"/users/image")
-            .then((result) => {
-              this.$root.store.setImage(result.data.img);
-            })
-            .catch((err) => {
-              console.log(err);
-              this.$root.store.setImage("");
-            });
-          sessionStorage["MealCount"] = 0;
-          sessionStorage["Meal"] = JSON.stringify([])
+          this.$root.store.login(this.form.email);
           this.$router.push("/");
         } else {
           this.$root.toast(
             "Invalid credentials",
-            "Username or password are incorrect",
+            "email or password are incorrect",
             "danger"
           );
         }
@@ -130,7 +119,7 @@ export default {
         console.log(err);
         this.$root.toast(
           "Invalid credentials",
-          "Username or password are incorrect",
+          "email or password are incorrect",
           "danger"
         );
       }

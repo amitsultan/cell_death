@@ -10,9 +10,7 @@ const data = require("./routes/data");
 var app = express();
 var port = 8081;
 
-//parse application/x-www-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
-//parse application/json
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //settings cors

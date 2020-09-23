@@ -12,6 +12,7 @@
     "bootstrap-vue": "^2.15.0",
     "core-js": "^3.6.5",
     "jquery": "^3.5.1",
+    "tiff": "^4.2.0",
     "vue": "^2.6.11",
     "vue-avatar": "^2.3.0",
     "vue-axios": "^2.1.5",
