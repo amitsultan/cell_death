@@ -23,7 +23,6 @@ var router = express.Router();
 
 router.get("/getImageById/:experimentId/:imageId", (req, res) => {
   try{
-    const fs = require('fs');
     const experimentId = req.params.experimentId;
     const imageId = req.params.imageId;
     const path = "..data/" + experimentId + '/' + imageId + '.png';
