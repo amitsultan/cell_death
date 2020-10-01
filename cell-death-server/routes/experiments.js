@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
-
+const neatCsv = require('neat-csv');
+const { Time } = require("mssql");
 // router.use(function (req, res, next) {
 //     if (req.session && req.session.user_id) {
 //       DButils.execQuery("SELECT user_id FROM dbo.users")
@@ -20,18 +21,15 @@ var router = express.Router();
 //     }
 //   });
 
-
 router.get("/getImageById/:experimentId/:imageId", (req, res) => {
-  try{
+  try {
     const experimentId = req.params.experimentId;
     const imageId = req.params.imageId;
-    const path = "..data/" + experimentId + '/' + imageId + '.png';
+    const path = "..data/" + experimentId + "/" + imageId + ".png";
     res.status(200).sendFile(path);
+  } catch (err) {
+    res.status(500).send("Unable to get image");
   }
-  catch(err){
-    res.status(500).send("Unable to get image")
-  }
-
 });
 
 // router.get("/getImages/:experimentId/:numberOfImages", (req, res) => {
@@ -52,16 +50,15 @@ router.get("/getImageById/:experimentId/:imageId", (req, res) => {
 //     //get first $numberOfImages images
 //     for(var i=0; i<numberOfImages;i++){
 //       listOfImages.push(path+'/'+files[i]);
-//     } 
+//     }
 //     //get csv file?
 //     res.status(200).send(listOfImages)
 //     return listOfImages
 //   });
-  
+
 //   res.status(200).send(listOfImages)
 
 // });
-
 
 // router.get("/saveData", (req, res) => {
 
@@ -69,48 +66,60 @@ router.get("/getImageById/:experimentId/:imageId", (req, res) => {
 
 router.get("/getExperiments", (req, res) => {
   var listOfDirectories = [];
-  const fs = require('fs');
+  const fs = require("fs");
 
-  const directoryPath = "../data";//change according to local path
+  const directoryPath = "../data"; //change according to local path
   fs.readdir(directoryPath, function (err, files) {
     //handling error
     if (err) {
-      res.status(500).send('Unable to get experiments');
-    } 
+      res.status(500).send("Unable to get experiments");
+    }
     //listing all files using forEach
     files.forEach(function (file) {
-        listOfDirectories.push(file); 
-      });
-    res.status(200).send(listOfDirectories)
+      listOfDirectories.push(file);
+    });
+    res.status(200).send(listOfDirectories);
   });
 });
-//!!!!!make sure that the image id is the same as frame id!!!!!
-router.get("/getCsvDataById/:experimentId/:imageId", (req, res) => {
-  try{
-    const csv = require('csv-parser');
-    const fs = require('fs');
+
+//important!!! make sure that the image id is the same as frame id!!!!!
+router.get("/getCsvDataById/:experimentId/:frameId", (req, res) => {
+  try {
     const experimentId = req.params.experimentId;
-    const imageId = req.params.imageId;
-    const path = "..data/" + experimentId + '/' + experimentId + '.csv';
+    const frameId = req.params.frameId;
+
+    var fs = require('fs');
+    var $ = jQuery = require('jquery');
+    $.csv = require('jquery-csv');
+    const path = "C:/Users/yarin/Documents/GitHub/cell_death/data/1/1.csv" //change path
     var listOfData = [];
-
-    fs.createReadStream(path)
-      .pipe(csv())
-      .on('data', (row) => {
-        var record = row.split(",");
-        if(record[3] === imageId)
-          listOfData.push(row);
+    fs.readFile(path, 'UTF-8', function (err, csv) {
+      $.csv.toArrays(csv, {}, function (err, data) {
+        for (var i = 0, len = data.length; i < len; i++) {
+          if (data[i][3] === frameId)
+            listOfData.push(data[i]);
+        }
+      });
+       let listOfDataAfterEditing = EditListOfData(listOfData);
+       console.log(listOfDataAfterEditing);
+       res.status(200).send(listOfDataAfterEditing);   
     })
-    .on('end', () => {
-    console.log('CSV file successfully processed');
-    res.status(200).send(listOfData);
-    });
-    
-  }
-  catch(err){
+  }catch (err) {
+    console.log(err);
     res.status(500).send("Unable to get csv data");
-  }
-
+  }    
 });
+
+function EditListOfData(listOfData) {
+  return listOfData.map((row) => {  
+    return {
+      id: row[0],
+      X: row[1],
+      Y: row[2],
+      time: row[3],
+    };
+  });
+  
+}
 
 module.exports = router;
