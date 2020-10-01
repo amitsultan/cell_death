@@ -84,5 +84,33 @@ router.get("/getExperiments", (req, res) => {
     res.status(200).send(listOfDirectories)
   });
 });
+//!!!!!make sure that the image id is the same as frame id!!!!!
+router.get("/getCsvDataById/:experimentId/:imageId", (req, res) => {
+  try{
+    const csv = require('csv-parser');
+    const fs = require('fs');
+    const experimentId = req.params.experimentId;
+    const imageId = req.params.imageId;
+    const path = "..data/" + experimentId + '/' + experimentId + '.csv';
+    var listOfData = [];
+
+    fs.createReadStream(path)
+      .pipe(csv())
+      .on('data', (row) => {
+        var record = row.split(",");
+        if(record[3] === imageId)
+          listOfData.push(row);
+    })
+    .on('end', () => {
+    console.log('CSV file successfully processed');
+    res.status(200).send(listOfData);
+    });
+    
+  }
+  catch(err){
+    res.status(500).send("Unable to get csv data");
+  }
+
+});
 
 module.exports = router;
