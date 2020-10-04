@@ -1,16 +1,8 @@
 var express = require("express");
 var router = express.Router();
-const fs = require("fs");
 const bcrypt = require("bcrypt");
-var ConvertTiff = require("tiff-to-png");
 var DButils = require('../DB/DButils')
 
-
-var options = {
-  logLevel: 1,
-};
-
-var converter = new ConvertTiff(options);
 
 router.post("/Register", async (req, res, next) => {
     // missing parameters
@@ -85,29 +77,4 @@ router.post("/Login", async (req, res, next) => {
   }
 });
 
-router.get("/img", async (req, res, next) => {
-  let serial = req.query.serial
-  let location = "../data/" + serial + "/images/";
-  let save_location = "../data/"+serial+"/images/images_png";
-  fs.readdir("../data/"+serial+"/images", (err, files) => {
-    if(err){
-      console.log(err)
-      res.status(500).send('No files found for given serial')
-    }else{
-      // Filter tif files from others
-      let tif_array = []
-      const tifFiles = files.filter((el) => /\.tif$/.test(el));
-      tifFiles.forEach((file) => {
-        tif_array.push((location+file));
-      });
-      converter.convertArray(tif_array, save_location).then((data) => {
-          console.log(data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      res.send('okey')
-    }
-  });
-});
 module.exports = router;
