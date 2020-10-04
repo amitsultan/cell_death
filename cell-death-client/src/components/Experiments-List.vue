@@ -1,20 +1,29 @@
 <template>
-  <div class="list-container shadow-lg p-3 mb-5 bg-white rounded">
-    <h6 class='list-title'>Experiments</h6>
-    <ul class='list'>
-        <li v-for="exp in experiments" :key="exp.serial">
-            {{exp}}
-        </li>
-    </ul>
-  </div>
+    <div class="list-container shadow-lg p-3 mb-5 bg-white rounded">
+      <h6 class='list-title'>Experiments</h6>
+      <ul class='list'>
+          <li v-for="exp in experiments" :key="exp.serial" v-on:click='experimentOnClick'> 
+            <span>{{ exp }}</span>
+          </li>
+      </ul>
+    </div>
 </template>
 
 <script>
 export default {
   name: 'HelloWorld',
+  data(){
+      return{
+    }
+  },
   props:{
       experiments: Array
-}
+},methods:{
+        experimentOnClick(event){
+          let experiment = event.target.innerText
+          this.$emit('clicked',experiment)
+        }
+    }
 }
 </script>
 
