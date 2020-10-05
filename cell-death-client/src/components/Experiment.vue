@@ -1,6 +1,6 @@
 <template>
 <div class='Experiment-container'>
-    {{this.marks}}<br>
+    <!-- for seeing {{this.marks}}<br> -->
     {{this.mark.x}} {{this.mark.y}}
     <br>
     <div class='outsideWrapper'>
