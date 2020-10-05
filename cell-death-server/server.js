@@ -6,13 +6,13 @@ const cors = require("cors");
 //routes import
 const auth = require("./routes/auth");
 const data = require("./routes/data");
+const experiments = require("./routes/experiments");
+
 
 var app = express();
 var port = 8081;
 
-//parse application/x-www-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
-//parse application/json
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //settings cors
@@ -27,6 +27,7 @@ app.options("*", cors(corsConfig));
 
 app.use("/data", data);
 app.use(auth);
+app.use("/experiments", experiments);
 
 app.use(function (err, req, res, next) {
   console.error(err);

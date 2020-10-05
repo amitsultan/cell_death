@@ -1,0 +1,91 @@
+:root {
+  --main-button-strips: rgb(0,0,0,0.3);
+}
+
+/*** VARIABLES ***/
+/* Colors */
+$black: #1d1f20;
+$blue: #83e4e2;
+$green: #a2ed56;
+$yellow: #fddc32;
+$white: #fafafa;
+$width: 5px;
+// $white: #fff;
+.btn{
+    cursor:pointer;
+        position:relative;
+        padding:10px 20px;
+        font-size:28px;
+        border-top-right-radius:10px;
+        border-bottom-left-radius:10px;
+        transition:all 1s;
+        &:after,&:before{
+            content:" ";
+            width:10px;
+            height:10px;
+            position:absolute;
+            border :0px solid white;
+            transition:all 1s;
+            }
+        &:after{
+            top:-1px;
+            left:-1px;
+            border-top:$width solid var(--main-button-strips);
+            border-left:$width solid var(--main-button-strips);
+        }
+        &:before{
+            bottom:-1px;
+            right:-1px;
+            border-bottom:$width solid var(--main-button-strips);
+            border-right:$width solid var(--main-button-strips);
+
+        }
+        &:hover{
+          transition:border-radius 1.5s;
+          border-top-right-radius:1px;
+          border-bottom-left-radius:1px;
+            // background:rgba(0,0,0,.5);
+            color:$white;
+            &:before,&:after{                
+                width:101%;
+                height:93%;
+                // border-color:white;
+            }
+        }
+}
+
+/*** FONTS ***/
+@import url(https://fonts.googleapis.com/css?family=Montserrat:900|Raleway:400,400i,700,700i);
+@import url('https://fonts.googleapis.com/css?family=Fredericka+the+Great|Zilla+Slab:300,400');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@700&display=swap');
+
+*{
+font-family: 'Open Sans Condensed', sans-serif;
+}
+
+
+/*** STYLE ***/
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: $white;
+  color: $black;
+  font-family: 'Raleway', sans-serif;
+}
+
+main {
+  display: block;
+  margin: 0 auto;
+  max-width: 40rem;
+  padding: 1rem;
+}
