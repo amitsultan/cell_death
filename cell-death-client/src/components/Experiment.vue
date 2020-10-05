@@ -1,30 +1,36 @@
 <template>
 <div class='Experiment-container'>
-    <div class="menu">
-        <div class="menu-item" v-on:click="test()">New</div>
-        <hr>
-        <div class="menu-item" value='1'>Type 1</div>
-        <div class="menu-item">Type 2</div>
-        <div class="menu-item">Type 3</div>
-        <div class="menu-item" v-on:click="newMark()">Unclassified</div>
-        <hr>
-        <div class="menu-item" v-on:click="test()">Remove</div>
-    </div>
     {{this.mark.x}} {{this.mark.y}}
     <br>
+    <div class='progress-bar' style="margin-left: 120px;">
+        <b-progress v-if='src' :max="details.num_pictures"  variant="success" striped :animated="true">
+        <b-progress-bar :value="current" :label="current+'/'+details.num_pictures"></b-progress-bar>
+        </b-progress>
+    </div>
+    <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
     <div class='outsideWrapper'>
-        <b-button class='prev-button'>
+        <b-button class='prev-button' v-on:click='onPrev'>
             Prev
         </b-button>
         <div class='insideWrapper'>
             <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
         </div>
-        <b-button class='next-button'>
+        <b-button class='next-button' v-on:click='onNext'>
             Next
         </b-button>
     </div>
     <!-- <img id="frame" style='width: 600px; height: 600px;' v-bind:src="src"> -->
     <!-- <img id="frame2" src="..\assets\image.png">--> -->
+    <div class="menu">
+        <div class="menu-item">New</div>
+        <hr>
+        <div class="menu-item" v-on:click="menuType=1">Type 1</div>
+        <div class="menu-item" v-on:click="menuType=2">Type 2</div>
+        <div class="menu-item" v-on:click="menuType=3">Type 3</div>
+        <div class="menu-item" v-on:click="menuType='-'">Unclassified</div>
+        <hr>
+        <div class="menu-item">Remove</div>
+    </div>
 </div>
 </template>
 
@@ -37,54 +43,72 @@ export default {
             x: 0,
             y: 0
         },
+        pause_mark: {
+            x: 0,
+            y: 0
+        },
         image: null,
         color: "white",
+        prev: null,
         src: null,
+        next: null,
         height: 600,
-        width: 600
+        width: 600,
+        current: null,
+        menuDisplayed: false,
+        menuType: 1,
+        details: null
     }),
     props: {
         id: String,
         marks: Array,
         type: Number
     },
-    methods: {
-        onKeyPress(e) {
-            let flag = false;
-            if (e.keyCode == 192) {
-                this.type = "-";
-                flag = true;
-            } else if (e.keyCode == 49) {
-                this.type = 1;
-                flag = true;
-            } else if (e.keyCode == 50) {
-                this.type = 2;
-                flag = true;
-            } else if (e.keyCode == 51) {
-                this.type = 3;
-                flag = true;
+    methods: {hideMenuDisplayed(e) {
+            if (this.menuDisplayed == true) {
+                window.document.querySelector(".menu").style.display = "none";
             }
-            if (flag) {
-                const mark = {
-                    number: this.counter++,
-                    x: this.mark.x,
-                    y: this.mark.y,
-                    type: this.type,
-                    color: this.typeColor(this.type)
+            this.menuDisplayed = false;
+        },
+        menuContext(e) {
+            let left = e.clientX;
+            let top = e.clientY;
+            this.pause_mark.x = e.offsetX;
+            this.pause_mark.y = e.offsetY;
+            let menuBox = window.document.querySelector(".menu");
+            menuBox.style.left = left + "px";
+            menuBox.style.top = top + "px";
+            menuBox.style.display = "block";
+            arguments[0].preventDefault();
+            this.menuDisplayed = true;
+        },
+        menuItemClick(e) {
+            if (this.menuDisplayed) return;
+            this.menuDisplayed = false;
+            let newMark = {
+                number: this.counter++,
+                x: this.pause_mark.x,
+                y: this.pause_mark.y,
+                type: this.menuType,
+                color: this.typeColor(this.menuType)
+            }
+            this.marks.push(newMark)
+            this.draw()
+        },updateImage: async function(){
+            try{
+                let canvas = document.getElementById('frameCanvas'),
+                context = canvas.getContext('2d');
+                let base_image = new Image();
+                base_image.src = this.src;
+                let height = this.height
+                let width = this.width
+                base_image.onload = function(){
+                    context.drawImage(base_image, 0, 0, width, height);
                 }
-                this.marks.push(mark)
-                this.draw()
-            }
-
-        },updateImage(){
-            let canvas = document.getElementById('frameCanvas'),
-            context = canvas.getContext('2d');
-            let base_image = new Image();
-            base_image.src = this.src;
-            base_image.onload = function(){
-                context.drawImage(base_image, 0, 0,this.height,this.width);
-            }
-            base_image.onerror = function(e) {
+                base_image.onerror = function(e) {
+                    return Error(e)
+                }
+            }catch(error){                
                 this.$root.toast(
                     "Failed to load image",
                     "Image failed to load, try again later",
@@ -97,7 +121,7 @@ export default {
             this.mark.y = e.offsetY;
         },
         onMouseClick(e) {
-            console.log('clicked')
+            if (this.menuDisplayed == true) return;
             let canvas = document.getElementById("frameCanvas");
             let x = e.x - canvas.offsetLeft;
             let y = e.y - canvas.offsetTop;
@@ -111,10 +135,8 @@ export default {
                 color: this.typeColor(this.type)
             }
             this.marks.push(mark)
+            this.menuDisplayed = true;
             this.draw()
-        },
-        test() {
-            alert("test")
         },
         typeColor(type) {
             if (type == 1) {
@@ -141,83 +163,149 @@ export default {
                 ctx.stroke();
             })
         },
+        fetchCurrentImage: function(number){
+            return new Promise((resolve, reject)=>{
+                console.log('started')
+                let config = {
+                    url: this.$root.API_BASE + '/experiments/getImageById/'+this.id+'/'+number,
+                    method: 'GET',
+                    responseType: 'blob'
+                }
+                this.axios(config)
+                .then((response) => {
+                    let reader = new FileReader();
+                    reader.readAsDataURL(response.data); 
+                    reader.onload = () => {
+                        resolve(reader.result)
+                    }
+                    reader.onerror = (err) => {
+                        reject(err)
+                    }
+                });
+            })
+        },onPrev(){
+            if(this.current > 1 ){
+                this.current--
+                this.fetchCurrentImage(this.current).then((result)=>{
+                    this.marks = []
+                    this.counter = 2
+                    this.next = this.src
+                    this.src = this.prev
+                    this.prev = result
+                    this.updateImage()
+                }).catch((error)=>{
+                    this.$root.toast(
+                        "Image loading Failed",
+                        "Failed to fetch image from server",
+                        "danger"
+                    );
+                })
+            }else{
+                this.$root.toast(
+                    "Reached timelapse start!",
+                    "No more pictures to load!",
+                    "danger"
+                );
+            }
+        },
+        onNext(){
+            // load next picture
+            if(this.current < this.details.num_pictures){
+                this.current++
+                this.fetchCurrentImage(this.current).then((result)=>{
+                    this.marks = []
+                    this.counter = 2
+                    this.prev = this.src
+                    this.src = this.next
+                    this.next = result
+                    this.updateImage()
+                }).catch((error)=>{
+                    this.$root.toast(
+                        "Image loading Failed",
+                        "Failed to fetch image from server",
+                        "danger"
+                    );
+                })
+            } else {
+                this.$root.toast(
+                    "Reached max!",
+                    "No more pictures to load!",
+                    "danger"
+                );
+            }
+        }
     },
     async created() {
         this.image = new Image();
         // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
     async beforeMount(){
+        this.current = 1
+        this.fetchCurrentImage(this.current).then((result)=>{
+            this.src = result
+            this.updateImage()
+        }).catch((error)=>{
+            this.$root.toast(
+                "Image loading Failed",
+                "Failed to fetch image from server",
+                "danger"
+            );
+        })
+        this.fetchCurrentImage(this.current + 1).then((result)=>{
+            this.next = result
+        }).catch((error)=>{
+            this.$root.toast(
+                "Image loading Failed",
+                "Failed to fetch image from server",
+                "danger"
+            );
+        })
+        // this.src = result;
+        // this.updateImage()
         let config = {
-            // example url
-            url: this.$root.API_BASE + '/experiments/getImageById/'+this.id+'/1',
-            method: 'GET',
-            responseType: 'blob'
+            url: this.$root.API_BASE + "/experiments/getDetails/"+this.id,
+            method: 'GET'
         }
-        this.axios(config)
-          .then((response) => {
-              let reader = new FileReader();
-              reader.readAsDataURL(response.data); 
-              reader.onload = () => {
-                  this.src = reader.result;
-                  this.updateImage()
-              }
-          });
+        this.axios(config).then((response) =>{
+            if(response.status && response.status === 200){
+                this.details = response.data
+            }else{
+                this.$root.toast(
+                    "Error occurred",
+                    "Couldn't fatch experiment details",
+                    "danger"
+                );
+            }
+        })
     },
     async mounted() {
         let canvas = document.getElementById("frameCanvas");
         let ctx = canvas.getContext("2d");
         let items = document.getElementsByClassName("menu-item");
-        let menuDisplayed = false;
-        let menuBox = null;
+        this.menuDisplayed = false;
+        let menuBox = window.document.querySelector(".menu");
         document.addEventListener('mousemove', this.onMouseUpdate, false);
         canvas.addEventListener('click', this.onMouseClick, false);
-        document.addEventListener('keydown', this.onKeyPress, true);
+        // document.addEventListener('keydown', this.onKeyPress, true);
         this.draw()
         //var img = document.getElementById("frame2");
         //console.log(img)
         //ctx.drawImage(img, 30, 30, 100, 100);
 
-        canvas.addEventListener("contextmenu", function () {
-            let left = arguments[0].clientX;
-            let top = arguments[0].clientY;
-
-            menuBox = window.document.querySelector(".menu");
-            menuBox.style.left = left + "px";
-            menuBox.style.top = top + "px";
-            menuBox.style.display = "block";
-
-            arguments[0].preventDefault();
-
-            menuDisplayed = true;
-        }, false);
+        canvas.addEventListener("contextmenu", this.menuContext, false);
         items.forEach((item) => {
-            item.addEventListener("click", function () {
-                let left = arguments[0].clientX;
-                let top = arguments[0].clientY;
-                let newMark = {
-                    number: this.counter++,
-                    x: left,
-                    y: top,
-                    type: this.type,
-                    color: this.typeColor(this.type)
-                }
-                this.marks.push(newMark)
-            }, true)
+            item.addEventListener("click", this.menuItemClick, false)
         })
-        window.addEventListener("click", function () {
-            if (menuDisplayed == true) {
-                menuBox.style.display = "none";
-            }
-        }, true);
+        window.addEventListener("click", this.hideMenuDisplayed, true);
     },
 }
 </script>
 
 <style>
 .menu {
-    background-color: "white";
-    opacity: 1;
-    width: 150px;
+    background-color: white;
+    opacity: 0.85;
+    width: 160px;
     box-shadow: 3px 3px 5px #888888;
     border-style: solid;
     border-width: 1px;
@@ -233,9 +321,14 @@ export default {
 }
 
 .menu-item {
-    background-color: "white";
+    background-color: white;
     opacity: 1;
-    height: 20px;
+    height: max-content;
+    font-size: 16px;
+}
+hr{
+    margin-top: 3px;
+    margin-bottom: 3px;
 }
 
 .menu-item:hover {
@@ -271,5 +364,9 @@ export default {
     float: right;
     height: 50px;
     width: 100px;
+}
+.progress-bar{
+    background-color: white;
+    width: 600px;
 }
 </style>
