@@ -1,15 +1,6 @@
 <template>
 <div class='Experiment-container'>
-    <div class="menu">
-        <div class="menu-item" v-on:click="test()">New</div>
-        <hr>
-        <div class="menu-item" value='1'>Type 1</div>
-        <div class="menu-item">Type 2</div>
-        <div class="menu-item">Type 3</div>
-        <div class="menu-item" v-on:click="newMark()">Unclassified</div>
-        <hr>
-        <div class="menu-item" v-on:click="test()">Remove</div>
-    </div>
+    {{this.marks}}<br>
     {{this.mark.x}} {{this.mark.y}}
     <br>
     <div class='outsideWrapper'>
@@ -24,7 +15,17 @@
         </b-button>
     </div>
     <!-- <img id="frame" style='width: 600px; height: 600px;' v-bind:src="src"> -->
-    <!-- <img id="frame2" src="..\assets\image.png">--> -->
+    <!-- <img id="frame2" src="..\assets\image.png">-->
+    <div class="menu">
+        <div class="menu-item" v-on:click="test()">New</div>
+        <hr>
+        <div class="menu-item" v-on:click="menuType=1">Type 1</div>
+        <div class="menu-item" v-on:click="menuType=2">Type 2</div>
+        <div class="menu-item" v-on:click="menuType=3">Type 3</div>
+        <div class="menu-item" v-on:click="menuType='-'">Unclassified</div>
+        <hr>
+        <div class="menu-item" v-on:click="test()">Remove</div>
+    </div>
 </div>
 </template>
 
@@ -37,11 +38,17 @@ export default {
             x: 0,
             y: 0
         },
+        pause_mark: {
+            x: 0,
+            y: 0
+        },
         image: null,
         color: "white",
         src: null,
         height: 600,
-        width: 600
+        width: 600,
+        menuDisplayed: false,
+        menuType: 1,
     }),
     props: {
         id: String,
@@ -49,19 +56,52 @@ export default {
         type: Number
     },
     methods: {
+        hideMenuDisplayed(e) {
+            if (this.menuDisplayed == true) {
+                window.document.querySelector(".menu").style.display = "none";
+            }
+            this.menuDisplayed = false;
+        },
+        menuContext(e) {
+            let left = e.clientX;
+            let top = e.clientY;
+            this.pause_mark.x = e.offsetX;
+            this.pause_mark.y = e.offsetY;
+            let menuBox = window.document.querySelector(".menu");
+            menuBox.style.left = left + "px";
+            menuBox.style.top = top + "px";
+            menuBox.style.display = "block";
+
+            arguments[0].preventDefault();
+
+            this.menuDisplayed = true;
+        },
+        menuItemClick(e) {
+            if (this.menuDisplayed) return;
+            this.menuDisplayed = false;
+            let newMark = {
+                number: this.counter++,
+                x: this.pause_mark.x,
+                y: this.pause_mark.y,
+                type: this.menuType,
+                color: this.typeColor(this.menuType)
+            }
+            this.marks.push(newMark)
+            this.draw()
+        },
         onKeyPress(e) {
             let flag = false;
             if (e.keyCode == 192) {
-                this.type = "-";
+                this.menuType = "-";
                 flag = true;
             } else if (e.keyCode == 49) {
-                this.type = 1;
+                this.menuType = 1;
                 flag = true;
             } else if (e.keyCode == 50) {
-                this.type = 2;
+                this.menuType = 2;
                 flag = true;
             } else if (e.keyCode == 51) {
-                this.type = 3;
+                this.menuType = 3;
                 flag = true;
             }
             if (flag) {
@@ -69,22 +109,23 @@ export default {
                     number: this.counter++,
                     x: this.mark.x,
                     y: this.mark.y,
-                    type: this.type,
-                    color: this.typeColor(this.type)
+                    type: this.menuType,
+                    color: this.typeColor(this.menuType)
                 }
                 this.marks.push(mark)
                 this.draw()
             }
 
-        },updateImage(){
+        },
+        updateImage() {
             let canvas = document.getElementById('frameCanvas'),
-            context = canvas.getContext('2d');
+                context = canvas.getContext('2d');
             let base_image = new Image();
             base_image.src = this.src;
-            base_image.onload = function(){
-                context.drawImage(base_image, 0, 0,this.height,this.width);
+            base_image.onload = function () {
+                context.drawImage(base_image, 0, 0, this.height, this.width);
             }
-            base_image.onerror = function(e) {
+            base_image.onerror = function (e) {
                 this.$root.toast(
                     "Failed to load image",
                     "Image failed to load, try again later",
@@ -97,7 +138,7 @@ export default {
             this.mark.y = e.offsetY;
         },
         onMouseClick(e) {
-            console.log('clicked')
+            if (this.menuDisplayed == true) return;
             let canvas = document.getElementById("frameCanvas");
             let x = e.x - canvas.offsetLeft;
             let y = e.y - canvas.offsetTop;
@@ -111,6 +152,7 @@ export default {
                 color: this.typeColor(this.type)
             }
             this.marks.push(mark)
+            this.menuDisplayed = true;
             this.draw()
         },
         test() {
@@ -146,29 +188,29 @@ export default {
         this.image = new Image();
         // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
-    async beforeMount(){
+    async beforeMount() {
         let config = {
             // example url
-            url: this.$root.API_BASE + '/experiments/getImageById/'+this.id+'/1',
+            url: this.$root.API_BASE + '/experiments/getImageById/' + this.id + '/1',
             method: 'GET',
             responseType: 'blob'
         }
         this.axios(config)
-          .then((response) => {
-              let reader = new FileReader();
-              reader.readAsDataURL(response.data); 
-              reader.onload = () => {
-                  this.src = reader.result;
-                  this.updateImage()
-              }
-          });
+            .then((response) => {
+                let reader = new FileReader();
+                reader.readAsDataURL(response.data);
+                reader.onload = () => {
+                    this.src = reader.result;
+                    this.updateImage()
+                }
+            });
     },
     async mounted() {
         let canvas = document.getElementById("frameCanvas");
         let ctx = canvas.getContext("2d");
         let items = document.getElementsByClassName("menu-item");
-        let menuDisplayed = false;
-        let menuBox = null;
+        this.menuDisplayed = false;
+        let menuBox = window.document.querySelector(".menu");
         document.addEventListener('mousemove', this.onMouseUpdate, false);
         canvas.addEventListener('click', this.onMouseClick, false);
         document.addEventListener('keydown', this.onKeyPress, true);
@@ -177,46 +219,18 @@ export default {
         //console.log(img)
         //ctx.drawImage(img, 30, 30, 100, 100);
 
-        canvas.addEventListener("contextmenu", function () {
-            let left = arguments[0].clientX;
-            let top = arguments[0].clientY;
-
-            menuBox = window.document.querySelector(".menu");
-            menuBox.style.left = left + "px";
-            menuBox.style.top = top + "px";
-            menuBox.style.display = "block";
-
-            arguments[0].preventDefault();
-
-            menuDisplayed = true;
-        }, false);
+        canvas.addEventListener("contextmenu", this.menuContext, false);
         items.forEach((item) => {
-            item.addEventListener("click", function () {
-                let left = arguments[0].clientX;
-                let top = arguments[0].clientY;
-                let newMark = {
-                    number: this.counter++,
-                    x: left,
-                    y: top,
-                    type: this.type,
-                    color: this.typeColor(this.type)
-                }
-                this.marks.push(newMark)
-            }, true)
+            item.addEventListener("click", this.menuItemClick, false)
         })
-        window.addEventListener("click", function () {
-            if (menuDisplayed == true) {
-                menuBox.style.display = "none";
-            }
-        }, true);
+        window.addEventListener("click", this.hideMenuDisplayed, true);
     },
 }
 </script>
 
 <style>
 .menu {
-    background-color: "white";
-    opacity: 1;
+    background-color: white;
     width: 150px;
     box-shadow: 3px 3px 5px #888888;
     border-style: solid;
@@ -233,41 +247,45 @@ export default {
 }
 
 .menu-item {
-    background-color: "white";
-    opacity: 1;
+    background-color: white;
     height: 20px;
 }
 
 .menu-item:hover {
-    opacity: 1;
     background-color: #6CB5FF;
     cursor: pointer;
 }
-.Experiment-container{
+
+.Experiment-container {
     width: 50%;
     margin: 0 auto;
 }
-.outsideWrapper{
-    margin-top:50px;
+
+.outsideWrapper {
+    margin-top: 50px;
     display: flex;
     align-items: center;
     height: max-content;
 }
-.insideWrapper{
+
+.insideWrapper {
     height: max-content;
     width: max-content;
 }
-.Experiment-canvas{
-    border:1px solid #d3d3d3;
+
+.Experiment-canvas {
+    border: 1px solid #d3d3d3;
 }
-.prev-button{
-    margin-right:20px;
+
+.prev-button {
+    margin-right: 20px;
     float: left;
     height: 50px;
     width: 100px;
 }
-.next-button{
-    margin-left:20px;
+
+.next-button {
+    margin-left: 20px;
     float: right;
     height: 50px;
     width: 100px;
