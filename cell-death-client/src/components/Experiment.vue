@@ -15,6 +15,7 @@
         <div class='insideWrapper'>
             <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
         </div>
+        
         <b-button class='next-button' v-on:click='onNext'>
             Next
         </b-button>
