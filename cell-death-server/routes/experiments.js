@@ -6,6 +6,8 @@ var ConvertTiff = require("tiff-to-png");
 const dataDirectory = "../data";
 var $ = jQuery = require('jquery');
 $.csv = require('jquery-csv');
+const fileUpload = require('express-fileupload');
+router.use(fileUpload());
 
 var options = {
   logLevel: 0,
@@ -152,24 +154,58 @@ router.get("/getCsvDataById/:experimentId/:frameId", (req, res) => {
   try {
     const experimentId = req.params.experimentId;
     const frameId = req.params.frameId;
-    const path = "../data/" + experimentId + "/" + experimentId + ".csv";//not sure if this is the right path
+
+    const path = "../data/" + experimentId + "/" + experimentId + ".csv";
     var listOfData = [];
-    fs.readFile(path, 'UTF-8', function (err, csv) {
-      $.csv.toArrays(csv, {}, function (err, data) {
-        for (var i = 0, len = data.length; i < len; i++) {
-          if (data[i][3] === frameId)
-            listOfData.push(data[i]);
-        }
-      });
-      let listOfDataAfterEditing = EditListOfData(listOfData);
-      console.log(listOfDataAfterEditing);
-      res.status(200).send(listOfDataAfterEditing);
-    })
+    fs.readFile(path, "UTF-8", function (err, csv) {
+      if(err){
+        console.log(err)
+        res.status(500).send("Unable to get data");
+      }
+      else{
+        $.csv.toArrays(csv, {}, function (err, data) {
+          if(err){
+            console.log(err)
+            res.status(500).send("Unable to get data");
+          }
+          else{
+            for (var i = 0, len = data.length; i < len; i++) {
+              if (data[i][3] === frameId) listOfData.push(data[i]);
+            }
+          }
+        });
+        let listOfDataAfterEditing = EditListOfData(listOfData);
+        console.log(listOfDataAfterEditing);
+        res.status(200).send(listOfDataAfterEditing);
+      }
+    });
   } catch (err) {
     console.log(err);
     res.status(500).send("Unable to get csv data");
   }
 });
 
+
+// Reciving file should be located under projectRar name.
+router.post('/uploadProject', (req, res) => {
+  console.log(req)
+  if (!req.files) {
+    return res.status(500).send({ msg: "file is not found"})
+  }
+  // accessing the file
+  const myFile = req.files.projectRar;
+  if (!req.files.projectRar){
+    return res.status(500).send({ msg: "No file found under rar" });
+  }
+    //  mv() method places the file inside public directory
+    myFile.mv(`../data/${myFile.name}`, function (err) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send({ msg: "Error occured" });
+      }
+      // returing the response with file path and name
+      return res.status(200).send({ msg: 'Project rar successfully saved!', success: true });
+    });
+})
 
 module.exports = router;
