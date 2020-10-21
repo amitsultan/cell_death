@@ -1,5 +1,5 @@
 {
-  "name": "assignment-3-3",
+  "name": "cell-death-client",
   "version": "1.0.0",
   "scripts": {
     "serve": "vue-cli-service serve",
