@@ -27,5 +27,7 @@
     "readable-stream": "^3.6.0",
     "tedious": "^9.2.1",
     "tiff-to-png": "^2.0.2"
+    
   }
+
 }
