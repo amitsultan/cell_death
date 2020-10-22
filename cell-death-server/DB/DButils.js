@@ -62,10 +62,26 @@ exports.userByEmail = async function (email) {
                 reject(err);
             }
             if (rows === undefined) {
-                reject(new Error("Error rows is undefined"));
+                reject(new Error("Error: rows is undefined"));
             } else {
                 resolve(rows);
             }
         })
     })
+}
+
+exports.experimentDetails = async function (experimentID) {
+  return new Promise(function (resolve, reject){
+    let query = "SELECT * FROM experiments WHERE experiment_id = "+ con.escape(experimentID);
+    con.query(query, function (err, rows){
+      if(err){
+        reject(err);
+      }
+      if(rows === undefined){
+        reject(new Error("Error: rows is undefined"));
+      } else {
+        resolve(rows);
+      }
+    })
+  })
 }

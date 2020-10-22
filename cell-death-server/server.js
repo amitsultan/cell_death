@@ -2,16 +2,48 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+var cookieParser = require("cookie-parser");
+var session = require("express-session");
+const { v4: uuidv4 } = require("uuid");
+
 
 //routes import
 const auth = require("./routes/auth");
 const experiments = require("./routes/experiments");
+
+
+
 
 var app = express();
 var port = 8081;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(
+  session({
+    user_sid: function (req) {
+      return uuidv4(); // use UUIDs for session IDs
+    },
+    key: "user_sid",
+    secret: "T4am2w1n2",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: 15 * 60 * 10,
+    },
+    unset: "destroy",
+  })
+);
+
+
+// Session middleware to check if user cookie is still saved when user is not set
+app.use((req, res, next) => {
+  if (req.cookies.user_sid && !req.session.email) {
+    res.clearCookie("user_sid");
+  }
+  next();
+});
 
 //settings cors
 const corsConfig = {
@@ -25,6 +57,7 @@ app.options("*", cors(corsConfig));
 
 app.use("/experiments", experiments);
 app.use(auth);
+app.use("/experiments", experiments);
 
 app.use(function (err, req, res, next) {
   console.error(err);
