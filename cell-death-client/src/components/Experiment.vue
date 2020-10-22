@@ -9,15 +9,17 @@
     </div>
     <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
     <div class='outsideWrapper'>
-        <b-button class='prev-button' v-on:click='onPrev'>
+        <!-- <b-button class='prev-button' v-on:click='onPrev'>
             Prev
-        </b-button>
+        </b-button> -->
+        <input type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
         <div class='insideWrapper'>
             <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
         </div>
-        <b-button class='next-button' v-on:click='onNext'>
+        <input type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
+        <!-- <b-button class='next-button' v-on:click='onNext' :src='next'>
             Next
-        </b-button>
+        </b-button> -->
     </div>
     <!-- <img id="frame" style='width: 600px; height: 600px;' v-bind:src="src"> -->
     <!-- <img id="frame2" src="..\assets\image.png">--> -->
@@ -353,17 +355,21 @@ hr{
 .Experiment-canvas{
     border:1px solid #d3d3d3;
 }
+.navigation-button{
+    height: 300px;
+    width: 300px;
+    transition: 1s;
+}
+.navigation-button:hover{
+  transform: scale(2);
+}
 .prev-button{
     margin-right:20px;
     float: left;
-    height: 50px;
-    width: 100px;
 }
 .next-button{
     margin-left:20px;
     float: right;
-    height: 50px;
-    width: 100px;
 }
 .progress-bar{
     background-color: white;

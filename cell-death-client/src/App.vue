@@ -10,10 +10,11 @@
         <b-navbar-nav>
           <b-nav-item active :to="{ name: 'Main' }">Home</b-nav-item>
           <b-nav-item :to="{ name: 'Experiments'}">Experiments</b-nav-item>
+          <b-nav-item :to="{ name: 'requestPage'}">Request-experiment</b-nav-item>
           <b-nav-item href="#">Contact</b-nav-item>
           <b-nav-item href="#">About</b-nav-item>
         </b-navbar-nav>
-
+        <!-- Modal for requesting experiemnts   -->
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
           <b-nav-form>
@@ -25,9 +26,9 @@
             <template v-slot:button-content>
               <em>User</em>
             </template>
-            <div v-if="$root.store.username">
+            <div v-if="$root.store.email">
               <b-dropdown-item href="#">Profile</b-dropdown-item>
-              <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+              <b-dropdown-item v-on:click='Logout'>Sign Out</b-dropdown-item>
             </div>
             <div v-else>
               <b-dropdown-item :to="{ name: 'login' }">Login</b-dropdown-item>
@@ -46,7 +47,16 @@
 export default {
  name: "App",
   mounted(){
-    console.log(this.$root.store.username)
+    console.log("session: "+this.$root.store.email)
+  },
+  methods:{
+    Logout() {
+        this.$root.store.logout();
+        this.$root.toast("Logout", "User logged out successfully", "success");
+        this.$router.push("/").catch(() => {
+          this.$forceUpdate();
+        });
+      },
   }
 }
 </script>

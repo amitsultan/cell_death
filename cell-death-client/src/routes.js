@@ -1,4 +1,6 @@
 import Main from "./pages/Home-Page";
+import VueRouter from "vue-router";
+
 // import NotFound from "./pages/NotFoundPage";
 
 const routes = [
@@ -22,11 +24,17 @@ const routes = [
     name: "Experiments",
     component: () => import("./pages/Experiments-Page"),
   },
+  {
+    path: "/RequestExperiment",
+    name: "requestPage",
+    component: () => import("./pages/requestExperiment-page"),
+  },
   // {
   //     path: "*",
   //     name: "notFound",
   //     component: NotFound,
   // },
 ];
+
 
 export default routes;
