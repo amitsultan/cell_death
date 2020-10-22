@@ -8,6 +8,7 @@ var $ = jQuery = require('jquery');
 $.csv = require('jquery-csv');
 const fileUpload = require('express-fileupload');
 router.use(fileUpload());
+const pythonController = require('../controllers/pythonController')
 
 var options = {
   logLevel: 0,
@@ -203,9 +204,12 @@ router.post('/uploadProject', (req, res) => {
         console.log(err);
         return res.status(500).send({ msg: "Error occured" });
       }
-      // returing the response with file path and name
+      let fileName = myFile.name;
+      // Call python to handle unrar\unzip of the project file
+      pythonController.unArchiveData(fileName)
       return res.status(200).send({ msg: 'Project rar successfully saved!', success: true });
     });
 })
 
 module.exports = router;
+exports.createPNGs = createPNGs;
