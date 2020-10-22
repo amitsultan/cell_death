@@ -1,17 +1,5 @@
 var express = require("express");
 var router = express.Router();
-const neatCsv = require("neat-csv");
-const { Time } = require("mssql");
-<<<<<<< HEAD
-var fs = require("fs");
-// var Unrar = require("unrar");
-var multer = require("multer");
-var upload = multer(); 
-const fileUpload = require('express-fileupload');
-router.use(fileUpload());
-var $ = (jQuery = require("jquery"));
-$.csv = require("jquery-csv");
-=======
 const fs = require("fs");
 var DButils = require("../DB/DButils");
 var ConvertTiff = require("tiff-to-png");
@@ -20,6 +8,7 @@ var $ = jQuery = require('jquery');
 $.csv = require('jquery-csv');
 const fileUpload = require('express-fileupload');
 router.use(fileUpload());
+const pythonController = require('../controllers/pythonController')
 
 var options = {
   logLevel: 0,
@@ -49,8 +38,6 @@ function EditListOfData(listOfData) {
 }
 
 
->>>>>>> 96033337753e1d6502fffc44c74c12323d66ad7c
-
 // router.use(function (req, res, next) {
 //     if (req.session && req.session.user_id) {
 //       DButils.execQuery("SELECT user_id FROM dbo.users")
@@ -71,46 +58,6 @@ function EditListOfData(listOfData) {
 //   });
 
 
-router.get("/getImageById/:experimentId/:imageId", (req, res) => {
-  try {
-    const experimentId = req.params.experimentId;
-    const imageId = req.params.imageId;
-    const path = "..data/" + experimentId + "/" + imageId + ".png";
-    res.status(200).sendFile(path);
-  } catch (err) {
-    res.status(500).send("Unable to get image");
-  }
-});
-
-// router.get("/getImages/:experimentId/:numberOfImages", (req, res) => {
-//   //returns $numberOfImages images from $experimentId and total number of images in the experiment
-//   const fs = require('fs');
-//   const experimentId = req.params.experimentId;
-//   const numberOfImages = req.params.numberOfImages;
-//   //open right directoriy
-//   const path = "C:/programingProjects/data/" + experimentId;
-//   var listOfImages = [];
-//   fs.readdir(path, function (err, files) {
-//     //handling error
-//     if (err) {
-//       res.status(500).send('Unable to get experiment');
-//     }
-//     //sort directory
-//     files.sort();
-//     //get first $numberOfImages images
-//     for(var i=0; i<numberOfImages;i++){
-//       listOfImages.push(path+'/'+files[i]);
-//     }
-//     //get csv file?
-//     res.status(200).send(listOfImages)
-//     return listOfImages
-//   });
-
-//   res.status(200).send(listOfImages)
-
-// });
-
-
 router.get("/nextImage/:experimentId/:imageId", (req, res) => {
   //returns the next image of the $experimentId
 });
@@ -120,31 +67,11 @@ router.get("/getImages/:experimentId/:numberOfImages", (req, res) => {
 
 });
 
-
 // router.get("/saveData", (req, res) => {
 
 // });
 
 router.get("/getExperiments", (req, res) => {
-
-  var listOfDirectories = [];
-  const fs = require("fs");
-
-  const directoryPath = "../data"; //change according to local path
-  fs.readdir(directoryPath, function (err, files) {
-    //handling error
-    if (err) {
-      res.status(500).send("Unable to get experiments");
-    }
-    //listing all files using forEach
-    files.forEach(function (file) {
-      listOfDirectories.push(file);
-    });
-    res.status(200).send(listOfDirectories);
-  });
-});
-
-
   try {
     const directories_names = getDirectories(dataDirectory);
     res.status(200).send(directories_names);
@@ -223,74 +150,12 @@ router.get("/getDetails/:experimentId", (req, res) => {
 });
 
 
-
 //important!!! make sure that the image id is the same as frame id!!!!!
 router.get("/getCsvDataById/:experimentId/:frameId", (req, res) => {
   try {
     const experimentId = req.params.experimentId;
     const frameId = req.params.frameId;
-<<<<<<< HEAD
-    const path = "../data/" + experimentId + "/" + experimentId + ".csv";
-=======
 
-
-    var fs = require('fs');
-    var $ = jQuery = require('jquery');
-    $.csv = require('jquery-csv');
-    const path = "C:/Users/yarin/Documents/GitHub/cell_death/data/1/1.csv" //change path
->>>>>>> 96033337753e1d6502fffc44c74c12323d66ad7c
-    var listOfData = [];
-    fs.readFile(path, "UTF-8", function (err, csv) {
-      $.csv.toArrays(csv, {}, function (err, data) {
-        for (var i = 0, len = data.length; i < len; i++) {
-          if (data[i][3] === frameId) listOfData.push(data[i]);
-        }
-      });
-      if (err) {
-        res.status(500).send("Unable to get csv data");
-      }
-      let listOfDataAfterEditing = EditListOfData(listOfData);
-      console.log(listOfDataAfterEditing);
-      res.status(200).send(listOfDataAfterEditing);
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Unable to get csv data");
-  }
-});
-
-function EditListOfData(listOfData) {
-  return listOfData.map((row) => {
-    return {
-      id: row[0],
-      X: row[1],
-      Y: row[2],
-      time: row[3],
-    };
-  });
-}
-
-<<<<<<< HEAD
-
-//upload rar file 
-router.post('/upload', (req, res) => {
-
-  if (!req.files) {
-    return res.status(500).send({ msg: "file is not found" })
-  }
-  // accessing the file
-  const myFile = req.files.file1;
-  console.log(req.files)
-  //  mv() method places the file inside public directory
-  myFile.mv(`${myFile.name}`, function (err) {
-    if (err) {
-      console.log(err)
-      return res.status(500).send({ msg: "Error occured" });
-    }
-    // returing the response with file path and name
-    return res.send({ name: myFile.name, path: `/${myFile.name}` });
-  });
-=======
     const path = "../data/" + experimentId + "/" + experimentId + ".csv";
     var listOfData = [];
     fs.readFile(path, "UTF-8", function (err, csv) {
@@ -339,13 +204,12 @@ router.post('/uploadProject', (req, res) => {
         console.log(err);
         return res.status(500).send({ msg: "Error occured" });
       }
-      // returing the response with file path and name
+      let fileName = myFile.name;
+      // Call python to handle unrar\unzip of the project file
+      pythonController.unArchiveData(fileName)
       return res.status(200).send({ msg: 'Project rar successfully saved!', success: true });
     });
->>>>>>> 96033337753e1d6502fffc44c74c12323d66ad7c
 })
 
-
 module.exports = router;
-
-  
+exports.createPNGs = createPNGs;

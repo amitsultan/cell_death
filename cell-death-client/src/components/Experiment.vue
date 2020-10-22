@@ -360,8 +360,7 @@ hr{
     width: 300px;
     transition: 1s;
 }
-.navigation-button:hover,
-.navigation-button:focus{
+.navigation-button:hover{
   transform: scale(2);
 }
 .prev-button{
