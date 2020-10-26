@@ -31,13 +31,7 @@
     "python-shell": "^2.0.2",
     "readable-stream": "^3.6.0",
     "tedious": "^9.2.1",
-<<<<<<< HEAD
-    "tiff-to-png": "^2.0.2"
-    
-=======
     "tiff-to-png": "^2.0.2",
     "uuid": "^8.3.1"
->>>>>>> 96033337753e1d6502fffc44c74c12323d66ad7c
   }
-
 }

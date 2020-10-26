@@ -11,8 +11,8 @@
           <b-nav-item active :to="{ name: 'Main' }">Home</b-nav-item>
           <b-nav-item :to="{ name: 'Experiments'}">Experiments</b-nav-item>
           <b-nav-item :to="{ name: 'requestPage'}">Request-experiment</b-nav-item>
-          <b-nav-item href="#">Contact</b-nav-item>
-          <b-nav-item href="#">About</b-nav-item>
+          <b-nav-item :to="{ name: 'AboutPage'}">About</b-nav-item>
+          <b-nav-item :to="{ name: 'ContactPage'}">Contact</b-nav-item>
         </b-navbar-nav>
         <!-- Modal for requesting experiemnts   -->
         <!-- Right aligned nav items -->
