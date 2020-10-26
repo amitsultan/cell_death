@@ -29,6 +29,17 @@ const routes = [
     name: "requestPage",
     component: () => import("./pages/requestExperiment-page"),
   },
+  {
+    path: "/About",
+    name: "AboutPage",
+    component: () => import("./pages/About-Page"),
+  },
+  {
+    path: "/Contact",
+    name: "ContactPage",
+    component: () => import("./pages/Contact-Page"),
+  },
+  
   // {
   //     path: "*",
   //     name: "notFound",

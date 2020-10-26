@@ -139,6 +139,8 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
+
 data
 client
 server
+

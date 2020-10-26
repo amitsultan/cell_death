@@ -9,8 +9,8 @@ const { v4: uuidv4 } = require("uuid");
 
 //routes import
 const auth = require("./routes/auth");
-const data = require("./routes/data");
 const experiments = require("./routes/experiments");
+
 
 
 
@@ -55,7 +55,7 @@ app.options("*", cors(corsConfig));
 
 //Routing
 
-app.use("/data", data);
+app.use("/experiments", experiments);
 app.use(auth);
 app.use("/experiments", experiments);
 
