@@ -6,7 +6,7 @@
 
     <p>
       This is a tracking tool for cells, made by Amit Sultan, Haim Reyes, Liat
-      Choen and Yarin Hayun.
+      Cohen and Yarin Hayun.
     </p>
     <p>
       We are a group of students in software and information systems engineering dedicated to making the best cell
