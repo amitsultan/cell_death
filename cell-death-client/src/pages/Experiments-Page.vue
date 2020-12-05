@@ -4,7 +4,7 @@
         <Experiments_List :experiments='experiments' @clicked="onClickListItem"/>
     </div>
     <div class='experiment-view'>
-      <Experiment v-if="showExperiment" :id='id' :marks='marks' :type='type'></Experiment>
+      <Experiment v-if="showExperiment" :id='id'></Experiment>
     </div>
     <!-- <img :src="src"> -->
 </div>

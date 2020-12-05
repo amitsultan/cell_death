@@ -22,7 +22,7 @@
         </b-button> -->
     </div>
     <!-- <img id="frame" style='width: 600px; height: 600px;' v-bind:src="src"> -->
-    <!-- <img id="frame2" src="..\assets\image.png">--> -->
+    <!-- <img id="frame2" src="..\assets\image.png">-->
     <div class="menu">
         <div class="menu-item">New</div>
         <hr>
@@ -33,14 +33,52 @@
         <hr>
         <div class="menu-item">Remove</div>
     </div>
+    <TableView
+    :key="marks.length"
+    v-if='marks != []'
+    :headers="table_headers"
+    :rows="marks"   
+    :sort="{
+      field: 'first_name',
+      order: 'asc'
+    }"
+    :pagination="{
+      itemsPerPage: 10,
+      align: 'center',
+      visualStyle: 'select'
+    }"
+    css-style="my-css-style"
+  >
+    <template v-slot:items="{ row }">
+        <td>{{ row.id }}</td>  
+        <td>{{ row.X }}</td>              
+        <td>{{ row.Y }}</td>
+        <td>{{ row.frame }}</td>            
+    </template>
+        <template v-slot:no-data>
+      <span>No data</span>
+    </template>
+  </TableView>
 </div>
 </template>
 
 <script>
+import TableView from '../components/TableView'
 export default {
     name: "Experiment",
+    components:{
+        TableView
+    },
     data: () => ({
         counter: 2,
+        table_headers: [
+            {label:"ID", field:"id", sortable:true, type:"String"},
+            {label:"X cord", field:"X", sortable:true, type:"Number"},
+            {label:"Y cord", field:"Y", sortable:true, type:"Number"},
+            {label:"Frame", field:"frame", sortable:true, type:"Number"},
+        ],
+        marks: [],
+        type: 1,
         mark: {
             x: 0,
             y: 0
@@ -62,9 +100,7 @@ export default {
         details: null
     }),
     props: {
-        id: String,
-        marks: Array,
-        type: Number
+        id: String
     },
     methods: {hideMenuDisplayed(e) {
             if (this.menuDisplayed == true) {
@@ -129,6 +165,9 @@ export default {
             let y = e.y - canvas.offsetTop;
             this.mark.x = x;
             this.mark.y = y;
+            this.drawPoint(x, y)
+        },
+        drawPoint(x, y){
             const mark = {
                 number: this.counter++,
                 x: x,
@@ -139,7 +178,8 @@ export default {
             this.marks.push(mark)
             this.menuDisplayed = true;
             this.draw()
-        },
+        }
+        ,
         typeColor(type) {
             if (type == 1) {
                 return "Chartreuse"
@@ -158,14 +198,14 @@ export default {
                 ctx.beginPath();
                 ctx.strokeStyle = mark.color // line color
                 ctx.fillStyle = mark.color; // line color
-                ctx.arc(mark.x, mark.y, 10, 0, 2 * Math.PI);
-                ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
-                ctx.font = "20px Arial";
-                ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
+                ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);
+                // ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
+                // ctx.font = "20px Arial";
+                // ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
                 ctx.stroke();
             })
         },
-        fetchCurrentImage: function(number){
+        fetchImage: function(number){
             return new Promise((resolve, reject)=>{
                 console.log('started')
                 let config = {
@@ -173,6 +213,7 @@ export default {
                     method: 'GET',
                     responseType: 'blob'
                 }
+                // fetching Image
                 this.axios(config)
                 .then((response) => {
                     let reader = new FileReader();
@@ -185,16 +226,38 @@ export default {
                     }
                 });
             })
+        },
+        normalizeCords(point){
+            let norm_point = {
+                x: point.X * (this.width / this.details.width),
+                y: point.Y * (this.height / this.details.height)
+            }
+            return norm_point
+        },fetchImageData: function(number){
+            this.axios(this.$root.API_BASE + '/experiments/getCsvDataById/'+this.id+'/'+number)
+            .then((results) => {
+                this.marks = results.data
+                console.log(this.marks)
+                this.marks.forEach(element => {
+                    const norm_cords = this.normalizeCords(element)
+                    console.log(norm_cords)
+                    this.drawPoint(norm_cords.x, norm_cords.y)
+                });
+            }).catch((error) => {
+                console.log(error)
+                this.marks = []       
+            })
         },onPrev(){
             if(this.current > 1 ){
                 this.current--
-                this.fetchCurrentImage(this.current).then((result)=>{
+                this.fetchImage(this.current).then((result)=>{
                     this.marks = []
                     this.counter = 2
                     this.next = this.src
                     this.src = this.prev
                     this.prev = result
                     this.updateImage()
+                    this.fetchImageData(this.current)
                 }).catch((error)=>{
                     this.$root.toast(
                         "Image loading Failed",
@@ -214,13 +277,14 @@ export default {
             // load next picture
             if(this.current < this.details.num_pictures){
                 this.current++
-                this.fetchCurrentImage(this.current).then((result)=>{
+                this.fetchImage(this.current).then((result)=>{
                     this.marks = []
                     this.counter = 2
                     this.prev = this.src
                     this.src = this.next
                     this.next = result
                     this.updateImage()
+                    this.fetchImageData(this.current)
                 }).catch((error)=>{
                     this.$root.toast(
                         "Image loading Failed",
@@ -243,9 +307,10 @@ export default {
     },
     async beforeMount(){
         this.current = 1
-        this.fetchCurrentImage(this.current).then((result)=>{
+        this.fetchImage(this.current).then((result)=>{
             this.src = result
             this.updateImage()
+            this.fetchImageData(this.current)
         }).catch((error)=>{
             this.$root.toast(
                 "Image loading Failed",
@@ -253,7 +318,7 @@ export default {
                 "danger"
             );
         })
-        this.fetchCurrentImage(this.current + 1).then((result)=>{
+        this.fetchImage(this.current + 1).then((result)=>{
             this.next = result
         }).catch((error)=>{
             this.$root.toast(

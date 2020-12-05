@@ -31,7 +31,7 @@ function EditListOfData(listOfData) {
       id: row[0],
       X: row[1],
       Y: row[2],
-      time: row[3],
+      frame: row[3],
     };
   });
 
