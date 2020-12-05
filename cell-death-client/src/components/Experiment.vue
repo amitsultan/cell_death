@@ -159,13 +159,26 @@ export default {
             this.mark.y = e.offsetY;
         },
         onMouseClick(e) {
+var scrollTop = window.pageYOffset ||
+                (document.documentElement || document.body.parentNode || document.body).scrollTop
+            var scrollLeft = window.pageXOffset ||
+                (document.documentElement || document.body.parentNode || document.body).scrollLeft
             if (this.menuDisplayed == true) return;
             let canvas = document.getElementById("frameCanvas");
-            let x = e.x - canvas.offsetLeft;
-            let y = e.y - canvas.offsetTop;
+            let x = e.x - canvas.offsetLeft + scrollLeft;
+            let y = e.y - canvas.offsetTop + scrollTop;
             this.mark.x = x;
             this.mark.y = y;
-            this.drawPoint(x, y)
+            const mark = {
+                number: this.counter++,
+                x: x,
+                y: y,
+                type: this.type,
+                color: this.typeColor(this.type)
+            }
+            this.marks.push(mark)
+            this.menuDisplayed = true;
+            this.draw()
         },
         drawPoint(x, y){
             const mark = {
