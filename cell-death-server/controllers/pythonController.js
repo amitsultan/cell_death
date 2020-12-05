@@ -16,15 +16,21 @@ function unArchiveData(input) {
             if(err){
                 console.log(err)
             }else{
+                console.log('r '+ input.split('.').slice(0, -1).join('.'))
                 // remove file extension
-                experiments.createPNGs(input.split('.').slice(0, -1).join('.')).then(() =>{
-                    // Track_mate can run here
-                    console.log('pngs done')
-                }).catch((error) => {
-                    console.log(error)
-                })
-                console.log(results)
-            }
+                if(input == null){
+                    // TODO
+                    // Handle file not found (input == null)
+                }else{
+                    experiments.createPNGs(input.split('.').slice(0, -1).join('.')).then(() =>{
+                        // Track_mate can run here
+                        console.log('pngs done')
+                    }).catch((error) => {
+                        console.log(error)
+                    })
+                    console.log(results)
+                }   
+                }
         })
     }catch(err){
         console.log(err)

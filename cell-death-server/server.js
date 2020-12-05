@@ -15,7 +15,7 @@ const experiments = require("./routes/experiments");
 
 
 var app = express();
-var port = 8081;
+var port = process.env.PORT || 8081;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

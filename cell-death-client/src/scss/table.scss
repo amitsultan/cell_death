@@ -1,0 +1,70 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto+Mono);
+
+.custom-style {
+  // Table styles
+  .ozn-table {
+    border-collapse: collapse;
+    width: 100%;
+    thead {
+      th { 
+        border-bottom: 1px solid #ffffff;
+        padding: 0 10px;
+        height: 48px;
+        text-align: left; 
+        font-size: 1em; 
+        color: #fff;
+        background-color: #7cc3fd; 
+        cursor: pointer; 
+        &:hover{
+          span{
+            text-decoration: underline;
+            text-decoration-style: dotted;
+          }
+        }        
+        i{
+          color: #ffffff; 
+          &.active{
+            color: #ff00aa;
+            + span{
+              color: #a9237c;
+            }
+          }
+        }       
+      }
+    }
+    tbody {
+      tr{
+        &:nth-child(odd){
+          background-color: #e9f5ff;
+        }
+        &:nth-child(even){
+          background-color: #fafaeb;
+        }
+      }
+      td {
+        border-bottom: 1px solid #ffffff;
+        padding: 0 10px;
+        height: 48px;
+        font-size: 1em; 
+      }
+    }
+  }
+  // Paginator styles    
+  .ozn-paginator{
+    margin-top: .5em;
+    select{
+      border: 1px solid #7cc3fd;
+      border-radius: 8px;
+      color: #ffffff;
+      background-color:  #7cc3fd;
+      outline: none;
+    }
+    button{
+      border: 1px solid #7cc3fd;
+      border-radius: 8px;
+      color: #ffffff;
+      background-color:  #7cc3fd;
+      outline: none;
+    }    
+  }
+}
