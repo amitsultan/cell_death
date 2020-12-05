@@ -43,8 +43,6 @@
 Link for a complete guide: https://nodejs.org/en/docs/guides/nodejs-docker-webapp/
 
 MYSQL:
-	create a mysql server instance:
-		$ docker run --name cell-death-mysql -e MYSQL_ROOT_PASSWORD=1973aA4682! -v /storage/cell-death-mysql/datadir:/var/lib/mysql -d mysql:latest
 	start:
 	$ docker start cell-death-mysql
 	stop:
