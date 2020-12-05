@@ -30,10 +30,16 @@ const routes = [
     component: () => import("./pages/requestExperiment-page"),
   },
   {
-    path: "/contact",
-    name: "Contact",
+    path: "/About",
+    name: "AboutPage",
+    component: () => import("./pages/About-Page"),
+  },
+  {
+    path: "/Contact",
+    name: "ContactPage",
     component: () => import("./pages/Contact-Page"),
   },
+  
   // {
   //     path: "*",
   //     name: "notFound",

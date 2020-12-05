@@ -6,6 +6,7 @@ function unArchiveData(input) {
     let { PythonShell } = require('python-shell');
     let options = {
         mode: 'text',
+        pythonPath: 'python',
         pythonOptions: ['-u'], // get print results in real-time
         scriptPath: script_path,
         args: [input]
