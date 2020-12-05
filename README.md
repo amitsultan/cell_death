@@ -1,4 +1,4 @@
-"# cell_death" 
+# cell_death
 
 #### Automated Instructions ####
 	1) $ docker-compose build --force-rm
