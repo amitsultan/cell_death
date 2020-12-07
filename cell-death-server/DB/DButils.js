@@ -85,3 +85,28 @@ exports.experimentDetails = async function (experimentID) {
     })
   })
 }
+exports.addExperiment = async function (experiment_details) {
+  return new Promise(function (resolve, reject){
+    console.log(experiment_details)
+    if(!experiment_details  || !experiment_details.experiment_id || !experiment_details.num_pictures || !experiment_details.date ||
+      !experiment_details.width || !experiment_details.height || !experiment_details.user_id){
+        // Missing information for addition of experiment
+        reject({message: "Missing information for experiment"})
+      }else{
+        let query = "INSERT INTO experiments (experiment_id,date,num_pictures,width,height,user_id) VALUES(?, ?, ?, ?, ?, ?)";
+        var inserts = [experiment_details.experiment_id, experiment_details.date, experiment_details.num_pictures,
+        experiment_details.width, experiment_details.height, experiment_details.user_id];
+        query = sql.format(query, inserts);
+        con.query(query, function (err, rows){
+          if(err){
+            reject(err);
+          }
+          if(rows === undefined){
+            reject(new Error("Error: rows is undefined"));
+          } else {
+            resolve(rows);
+          }
+        })
+    }
+  })
+}

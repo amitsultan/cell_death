@@ -3,6 +3,7 @@ const experiments = require('../routes/experiments')
 const script_path = path.join(__dirname,"../../Scripts")
 
 function unArchiveData(input) {
+    return new Promise(function (resolve, reject){
     let { PythonShell } = require('python-shell');
     let options = {
         mode: 'text',
@@ -14,27 +15,34 @@ function unArchiveData(input) {
     try{
         PythonShell.run('file_preperations.py', options, function (err, results) {
             if(err){
-                console.log(err)
+                reject(err)
             }else{
-                console.log('r '+ input.split('.').slice(0, -1).join('.'))
-                // remove file extension
-                if(input == null){
-                    // TODO
-                    // Handle file not found (input == null)
+                if(results.includes('Experiment already exists')){
+                    resolve({message : 'Experiment already exists'})
                 }else{
-                    experiments.createPNGs(input.split('.').slice(0, -1).join('.')).then(() =>{
-                        // Track_mate can run here
-                        console.log('pngs done')
-                    }).catch((error) => {
-                        console.log(error)
-                    })
-                    console.log(results)
-                }   
+                    // new experiment
+                    let experiment_id = input.split('.').slice(0, -1).join('.');
+                    let date = new Date();
+                    console.log('results : ',results)
+                    // remove file extension
+                    if(input == null){
+                        // TODO
+                        // Handle file not found (input == null)
+                    }else{
+                        experiments.createPNGs(input.split('.').slice(0, -1).join('.')).then((results) =>{
+                            results.message = 'Images created successfully';
+                            resolve(results)
+                        }).catch((error) => {
+                            reject(error)
+                        })
+                    }   
                 }
+            }
         })
     }catch(err){
-        console.log(err)
+        reject(err)
     }
+  })
 }
 
 exports.unArchiveData = unArchiveData

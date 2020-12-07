@@ -84,6 +84,7 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
                   message: "Username or Password incorrect",
                 };
               } else {
+                req.session.userID = user.id
                 req.session.email = user.email
                 res
                   .status(200)
