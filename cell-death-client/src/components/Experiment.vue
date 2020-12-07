@@ -3,8 +3,8 @@
     {{this.mark.x}} {{this.mark.y}}
     <br>
     <div class='progress-bar' style="margin-left: 120px;">
-        <b-progress v-if='src' :max="details.num_pictures"  variant="success" striped :animated="true">
-        <b-progress-bar :value="current" :label="current+'/'+details.num_pictures"></b-progress-bar>
+        <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
+        <b-progress-bar v-if='details' :value="current" :label="current+'/'+details.num_pictures"></b-progress-bar>
         </b-progress>
     </div>
     <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
@@ -14,6 +14,7 @@
         </b-button> -->
         <input type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
         <div class='insideWrapper'>
+            <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
             <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
         </div>
         <input type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
@@ -51,8 +52,8 @@
   >
     <template v-slot:items="{ row }">
         <td>{{ row.id }}</td>  
-        <td>{{ row.X }}</td>              
-        <td>{{ row.Y }}</td>
+        <td>{{ row.x }}</td>              
+        <td>{{ row.y }}</td>
         <td>{{ row.frame }}</td>            
     </template>
         <template v-slot:no-data>
@@ -70,7 +71,8 @@ export default {
         TableView
     },
     data: () => ({
-        counter: 2,
+        counter: 1,
+        pointProximity: 5,
         table_headers: [
             {label:"ID", field:"id", sortable:true, type:"String"},
             {label:"X cord", field:"X", sortable:true, type:"Number"},
@@ -108,6 +110,17 @@ export default {
             }
             this.menuDisplayed = false;
         },
+        async saveCurrentFrameData(number){
+            this.axios.post(this.$root.API_BASE + '/experiments/updateCsvDataById/'+this.id+'/'+number, {rows: this.marks})
+            .then((response) => {
+            }).catch((error)=>{
+                this.$root.toast(
+                    "Failed",
+                    "Failed to send marks data to server!",
+                    "danger"
+                );
+            });
+        },
         menuContext(e) {
             let left = e.clientX;
             let top = e.clientY;
@@ -120,21 +133,22 @@ export default {
             arguments[0].preventDefault();
             this.menuDisplayed = true;
         },
-        menuItemClick(e) {
+        async menuItemClick(e) {
             if (this.menuDisplayed) return;
             this.menuDisplayed = false;
             let newMark = {
-                number: this.counter++,
+                frame:this.current,
                 x: this.pause_mark.x,
                 y: this.pause_mark.y,
                 type: this.menuType,
                 color: this.typeColor(this.menuType)
             }
-            this.marks.push(newMark)
+            await this.checkMarkProximity(newMark)
+            // this.marks.push(newMark)
             this.draw()
         },updateImage: async function(){
             try{
-                let canvas = document.getElementById('frameCanvas'),
+                let canvas = document.getElementById('imageCanvas'),
                 context = canvas.getContext('2d');
                 let base_image = new Image();
                 base_image.src = this.src;
@@ -158,33 +172,53 @@ export default {
             this.mark.x = e.offsetX;
             this.mark.y = e.offsetY;
         },
-        onMouseClick(e) {
-var scrollTop = window.pageYOffset ||
-                (document.documentElement || document.body.parentNode || document.body).scrollTop
-            var scrollLeft = window.pageXOffset ||
-                (document.documentElement || document.body.parentNode || document.body).scrollLeft
+        async checkMarkProximity(mark){
+            let tmp = []
+            this.marks.forEach(element => {
+                let a = mark.x - element.x 
+                let b = mark.y - element.y
+                if(Math.sqrt(a*a + b*b) >= this.pointProximity){
+                    tmp.push(element)
+                }else{
+                    if(element.id){
+                        mark.id = element.id
+                    }
+                }
+            });
+            if(!mark.id){
+                mark.id = this.counter++
+            }
+            tmp.push(mark)
+            this.marks = tmp
+        },
+        async onMouseClick(e) {
+            // var scrollTop = window.pageYOffset ||
+            //     (document.documentElement || document.body.parentNode || document.body).scrollTop
+            // var scrollLeft = window.pageXOffset ||
+            //     (document.documentElement || document.body.parentNode || document.body).scrollLeft
             if (this.menuDisplayed == true) return;
             let canvas = document.getElementById("frameCanvas");
-            let x = e.x - canvas.offsetLeft + scrollLeft;
-            let y = e.y - canvas.offsetTop + scrollTop;
+            let x = e.offsetX;
+            let y = e.offsetY;
             this.mark.x = x;
             this.mark.y = y;
             const mark = {
-                number: this.counter++,
                 x: x,
                 y: y,
+                frame:this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
-            this.marks.push(mark)
+            await this.checkMarkProximity(mark)
             this.menuDisplayed = true;
             this.draw()
         },
         drawPoint(x, y){
             const mark = {
-                number: this.counter++,
+                id: this.counter++,
                 x: x,
                 y: y,
+                frame: this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
@@ -207,6 +241,7 @@ var scrollTop = window.pageYOffset ||
         async draw() {
             let canvas = document.getElementById("frameCanvas");
             let ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             this.marks.forEach((mark) => {
                 ctx.beginPath();
                 ctx.strokeStyle = mark.color // line color
@@ -242,25 +277,23 @@ var scrollTop = window.pageYOffset ||
         },
         normalizeCords(point){
             let norm_point = {
-                x: point.X * (this.width / this.details.width),
-                y: point.Y * (this.height / this.details.height)
+                x: point.x * (this.width / this.details.width),
+                y: point.y * (this.height / this.details.height)
             }
             return norm_point
         },fetchImageData: function(number){
             this.axios(this.$root.API_BASE + '/experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
-                this.marks = results.data
-                console.log(this.marks)
-                this.marks.forEach(element => {
-                    const norm_cords = this.normalizeCords(element)
-                    console.log(norm_cords)
-                    this.drawPoint(norm_cords.x, norm_cords.y)
+                results.data.forEach(element => {
+                    // const norm_cords = this.normalizeCords(element)
+                    this.drawPoint(element.x, element.y)
                 });
             }).catch((error) => {
                 console.log(error)
                 this.marks = []       
             })
         },onPrev(){
+            this.saveCurrentFrameData(this.current)
             if(this.current > 1 ){
                 this.current--
                 this.fetchImage(this.current).then((result)=>{
@@ -270,6 +303,7 @@ var scrollTop = window.pageYOffset ||
                     this.src = this.prev
                     this.prev = result
                     this.updateImage()
+                    this.draw()
                     this.fetchImageData(this.current)
                 }).catch((error)=>{
                     this.$root.toast(
@@ -287,6 +321,7 @@ var scrollTop = window.pageYOffset ||
             }
         },
         onNext(){
+            this.saveCurrentFrameData(this.current)
             // load next picture
             if(this.current < this.details.num_pictures){
                 this.current++
@@ -297,6 +332,7 @@ var scrollTop = window.pageYOffset ||
                     this.src = this.next
                     this.next = result
                     this.updateImage()
+                    this.draw()
                     this.fetchImageData(this.current)
                 }).catch((error)=>{
                     this.$root.toast(
@@ -316,6 +352,21 @@ var scrollTop = window.pageYOffset ||
     },
     async created() {
         this.image = new Image();
+        let config = {
+            url: this.$root.API_BASE + "/experiments/getDetails/"+this.id,
+            method: 'GET'
+        }
+        await this.axios(config).then((response) =>{
+            if(response.status && response.status === 200){
+                this.details = response.data
+            }else{
+                this.$root.toast(
+                    "Error occurred",
+                    "Couldn't fatch experiment details",
+                    "danger"
+                );
+            }
+        })
         // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
     async beforeMount(){
@@ -342,21 +393,6 @@ var scrollTop = window.pageYOffset ||
         })
         // this.src = result;
         // this.updateImage()
-        let config = {
-            url: this.$root.API_BASE + "/experiments/getDetails/"+this.id,
-            method: 'GET'
-        }
-        this.axios(config).then((response) =>{
-            if(response.status && response.status === 200){
-                this.details = response.data
-            }else{
-                this.$root.toast(
-                    "Error occurred",
-                    "Couldn't fatch experiment details",
-                    "danger"
-                );
-            }
-        })
     },
     async mounted() {
         let canvas = document.getElementById("frameCanvas");
@@ -420,16 +456,6 @@ hr{
     width: 50%;
     margin: 0 auto;
 }
-.outsideWrapper{
-    margin-top:50px;
-    display: flex;
-    align-items: center;
-    height: max-content;
-}
-.insideWrapper{
-    height: max-content;
-    width: max-content;
-}
 .Experiment-canvas{
     border:1px solid #d3d3d3;
 }
@@ -452,5 +478,24 @@ hr{
 .progress-bar{
     background-color: white;
     width: 600px;
+}
+.outsideWrapper{
+    margin-top:50px;
+    display: flex;
+    align-items: center;
+    height: max-content;
+}
+.insideWrapper{
+    height: max-content;
+    width: max-content;
+    position: relative;
+}
+#frameCanvas{
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+#imageCanvas{
+    /* position: absolute; */
 }
 </style>

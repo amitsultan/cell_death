@@ -4,7 +4,7 @@
         <Experiments_List :experiments='experiments' @clicked="onClickListItem"/>
     </div>
     <div class='experiment-view'>
-      <Experiment v-if="showExperiment" :id='id'></Experiment>
+      <Experiment v-if="showExperiment" :id='id' :key='id'></Experiment>
     </div>
     <!-- <img :src="src"> -->
 </div>
@@ -20,7 +20,6 @@ export default {
             showExperiment: false,
             id: null,
             marks: null,
-            type: null
         }
     },
     components: {
@@ -29,8 +28,6 @@ export default {
     },methods:{
         onClickListItem(value){
             this.id = value
-            this.marks = []
-            this.type = 1
             this.showExperiment = true
         }
     },async beforeMount(){

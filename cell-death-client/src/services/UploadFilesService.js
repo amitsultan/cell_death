@@ -7,6 +7,7 @@ class UploadFilesService {
     formData.append("projectRar", file);
 
     return http.post("/experiments/uploadProject", formData, {
+      credentials: 'include',
       headers: {
         "Content-Type": "multipart/form-data",
       },

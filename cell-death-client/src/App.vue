@@ -43,22 +43,22 @@
 
 <script>
 export default {
-    name: "App",
-    mounted() {
-        console.log("session: " + this.$root.store.email)
-    },
-    methods: {
-        Logout() {
-            this.$root.store.logout();
-            this.$root.toast("Logout", "User logged out successfully", "success");
-            this.$router.push("/").catch(() => {
-                this.$forceUpdate();
-            });
-        },
-    }
+ name: "App",
+  mounted(){
+    console.log("session: "+this.$root.store.email)
+  },
+  methods:{
+    Logout() {
+        this.$root.store.logout();
+        this.$root.toast("Logout", "User logged out successfully", "success");
+        this.$router.push("/").catch(() => {
+          this.$forceUpdate();
+        });
+      },
+  }
 }
 </script>
 
 <style lang="scss">
-@import "@/scss/form-style.scss";
+  @import "@/scss/form-style.scss";
 </style>
