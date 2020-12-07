@@ -32,7 +32,7 @@ export default {
         }
     },async beforeMount(){
         try{
-            const response = await this.axios.get(this.$root.API_BASE + "/experiments/getExperiments");
+            const response = await this.axios.get(this.$root.API_BASE + "experiments/getExperiments");
             if(response.status && response.status === 200){
                 this.experiments = response.data
             }else{

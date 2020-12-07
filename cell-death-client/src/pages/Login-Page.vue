@@ -94,7 +94,7 @@ export default {
       try {
         this.axios.defaults.withCredentials = true;
         const response = await this.axios.post(
-          this.$root.API_BASE+"/Login",
+          this.$root.API_BASE+"Login",
           {
             email: this.form.email,
             password: this.form.password,

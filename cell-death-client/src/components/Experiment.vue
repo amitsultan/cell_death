@@ -111,7 +111,7 @@ export default {
             this.menuDisplayed = false;
         },
         async saveCurrentFrameData(number){
-            this.axios.post(this.$root.API_BASE + '/experiments/updateCsvDataById/'+this.id+'/'+number, {rows: this.marks})
+            this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: this.marks})
             .then((response) => {
             }).catch((error)=>{
                 this.$root.toast(
@@ -257,7 +257,7 @@ export default {
             return new Promise((resolve, reject)=>{
                 console.log('started')
                 let config = {
-                    url: this.$root.API_BASE + '/experiments/getImageById/'+this.id+'/'+number,
+                    url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
                     method: 'GET',
                     responseType: 'blob'
                 }
@@ -282,7 +282,7 @@ export default {
             }
             return norm_point
         },fetchImageData: function(number){
-            this.axios(this.$root.API_BASE + '/experiments/getCsvDataById/'+this.id+'/'+number)
+            this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
                 results.data.forEach(element => {
                     // const norm_cords = this.normalizeCords(element)
@@ -353,7 +353,7 @@ export default {
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "/experiments/getDetails/"+this.id,
+            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
             method: 'GET'
         }
         await this.axios(config).then((response) =>{

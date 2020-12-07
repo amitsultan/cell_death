@@ -133,7 +133,7 @@ export default {
         async Register() {
             try {
                 const response = await this.axios.post(
-                    this.$root.API_BASE + "/Register", {
+                    this.$root.API_BASE + "Register", {
                         email: this.form.email,
                         password: this.form.password,
                         firstname: this.form.firstName,
