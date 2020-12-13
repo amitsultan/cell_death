@@ -1,6 +1,5 @@
 <template>
 <div class='Experiment-container'>
-    {{this.mark.x}} {{this.mark.y}}
     <br>
     <div class='progress-bar' style="margin-left: 120px;">
         <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
@@ -72,7 +71,8 @@ export default {
     },
     data: () => ({
         counter: 1,
-        pointProximity: 5,
+        pointProximity: 12,
+        no_image: require('@/assets/no_image_found.png'),
         table_headers: [
             {label:"ID", field:"id", sortable:true, type:"String"},
             {label:"X cord", field:"X", sortable:true, type:"Number"},
@@ -135,17 +135,34 @@ export default {
         },
         async menuItemClick(e) {
             if (this.menuDisplayed) return;
-            this.menuDisplayed = false;
-            let newMark = {
-                frame:this.current,
-                x: this.pause_mark.x,
-                y: this.pause_mark.y,
-                type: this.menuType,
-                color: this.typeColor(this.menuType)
+            if(e.target.innerHTML == "Remove"){
+                this.menuDisplayed = false;
+                let x = this.pause_mark.x
+                let y = this.pause_mark.y
+                let tmp = []
+                this.marks.forEach(element => {
+                let a = x - element.x 
+                let b = y - element.y
+                if(Math.sqrt(a*a + b*b) >= this.pointProximity){
+                    tmp.push(element)
+                }else{
+                }
+                this.marks = tmp
+                this.draw()
+            });
+            }else{
+                this.menuDisplayed = false;
+                let newMark = {
+                    frame:this.current,
+                    x: this.pause_mark.x,
+                    y: this.pause_mark.y,
+                    type: this.menuType,
+                    color: this.typeColor(this.menuType)
+                }
+                    this.menuType = 1
+                await this.checkMarkProximity(newMark)
+                this.draw()
             }
-            await this.checkMarkProximity(newMark)
-            // this.marks.push(newMark)
-            this.draw()
         },updateImage: async function(){
             try{
                 let canvas = document.getElementById('imageCanvas'),
@@ -174,12 +191,20 @@ export default {
         },
         async checkMarkProximity(mark){
             let tmp = []
+            let is_replaced = false
             this.marks.forEach(element => {
                 let a = mark.x - element.x 
                 let b = mark.y - element.y
                 if(Math.sqrt(a*a + b*b) >= this.pointProximity){
                     tmp.push(element)
                 }else{
+                    if(is_replaced == false){
+                        element.type = mark.type
+                        element.color = this.typeColor(element.type)
+                        console.log(element.type)
+                        is_replaced = true
+                        tmp.push(element)
+                    }
                     if(element.id){
                         mark.id = element.id
                     }
@@ -188,14 +213,11 @@ export default {
             if(!mark.id){
                 mark.id = this.counter++
             }
-            tmp.push(mark)
+            if(!is_replaced)
+                tmp.push(mark)
             this.marks = tmp
         },
         async onMouseClick(e) {
-            // var scrollTop = window.pageYOffset ||
-            //     (document.documentElement || document.body.parentNode || document.body).scrollTop
-            // var scrollLeft = window.pageXOffset ||
-            //     (document.documentElement || document.body.parentNode || document.body).scrollLeft
             if (this.menuDisplayed == true) return;
             let canvas = document.getElementById("frameCanvas");
             let x = e.offsetX;
@@ -255,7 +277,6 @@ export default {
         },
         fetchImage: function(number){
             return new Promise((resolve, reject)=>{
-                console.log('started')
                 let config = {
                     url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
                     method: 'GET',
@@ -284,10 +305,20 @@ export default {
         },fetchImageData: function(number){
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
+                let max_id = 0
                 results.data.forEach(element => {
-                    // const norm_cords = this.normalizeCords(element)
-                    this.drawPoint(element.x, element.y)
+                    const mark = {
+                        id: element.id,
+                        x: element.x,
+                        y: element.y,
+                        frame: element.frame,
+                        type: element.type,
+                        color: this.typeColor(element.type)
+                    }
+                    max_id = Math.max(max_id, element.id + 1)
+                    this.marks.push(mark)
                 });
+            this.draw()
             }).catch((error) => {
                 console.log(error)
                 this.marks = []       
@@ -305,6 +336,9 @@ export default {
                     this.updateImage()
                     this.draw()
                     this.fetchImageData(this.current)
+                    if(this.current == 1){
+                    this.prev = this.no_image
+                    }
                 }).catch((error)=>{
                     this.$root.toast(
                         "Image loading Failed",
@@ -334,6 +368,9 @@ export default {
                     this.updateImage()
                     this.draw()
                     this.fetchImageData(this.current)
+                    if(this.current == this.details.num_pictures){
+                        this.next = this.no_image
+                    }
                 }).catch((error)=>{
                     this.$root.toast(
                         "Image loading Failed",
@@ -371,6 +408,7 @@ export default {
     },
     async beforeMount(){
         this.current = 1
+        this.prev = this.no_image
         this.fetchImage(this.current).then((result)=>{
             this.src = result
             this.updateImage()

@@ -30,7 +30,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      expires: 15 * 60 * 10,
+      expires: 120 * 60 * 1000,
     },
     unset: "destroy",
   })

@@ -37,6 +37,7 @@ function EditListOfData(listOfData) {
       x: row.x,
       y: row.y,
       frame: row.frame,
+      type: row.type,
     };
   });
 
