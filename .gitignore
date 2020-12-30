@@ -143,4 +143,5 @@ pnpm-debug.log*
 data
 client
 server
-
+cell-death-client/vue.config.js
+cell-death-server/server.js

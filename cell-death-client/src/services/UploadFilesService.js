@@ -1,4 +1,5 @@
 import http from "../http-common";
+import axios from "axios";
 
 class UploadFilesService {
   upload(file, onUploadProgress) {
@@ -6,8 +7,7 @@ class UploadFilesService {
 
     formData.append("projectRar", file);
 
-    return http.post("/experiments/uploadProject", formData, {
-      credentials: 'include',
+    return axios.post(process.env.VUE_APP_API_BASE+"experiments/uploadProject", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
