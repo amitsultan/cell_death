@@ -75,6 +75,34 @@ function sendFailureEmail(to_email, experiment_id, message) {
     });
 }
 
+function sendContactUs(Name, from_email, subject, message) {
+    return new Promise(function (resolve, reject){
+        let text = "Client name: "+Name+"\n"+
+                    "Client email: "+from_email+"\n"+
+                    "Client message: "+message+"\n"
+        mail_options = {
+            from: process.env.MAILER_EMAIL,
+            to: process.env.MAILER_EMAIL,
+            subject: subject,
+            text: text
+        }
+        transporter.sendMail(mail_options, (err, info) => {
+        if(err){
+            let message = 'Failed to send mail';
+            let content = mail_options
+            loggerController.log('error', message, content)
+        }else{
+            let message = 'Email successfully sent';
+            let content = {
+                envelope: info.envelope,
+                messageId: info.messageId
+            }
+            loggerController.log('info', message, content)
+        }
+    });
+    })
+}
 
 exports.sendSuccessEmail = sendSuccessEmail
 exports.sendFailureEmail = sendFailureEmail
+exports.sendContactUs = sendContactUs

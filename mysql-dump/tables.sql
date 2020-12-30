@@ -26,6 +26,15 @@ CREATE TABLE `experiments` (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE `contactRequests` (
+  `contactID` int unsigned UNIQUE NOT NULL AUTO_INCREMENT,
+  `date` DATE,
+  `email` varchar(255) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` varchar(1000) NOT NULL
+);
+
 INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('amit','sultan','amitsul@post.bgu.ac.il','123456aA!');
 INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('yarin','hayun','yarinbo@post.bgu.ac.il','123456aA!');
 INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('liat','cohen','liatp@post.bgu.ac.il','123456aA!');

@@ -122,8 +122,29 @@ export default {
       const { $dirty, $error } = this.$v.form[param];
       return $dirty ? !$error : null;
     },
-    sendEmail(){
-
+    async sendEmail(){
+        let body = {
+            client_name: this.form.name,
+            client_email: this.form.email,
+            subject: this.form.subject,
+            message: this.form.message
+        }
+        const response = await this.axios.post(this.$root.API_BASE + "administration/contactUs", body);
+        console.log(response.status)
+        if (response.status == 200) {
+          this.$root.toast(
+            "successful",
+            "Successfully sent contact request",
+            "success"
+          );
+          this.$router.push("/");
+        } else {
+          this.$root.toast(
+            "Failed",
+            "Failed to send request please contact us directly by mail\ncelltrackingtool@gmail.com‏",
+            "danger"
+          );
+        }
       },
     onSubmit() {
       this.form.submitError = undefined;

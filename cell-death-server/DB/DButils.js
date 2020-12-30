@@ -85,6 +85,7 @@ exports.experimentDetails = async function (experimentID) {
     })
   })
 }
+
 exports.addExperiment = async function (experiment_details) {
   return new Promise(function (resolve, reject){
     console.log(experiment_details)
@@ -94,7 +95,7 @@ exports.addExperiment = async function (experiment_details) {
         reject({message: "Missing information for experiment"})
       }else{
         let query = "INSERT INTO experiments (experiment_id,date,num_pictures,width,height,user_id) VALUES(?, ?, ?, ?, ?, ?)";
-        var inserts = [experiment_details.experiment_id, experiment_details.date, experiment_details.num_pictures,
+        let inserts = [experiment_details.experiment_id, experiment_details.date, experiment_details.num_pictures,
         experiment_details.width, experiment_details.height, experiment_details.user_id];
         query = sql.format(query, inserts);
         con.query(query, function (err, rows){
@@ -107,6 +108,31 @@ exports.addExperiment = async function (experiment_details) {
             resolve(rows);
           }
         })
+    }
+  })
+}
+
+
+
+exports.addContactRequest = async function (Name, from_email, subject, message) {
+  return new Promise(function (resolve, reject){
+    if(!Name || !from_email || !subject || !message){
+      reject("Missing fields!")
+    }else{
+      let date = new Date();
+      let query = "INSERT INTO contactRequests (date, email, name, subject, message) VALUES(?, ?, ?, ?, ?)";
+      let inserts = [date, from_email, Name,subject, message];
+      query = sql.format(query, inserts);
+      con.query(query, function (err, rows){
+          if(err){
+            reject(err);
+          }
+          if(rows === undefined){
+            reject(new Error("Error: rows is undefined"));
+          } else {
+            resolve(rows);
+          }
+      })
     }
   })
 }
