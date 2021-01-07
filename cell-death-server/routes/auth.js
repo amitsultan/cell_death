@@ -107,4 +107,14 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
   }
 });
 
+router.post("/signout", async (req, res, next) => {
+  req.session.destroy(function(err) {
+    if(err){
+      console.log(err)
+      res.status(500).send({ message: "Failed to delete session", success: false });
+    }else{
+      res.status(200).send({ message: "successfully signed out", success: true });
+    }
+  })
+});
 module.exports = router;
