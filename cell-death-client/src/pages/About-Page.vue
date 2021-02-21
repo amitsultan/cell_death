@@ -1,58 +1,91 @@
 <template>
-  <div class="text-center">
-    <h1>
-      About Cell Tracking Tool
-    </h1>
 
-    <p>
-      This is a tracking tool for cells, made by Amit Sultan, Haim Reyes, Liat
-      Cohen and Yarin Hayun.
-    </p>
-    <p>
-      We are a group of students in software and information systems engineering dedicated to making the best cell
-      tracking tool we can provide.
-    </p>
-    <p>
-      This tool is designed for faster marking of cell images. Use the mouse to
-      quickly mark, classify and save data about cell images.
-    </p>
-    <p>
-      Version Information:
-    </p>
-    <p>
-      Version 1.0 of Cell Tracking Tool
-    </p>
-    <p>
-      axios v0.19.2
-    </p>
-    <p>
-      bootstrap v4.5.0
-    </p>
-    <p>
-      jquery v3.5.1
-    </p>
-    <p>
-      vue v2.6.11
-    </p>
-    <p>
-      crypto-js v4.0.0
-    </p>
-    <p>
-      express v4.17.1
-    </p>
-    <p>
-      mysql v2.18.1
-    </p>
+  <div class="text-center container shadow-lg p-3 mb-5 bg-white rounded left">
+    <table>
+      <tr>
+        <td>
+          <card class="card_css" :title="cards[0].title" :subTitle="cards[0].subTitle" :src="cards[0].src"></card>
+        </td>
+        <td>
+          <card class= "card_css" :title="cards[1].title" :subTitle="cards[1].subTitle" :src="cards[1].src"></card>
+        </td>
+      </tr>
+      <tr> 
+        <td>
+          <card class= "card_css" :title="cards[2].title" :subTitle="cards[2].subTitle" :src="cards[2].src"></card>
+        </td>
+        <td>
+          <card class= "card_css" :title="cards[3].title" :subTitle="cards[3].subTitle" :src="cards[3].src"></card>
+        </td>
+      </tr>
+
+    </table>
+    <!--<cards title="Our Team Members" subTitle="meet our team!" :cards="cards"></cards>-->
   </div>
 </template>
 
-<script></script>
+<script>
+//import cards from "../components/AllCards"
+import card from "../components/Card"
+
+export default {
+  components:{
+        //cards,
+        card
+    },
+  data() {
+     return {
+       cards:
+       [
+         {
+           title:"Haim Reyes",
+          subTitle:"reyes@post.bgu.ac.il",
+          src:"...\assets\\haim.jfif"
+         },
+         {
+           title:"Liat Cohen",
+          subTitle: "liatp@post.bgu.ac.il",
+          src:"cell-death-client/src/assets/liat.jfif"
+         },
+         {
+           title:"Yarin Hayun",
+          subTitle:"yarinbo@post.bgu.ac.il",
+          src:"...\assets\\yarin.jfif"
+          },
+         {
+           title:"Amit Sultan",
+          subTitle:"Amitsultan@gmail.com",
+          src:"...\assets\\amit.jfif"
+         },
+       ],
+      tools:
+      [
+        'axios v0.19.2',
+        'bootstrap v4.5.0',
+        'jquery v3.5.1',
+        'vue v2.6.11',
+        'crypto-js v4.0.0',
+        'express v4.17.1',
+        'mysql v2.18.1'
+      ],
+      
+    }
+  }
+}
+
+</script>
 
 <style>
 .text-center {
   font-family: "Comic Sans MS", cursive, sans-serif;
+  text-align: center;
 }
 .wrapper {
   height: 100vh;
+}
+.card_css{
+  width: 300px;
+  height: 300px;
+  margin: 10px 10px 10px 10px;
 }
 </style>

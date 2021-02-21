@@ -48,12 +48,20 @@ export default {
     console.log("session: "+this.$root.store.email)
   },
   methods:{
-    Logout() {
-        this.$root.store.logout();
-        this.$root.toast("Logout", "User logged out successfully", "success");
-        this.$router.push("/").catch(() => {
-          this.$forceUpdate();
-        });
+    async Logout() {
+        this.axios.defaults.withCredentials = true;
+        const response = await this.axios.post(
+          this.$root.API_BASE+"signout"
+        );
+        if(response.status == 200){
+          this.$root.store.logout();
+          this.$root.toast("Logout", "User logged out successfully", "success");
+          this.$router.push("/").catch(() => {
+            this.$forceUpdate();
+          });
+        }else{
+          this.$root.toast("Logout", "Failed to logout, please contact us", "danger");
+        }
       },
   }
 }
