@@ -115,7 +115,6 @@ const createPNGs = async (serial) => {
             is_dimensions_saved = true
           }
         });
-        console.log(save_location)
         await converter.convertArray(tif_array, save_location).catch((err) => {
           console.log(err)
           reject(err)
@@ -206,6 +205,7 @@ router.post("/updateCsvDataById/:experimentId/:frameId", (req, res) => {
     const path = "../data/" + experimentId + "/" + experimentId + ".csv";
     let data = req.body.rows
     csvEditorController.editCsvFrame(path, data, frameId).then((results)=>{
+      console.log("updated")
       console.log(req.session.userID)
       loggerController.log('info','updateCsvDataById: Marks updated!', {experiment_id:experimentId, frame_id:frameId, userID: req.session.userID})
       res.status(200).send("marks updated for frame: "+frameId);  

@@ -1,9 +1,29 @@
 const { text } = require("express");
 const nodemailer = require("nodemailer");
 const loggerController = require('./loggerController')
+const { google } = require("googleapis");
+const OAuth2 = google.auth.OAuth2;
+const myOAuth2Client = new OAuth2(
+    process.env.MAILER_CLIENT_ID,
+    process.env.MAILER_SEC,
+    "https://developers.google.com/oauthplayground"
+    )
 
+myOAuth2Client.setCredentials({
+    refresh_token: process.env.MAILER_REFRESH_TOKEN
+    });
+const myAccessToken = myOAuth2Client.getAccessToken()
 
-var transporter = nodemailer.createTransport('smtps://'+process.env.MAILER_EMAIL+':'+ process.env.MAILER_PASSWORD+'@smtp.gmail.com');
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+         type: "OAuth2",
+         user: process.env.MAILER_EMAIL, //your gmail account you used to set the project up in google cloud console"
+         clientId: process.env.MAILER_CLIENT_ID,
+         clientSecret: process.env.MAILER_SEC,
+         refreshToken: process.env.MAILER_REFRESH_TOKEN,
+         accessToken: myAccessToken //access token variable we defined earlier
+    }});
 
 
 // const levels = { 
@@ -88,9 +108,10 @@ function sendContactUs(Name, from_email, subject, message) {
         }
         transporter.sendMail(mail_options, (err, info) => {
         if(err){
+            console.log(err)
             let message = 'Failed to send mail';
             let content = mail_options
-            loggerController.log('error', message, content)
+            loggerController.log('error', {message: message, error: err}, content)
         }else{
             let message = 'Email successfully sent';
             let content = {

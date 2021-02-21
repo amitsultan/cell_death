@@ -3,7 +3,7 @@
     <br>
     <div class='progress-bar' style="margin-left: 120px;">
         <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
-        <b-progress-bar v-if='details' :value="current" :label="current+'/'+details.num_pictures"></b-progress-bar>
+        <b-progress-bar v-if='details' :value="current-1" :label="current-1+'/'+details.num_pictures"></b-progress-bar>
         </b-progress>
     </div>
     <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
@@ -11,12 +11,12 @@
         <!-- <b-button class='prev-button' v-on:click='onPrev'>
             Prev
         </b-button> -->
-        <input type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
+        <input :disabled="!can_skip" type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
         <div class='insideWrapper'>
             <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
             <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
         </div>
-        <input type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
+        <input :disabled="!can_skip" type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
         <!-- <b-button class='next-button' v-on:click='onNext' :src='next'>
             Next
         </b-button> -->
@@ -89,6 +89,7 @@ export default {
             x: 0,
             y: 0
         },
+        can_skip: true,
         image: null,
         color: "white",
         prev: null,
@@ -104,22 +105,54 @@ export default {
     props: {
         id: String
     },
+    computed: {
+        lcurrent(){
+            return this.current-1
+        }
+        
+    },
     methods: {hideMenuDisplayed(e) {
             if (this.menuDisplayed == true) {
                 window.document.querySelector(".menu").style.display = "none";
             }
             this.menuDisplayed = false;
         },
+        async normalizeMarks(){
+            return new Promise((resolve, reject) =>{
+                try{
+                    this.marks.forEach(mark => {
+                        mark.x =  mark.x / (this.width / this.details.width);
+                        mark.y =  mark.y / (this.height / this.details.height);
+                    })
+                    resolve('done')
+                }catch(error){
+                    reject(error)
+                }
+                });
+            },
         async saveCurrentFrameData(number){
+            number = number-1
+            this.can_skip = false
+            this.normalizeMarks().then(()=>{
             this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: this.marks})
             .then((response) => {
+            this.can_skip = true
             }).catch((error)=>{
+                this.can_skip = true
                 this.$root.toast(
                     "Failed",
                     "Failed to send marks data to server!",
                     "danger"
                 );
             });
+            }).catch((error)=>{
+                this.can_skip = true
+                this.$root.toast(
+                    "Failed",
+                    "Failed to send marks data to server!",
+                    "danger"
+                );
+            })
         },
         menuContext(e) {
             let left = e.clientX;
@@ -227,7 +260,7 @@ export default {
             const mark = {
                 x: x,
                 y: y,
-                frame:this.current,
+                frame:this.current-1,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
@@ -240,7 +273,7 @@ export default {
                 id: this.counter++,
                 x: x,
                 y: y,
-                frame: this.current,
+                frame: this.current-1,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
@@ -276,6 +309,7 @@ export default {
             })
         },
         fetchImage: function(number){
+            number = number-1 //start images from 0 and not 1 for trackmate processing
             return new Promise((resolve, reject)=>{
                 let config = {
                     url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
@@ -303,14 +337,15 @@ export default {
             }
             return norm_point
         },fetchImageData: function(number){
+            number = number-1 //start images from 0 and not 1 for trackmate processing
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
                 let max_id = 0
                 results.data.forEach(element => {
                     const mark = {
                         id: element.id,
-                        x: element.x,
-                        y: element.y,
+                        x: element.x * (this.width / this.details.width),
+                        y: element.y * (this.height / this.details.height),
                         frame: element.frame,
                         type: element.type,
                         color: this.typeColor(element.type)
@@ -324,6 +359,9 @@ export default {
                 this.marks = []       
             })
         },onPrev(){
+            if(!this.can_skip){
+                return;
+            }
             this.saveCurrentFrameData(this.current)
             if(this.current > 1 ){
                 this.current--
@@ -355,6 +393,9 @@ export default {
             }
         },
         onNext(){
+            if(!this.can_skip){
+                return;
+            }
             this.saveCurrentFrameData(this.current)
             // load next picture
             if(this.current < this.details.num_pictures){
@@ -515,6 +556,8 @@ hr{
 }
 .progress-bar{
     background-color: white;
+    /* color: white; */
+    /* font-size: 1.25rem; */
     width: 600px;
 }
 .outsideWrapper{

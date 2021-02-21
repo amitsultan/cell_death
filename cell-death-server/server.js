@@ -5,8 +5,8 @@ const cors = require("cors");
 var cookieParser = require("cookie-parser");
 var session = require("express-session");
 const { v4: uuidv4 } = require("uuid");
-
-
+var history = require('connect-history-api-fallback');
+const path = require('path')
 //routes import
 const auth = require("./routes/auth");
 const experiments = require("./routes/experiments");
@@ -14,10 +14,14 @@ const general_jobs = require("./routes/general");
 
 
 
-
 var app = express();
+app.use('',express.static(path.join(__dirname, './../cell-death-client/dist/')))
+app.get('/', (req,res) => {
+  console.log(path.join(__dirname, '../cell-death-client/dist/index.html'))
+  res.sendFile(path.join(__dirname, '../cell-death-client/dist/index.html'));
+});
 var port = process.env.PORT || 8081;
-
+app.use(history());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -45,7 +49,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
 //settings cors
 const corsConfig = {
   origin: true,
@@ -56,14 +59,13 @@ app.options("*", cors(corsConfig));
 
 //Routing
 
+app.use(auth);
 app.use("/experiments", experiments);
 app.use("/administration",general_jobs)
-app.use(auth);
-
 app.use(function (err, req, res, next) {
   console.error(err);
   res.status(err.status || 500).send({ message: err.message, success: false });
 });
-
-app.listen(port);
-console.log(`Running on PORT: ${port}`);
+const host = '0.0.0.0'
+app.listen(port, host);
+console.log(`Running on PORT: ${port} on host ${host}`);
