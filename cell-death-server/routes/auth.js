@@ -9,9 +9,10 @@ var DButils = require('../DB/DButils')
 var sessionChecker = (req, res, next) => {
     if (req.session.email && req.cookies.user_sid) {
       console.log('already logged in')
-        res.redirect('/');
+      res.redirect('/');
     } else {
-        next();
+      res.status(200);
+      next();
     }    
 };
 
