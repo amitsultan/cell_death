@@ -44,5 +44,31 @@ function unArchiveData(input) {
     }
   })
 }
+function runTrackMate(exp_id){
+    return new Promise(function (resolve, reject){
+        let { PythonShell } = require('python-shell');
+        let options = {
+            mode: 'text',
+            pythonPath: 'python',
+            pythonOptions: ['-u'], // get print results in real-time
+            scriptPath: script_path,
+            args: [exp_id]
+        };
+    try{
+        //run trackmete script
+        PythonShell.run('trackmate.py', options, function (err, results) {
+            if(err){
+                reject(err);
+            }
+            else{
+                results.message("Experiment processed successfully");
+            }
+        })
+    }catch(err){
+        results.message("Could not run trackmate");
+    }
+    })
+}
 
+exports.runTrackMate = runTrackMate
 exports.unArchiveData = unArchiveData
