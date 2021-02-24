@@ -80,6 +80,7 @@ router.beforeEach((to, from, next) => {
   // Let the user pass
   return next();
 });
+
 console.log(process.env)
 new Vue({
   router,
