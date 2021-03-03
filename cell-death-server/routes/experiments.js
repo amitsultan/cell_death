@@ -266,7 +266,12 @@ router.post('/uploadProject', (req, res) => {
                   DButils.addExperiment(experiment_details).then((results)=>{
                     if(results && results.affectedRows && results.affectedRows == 1){
                       // send email after successfully update the database with the experiment
-                      mailController.sendSuccessEmail(req.session.email, experiment_id)
+                      pythonController.runTrackMate(experiment_id).then((results)=>{
+                        if(results.message && results.message == "Experiment processed successfully")
+                          mailController.sendSuccessEmail(req.session.email, experiment_id)
+                          results.send("trackmete succsessfully")
+                      })
+                      
                     }else{
                       // already in database
                       let failure_message = 'Experiment already found in our database'
