@@ -58,10 +58,13 @@ function runTrackMate(exp_id){
         //run trackmete script
         PythonShell.run('trackmate.py', options, function (err, results) {
             if(err){
+                console.log(err)
                 reject(err);
             }
             else{
-                results.message("Experiment processed successfully");
+                console.log(results)
+                // results.message("Experiment processed successfully");
+                resolve({message : "Experiment processed successfully"})
             }
         })
     }catch(err){

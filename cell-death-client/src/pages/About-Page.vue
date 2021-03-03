@@ -40,22 +40,22 @@ export default {
          {
            title:"Haim Reyes",
           subTitle:"reyes@post.bgu.ac.il",
-          src:"...\assets\\haim.jfif"
+          src:"cell-death-client\\src\\assets\\Haim.jpeg"
          },
          {
            title:"Liat Cohen",
           subTitle: "liatp@post.bgu.ac.il",
-          src:"cell-death-client/src/assets/liat.jfif"
+          src:"cell-death-client\\src\\assets\\Liat.jpeg"
          },
          {
            title:"Yarin Hayun",
           subTitle:"yarinbo@post.bgu.ac.il",
-          src:"...\assets\\yarin.jfif"
+          src:"cell-death-client\\src\\assets\\Yarin.jpeg"
           },
          {
            title:"Amit Sultan",
           subTitle:"Amitsultan@gmail.com",
-          src:"...\assets\\amit.jfif"
+          src:"cell-death-client\\src\\assets\\Amit.jpeg"
          },
        ],
       tools:

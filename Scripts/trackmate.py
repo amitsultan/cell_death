@@ -13,13 +13,26 @@ def runTrackmate(first_file_path, output_file_path):
 	# output = subprocess.run(["cat", "data.txt"], capture_output=True)
 
 	# print((result.stdout).decode('ascii'))
-	command = 'ImageJ-win64 New_.py "{}" "{}"'.format(first_file_path, output_file_path)
+	
+
+	command = 'ImageJ-win64 C:\\NodeServer\\cell_death\\Scripts\\New_.py "{}" "{}"'.format(first_file_path, output_file_path)
 	p = subprocess.run(command,shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	# if p is None:
+	# 	raise Exception("oops i have excption p is None")
 	output = p.stdout.decode('ascii')
+	
+	error = p.stderr.decode('ascii')
+	# if output is None:
+	# 	raise Exception("oops i have excption output is None {}".format(output))
+
 	if "TrackMate finished successfully" in output:
 		beautify_csv(output_file_path)
+	# if output is not None:
+		# beautify_csv(output_file_path)
 	else:
-		raise Exception("Failed to execute trackmate script")
+		print(error)
+		# raise Exception("Failed to execute trackmate script")
+		# raise Exception("output is none {}".format(output))
 
 def get_file_path(experiment_id):
 	experiemnt_first_image = None
@@ -33,7 +46,7 @@ def get_file_path(experiment_id):
 	if not path.isfile(WORKING_DIR+experiment_id+"/images"+"/"+experiment_id+"_0.tif"):
 		raise Exception("No first tif file found")
 	else:
-		experiemnt_first_image = WORKING_DIR+experiment_id+"/images"+"/"+experiment_id+"_1.tif"
+		experiemnt_first_image = WORKING_DIR+experiment_id+"/images"+"/"+experiment_id+"_0.tif"
 	return (experiemnt_first_image, save_file)
 
 if __name__=='__main__':
@@ -45,4 +58,5 @@ if __name__=='__main__':
 			first_file_path, save_file_path = get_file_path(experiment_id)
 			runTrackmate(first_file_path, save_file_path)
 		except Exception as e:
+			print("oops i have excption")
 			raise e 

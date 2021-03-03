@@ -15,8 +15,8 @@ def beautify_csv(path):
 
 	data = data.loc[data.groupby('id')['frame'].idxmin()]
 
-	# data = data.drop(['quality', 'length', 'spot_id'], axis=1)
-	data = data.drop('spot_id', axis=1)
+	data = data.drop(['quality', 'length', 'spot_id'], axis=1)
+	# data = data.drop('spot_id', axis=1)
 
 	data.sort_values('frame', inplace=True)
 

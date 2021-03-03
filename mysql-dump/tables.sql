@@ -37,7 +37,7 @@ CREATE TABLE `contactRequests` (
 
 INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('amit','sultan','amitsul@post.bgu.ac.il','123456aA!');
 INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('yarin','hayun','yarinbo@post.bgu.ac.il','123456aA!');
-INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('liat','cohen','liatp@post.bgu.ac.il','123456aA!');
+INSERT INTO dbo.users (,last_name,emaifirst_namel,password) VALUES('liat','cohen','liatp@post.bgu.ac.il','123456aA!');
 INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('haim','reyes','reyes@post.bgu.ac.il','123456aA!');
 
 INSERT INTO dbo.experiments (experiment_id,date,num_pictures,width,height,user_id) VALUES('20180514','2018-05-14','60','1392','1040','1');

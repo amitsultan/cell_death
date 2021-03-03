@@ -10,6 +10,7 @@
                 <card
                  :title="card.title" 
                  :subTitle="card.subTitle"
+                 :src="crad.src"
                  />
             </b-row>
             </slot>

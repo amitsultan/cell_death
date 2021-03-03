@@ -7,7 +7,7 @@
     Our cell tracking tool is a multi-purpose tool for various microscope images analysis.
     Our goal is to provide an easy way to detect certain states of cells or other moving organisms.
     Our tool will serve for phenomena as Cell Death and Calcium Signaling, hopefully for more in the future.
-     <br><br>Enjoy your visit in our site :) 
+     
     </div>
     <br><br>
     <div class="bottom">

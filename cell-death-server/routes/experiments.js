@@ -268,8 +268,8 @@ router.post('/uploadProject', (req, res) => {
                       // send email after successfully update the database with the experiment
                       pythonController.runTrackMate(experiment_id).then((results)=>{
                         if(results.message && results.message == "Experiment processed successfully")
-                          mailController.sendSuccessEmail(req.session.email, experiment_id)
-                          results.send("trackmete succsessfully")
+                          // mailController.sendSuccessEmail(req.session.email, experiment_id)
+                          res.send("trackmete succsessfully")
                       })
                       
                     }else{
