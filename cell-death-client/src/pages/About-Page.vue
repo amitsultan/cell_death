@@ -1,6 +1,8 @@
 <template>
 
   <div class="text-center container shadow-lg p-3 mb-5 bg-white rounded left">
+                <img src=""/>
+
     <table>
       <tr>
         <td>
@@ -40,8 +42,7 @@ export default {
          {
            title:"Haim Reyes",
           subTitle:"reyes@post.bgu.ac.il",
-          src:"https://github.com/amitsultan/cell_death/blob/master/cell-death-client/src/assets/team/haim.jfif"
-          
+          src: "../assets/team/haim.png",
          },
          {
            title:"Liat Cohen",
