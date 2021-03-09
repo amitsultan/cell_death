@@ -42,7 +42,7 @@ export default {
          {
            title:"Haim Reyes",
           subTitle:"reyes@post.bgu.ac.il",
-          src: "../assets/team/haim.png",
+          src: "https://github.com/amitsultan/cell_death/blob/534bb4f620e04a0a76b64743ad2d126493b4a237/cell-death-client/src/assets/team/haim.png?raw=true",
          },
          {
            title:"Liat Cohen",
