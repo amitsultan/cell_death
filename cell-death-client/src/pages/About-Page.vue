@@ -40,22 +40,23 @@ export default {
          {
            title:"Haim Reyes",
           subTitle:"reyes@post.bgu.ac.il",
-          src:"...\assets\\haim.jfif"
+          src:"https://github.com/amitsultan/cell_death/blob/master/cell-death-client/src/assets/team/haim.jfif"
+          
          },
          {
            title:"Liat Cohen",
           subTitle: "liatp@post.bgu.ac.il",
-          src:"cell-death-client/src/assets/liat.jfif"
+          src:"https://github.com/amitsultan/cell_death/blob/master/cell-death-client/src/assets/team/liat.jfif"
          },
          {
            title:"Yarin Hayun",
           subTitle:"yarinbo@post.bgu.ac.il",
-          src:"...\assets\\yarin.jfif"
+          src:"https://github.com/amitsultan/cell_death/blob/master/cell-death-client/src/assets/team/yarin.jfif"
           },
          {
            title:"Amit Sultan",
           subTitle:"Amitsultan@gmail.com",
-          src:"...\assets\\amit.jfif"
+          src:"https://github.com/amitsultan/cell_death/blob/master/cell-death-client/src/assets/team/amit.jfif"
          },
        ],
       tools:
