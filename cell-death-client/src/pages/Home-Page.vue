@@ -1,5 +1,5 @@
 <template>
- <div class="container shadow-lg p-3 mb-5 bg-white rounded left home_text" width=80%>
+ <div class="shadow-lg p-3 mb-5 bg-white rounded left home_text" width=80%>
     <h1>
         Welcome to Cell Tracking Tool 
     </h1>
@@ -21,7 +21,7 @@
 
 <script>
 export default {
-  name: "home",
+  name: "Home",
   data: () => {
     empty: {}
   },

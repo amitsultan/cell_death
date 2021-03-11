@@ -3,13 +3,8 @@ import VueRouter from "vue-router";
 
 const routes = [
   {
-    path: "/",
-    name: "main",
-    component: () => import("./pages/Home-Page"),
-  },
-  {
     path: "/Home",
-    name: "home",
+    name: "Home",
     component: () => import("./pages/Home-Page"),
   },
   {
@@ -41,6 +36,11 @@ const routes = [
     path: "/Contact",
     name: "ContactPage",
     component: () => import("./pages/Contact-Page"),
+  },
+  {
+    path: "/",
+    name: "main",
+    component: () => import("./pages/Home-Page"),
   },
 ];
 
