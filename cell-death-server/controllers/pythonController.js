@@ -63,6 +63,7 @@ function runTrackMate(exp_id){
             }
             else{
                 console.log(results)
+                loggerController.log('info', 'Experiment processed successfully',exp_id)
                 // results.message("Experiment processed successfully");
                 resolve({message : "Experiment processed successfully"})
             }

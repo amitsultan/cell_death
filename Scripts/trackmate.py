@@ -26,12 +26,13 @@ def runTrackmate(first_file_path, output_file_path):
 	# 	raise Exception("oops i have excption output is None {}".format(output))
 
 	if "TrackMate finished successfully" in output:
+		print(output)
 		beautify_csv(output_file_path)
 	# if output is not None:
 		# beautify_csv(output_file_path)
 	else:
 		print(error)
-		# raise Exception("Failed to execute trackmate script")
+		raise Exception("Failed to execute trackmate script")
 		# raise Exception("output is none {}".format(output))
 
 def get_file_path(experiment_id):
