@@ -22,9 +22,7 @@
 <script>
 export default {
   name: "Home",
-  data: () => {
-    empty: {}
-  },
+  data(){return{}}
  }
 </script>
 <style>
