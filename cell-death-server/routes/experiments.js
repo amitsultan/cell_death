@@ -271,8 +271,8 @@ router.post('/uploadProject', (req, res) => {
                       var start = new Date();
                       pythonController.runTrackMate(experiment_id).then((results)=>{
                         if(results.message && results.message == "Experiment processed successfully")
-                          var end = new Date - start;
-                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' ms', experimentId)
+                          var end = (new Date - start)/1000;
+                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' s', experimentId)
                           mailController.sendSuccessEmail(req.session.email, experiment_id)
                           // return res.status(200).send({msg:"trackmete succsessfully"})
                       }).catch((error)=>{

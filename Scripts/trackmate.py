@@ -3,9 +3,10 @@ from subprocess import PIPE
 from os import path
 import sys
 from trackmate_file_handler import beautify_csv
-
+import timeit
 
 WORKING_DIR = "C:/NodeServer/cell_death/data/"
+NEW_PY = "C:\\NodeServer\\cell_death\\Scripts\\New_.py"
 
 def runTrackmate(first_file_path, output_file_path):
 	# script_status = subprocess.call('ImageJ-win64 New_.py', capture_output=True)
@@ -14,9 +15,10 @@ def runTrackmate(first_file_path, output_file_path):
 
 	# print((result.stdout).decode('ascii'))
 	
-
-	command = 'ImageJ-win64 C:\\NodeServer\\cell_death\\Scripts\\New_.py "{}" "{}"'.format(first_file_path, output_file_path)
+	start = timeit.default_timer()
+	command = 'ImageJ-win64 "{}" "{}" "{}"'.format(NEW_PY, first_file_path, output_file_path)
 	p = subprocess.run(command,shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	print('Time: ', timeit.default_timer() - start, ' s')
 	# if p is None:
 	# 	raise Exception("oops i have excption p is None")
 	output = p.stdout.decode('ascii')
