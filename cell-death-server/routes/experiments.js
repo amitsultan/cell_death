@@ -282,6 +282,7 @@ router.post('/uploadProject', (req, res) => {
             // Call python to handle unrar\unzip of the project file
             // After unziping the experiment pngs files will be avilable to watch
             pythonController.unArchiveData(fileName).then((results)=>{
+              loggerController.log('info','uploadProject: unrar successesfully', experiment_id)
               // check if python script excuted in success
               // if not, we have a folder with the same experiment name
               if(results.message &&  results.message == 'Images created successfully'){
@@ -294,9 +295,13 @@ router.post('/uploadProject', (req, res) => {
                   user_id: req.session.userID}
                   DButils.addExperiment(experiment_details).then((results)=>{
                     if(results && results.affectedRows && results.affectedRows == 1){
+                      loggerController.log('info','uploadProject: experiment added to db', experiment_id)
                       // send email after successfully update the database with the experiment
+                      var start = new Date();
                       pythonController.runTrackMate(experiment_id).then((results)=>{
                         if(results.message && results.message == "Experiment processed successfully")
+                          var end = (new Date - start)/1000;
+                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' s', experiment_id)
                           mailController.sendSuccessEmail(req.session.email, experiment_id)
                           results.send("trackmete succsessfully")
                       })
