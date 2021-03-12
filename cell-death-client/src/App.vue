@@ -6,11 +6,11 @@
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
-          <b-nav-item active :to="{ name: 'Home' }">Home</b-nav-item>
-          <b-nav-item active :to="{ name: 'Experiments'}">Experiments</b-nav-item>
-          <b-nav-item active :to="{ name: 'requestPage'}">Request-experiment</b-nav-item>
-          <b-nav-item active :to="{ name: 'AboutPage'}">About</b-nav-item>
-          <b-nav-item active :to="{ name: 'ContactPage'}">Contact</b-nav-item>
+          <b-nav-item active :to="{ name: 'main' }">Home</b-nav-item>
+          <b-nav-item :to="{ name: 'Experiments'}">Experiments</b-nav-item>
+          <b-nav-item :to="{ name: 'requestPage'}">Request-experiment</b-nav-item>
+          <b-nav-item :to="{ name: 'AboutPage'}">About</b-nav-item>
+          <b-nav-item :to="{ name: 'ContactPage'}">Contact</b-nav-item>
         </b-navbar-nav>
         <!-- Modal for requesting experiemnts   -->
         <!-- Right aligned nav items -->

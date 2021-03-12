@@ -253,6 +253,7 @@ router.post('/uploadProject', (req, res) => {
             // Call python to handle unrar\unzip of the project file
             // After unziping the experiment pngs files will be avilable to watch
             pythonController.unArchiveData(fileName).then((results)=>{
+              loggerController.log('info','uploadProject: unrar successesfully', experiment_id)
               // check if python script excuted in success
               // if not, we have a folder with the same experiment name
               if(results.message &&  results.message == 'Images created successfully'){
@@ -265,11 +266,19 @@ router.post('/uploadProject', (req, res) => {
                   user_id: req.session.userID}
                   DButils.addExperiment(experiment_details).then((results)=>{
                     if(results && results.affectedRows && results.affectedRows == 1){
+                      loggerController.log('info','uploadProject: experiment added to db', experiment_id)
                       // send email after successfully update the database with the experiment
+                      var start = new Date();
                       pythonController.runTrackMate(experiment_id).then((results)=>{
                         if(results.message && results.message == "Experiment processed successfully")
+                          var end = (new Date - start)/1000;
+                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' s', experiment_id)
                           mailController.sendSuccessEmail(req.session.email, experiment_id)
-                          results.send("trackmete succsessfully")
+                          // return res.status(200).send({msg:"trackmete succsessfully"})
+                      }).catch((error)=>{
+                        let failure_message = 'Unexpected error in server side could not run trakmate'
+                        loggerController.log('error', 'uploadProject: run trackmate process failed',error)
+                        mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
                       })
                       
                     }else{
@@ -289,11 +298,11 @@ router.post('/uploadProject', (req, res) => {
               }else{ // else for unexpceted cases
                 let failure_message = 'Unexpected error in server side'
                 mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                loggerController.log('error', 'uploadProject: Python script failed',results)
+                loggerController.log('error', 'uploadProject: Python script failed unexpceted cases',results)
               }
             }).catch((error)=>{
               let failure_message = 'Unexpected error in server side'
-              loggerController.log('error', 'uploadProject: Python script failed',error)
+              loggerController.log('error', 'uploadProject: Python script failed catch of unArchiveData',error)
               mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
             })
           }else{

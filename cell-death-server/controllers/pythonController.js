@@ -15,6 +15,7 @@ function unArchiveData(input) {
     try{
         PythonShell.run('file_preperations.py', options, function (err, results) {
             if(err){
+                console.log(err)
                 reject(err)
             }else{
                 if(results.includes('Experiment already exists')){
@@ -29,10 +30,12 @@ function unArchiveData(input) {
                         // TODO
                         // Handle file not found (input == null)
                     }else{
+                        console.log("before PONGS\n\n\n");
                         experiments.createPNGs(input.split('.').slice(0, -1).join('.')).then((results) =>{
                             results.message = 'Images created successfully';
                             resolve(results)
                         }).catch((error) => {
+                            console.log(err)
                             reject(error)
                         })
                     }   
@@ -40,6 +43,7 @@ function unArchiveData(input) {
             }
         })
     }catch(err){
+        console.log(err)
         reject(err)
     }
   })
@@ -58,13 +62,15 @@ function runTrackMate(exp_id){
         //run trackmete script
         PythonShell.run('trackmate.py', options, function (err, results) {
             if(err){
+                console.log(err)
                 reject(err);
             }
             else{
-                results.message("Experiment processed successfully");
+                results.message = "Experiment processed successfully";
             }
         })
     }catch(err){
+        console.log(err)
         results.message("Could not run trackmate");
     }
     })
