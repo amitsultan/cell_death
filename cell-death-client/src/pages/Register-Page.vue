@@ -143,7 +143,7 @@ export default {
                 if(response.status === 200){
                     this.$root.toast(
                         "successful",
-                        "User successfully logged in",
+                        "User registerd successfully",
                         "success"
                     );
                     this.$router.push("/Login");
