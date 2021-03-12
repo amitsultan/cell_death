@@ -11,7 +11,7 @@
     </div>
     <div class="card-body" :class="bodyClasses">
       <slot>
-          <img loading="lazy" :src="src"/>
+          <img loading="lazy" :src="src" width=160px height=160px />
           <!--:src="require(`@/assets/img/${filename}`)"-->
       </slot>
     </div>
