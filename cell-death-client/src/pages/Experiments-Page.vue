@@ -58,6 +58,6 @@ export default {
 
 <style>
 .list-container{
-    position: fixed;
+    position: absolute;
 }
 </style>
