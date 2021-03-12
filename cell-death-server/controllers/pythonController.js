@@ -29,6 +29,7 @@ function unArchiveData(input) {
                         // TODO
                         // Handle file not found (input == null)
                     }else{
+                        console.log("before PONGS\n\n\n");
                         experiments.createPNGs(input.split('.').slice(0, -1).join('.')).then((results) =>{
                             results.message = 'Images created successfully';
                             resolve(results)
@@ -61,7 +62,7 @@ function runTrackMate(exp_id){
                 reject(err);
             }
             else{
-                results.message("Experiment processed successfully");
+                results.message = "Experiment processed successfully";
             }
         })
     }catch(err){

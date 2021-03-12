@@ -5,7 +5,8 @@ import sys
 from trackmate_file_handler import beautify_csv
 
 
-WORKING_DIR = "C:/NodeServer/cell_death/data/"
+WORKING_DIR = "F:/Forth_year/Final-Project/cell_death/data/"
+NEW_PY = "F:/Forth_year/Final-Project/cell_death/Scripts/New_.py"
 
 def runTrackmate(first_file_path, output_file_path):
 	# script_status = subprocess.call('ImageJ-win64 New_.py', capture_output=True)
@@ -13,13 +14,15 @@ def runTrackmate(first_file_path, output_file_path):
 	# output = subprocess.run(["cat", "data.txt"], capture_output=True)
 
 	# print((result.stdout).decode('ascii'))
-	command = 'ImageJ-win64 New_.py "{}" "{}"'.format(first_file_path, output_file_path)
+	command = 'ImageJ-win64 '+NEW_PY+' "{}" "{}"'.format(first_file_path, output_file_path)
 	p = subprocess.run(command,shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	output = p.stdout.decode('ascii')
 	if "TrackMate finished successfully" in output:
 		beautify_csv(output_file_path)
 	else:
-		raise Exception("Failed to execute trackmate script")
+		# raise Exception("Failed to execute trackmate script")
+		s = "out: {}\nerr: {}".format(p.stdout.decode('ascii'), p.stderr.decode('ascii'))
+		raise Exception(s)
 
 def get_file_path(experiment_id):
 	experiemnt_first_image = None
