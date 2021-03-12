@@ -41,9 +41,10 @@
         variant="primary"
         style="width:100px;display:block;"
         class="mx-auto w-100"
-        :disabled="!$root.store.email"
+        :disabled="clickButton"
         >Request</b-button
       >
+  
     </b-form>
     <b-alert
       class="mt-2"
@@ -75,6 +76,7 @@ export default {
         fileInfos: [],
         submitError: undefined,
       },
+      clickButton: false,
       blurConfig: {
         isBlurred: !this.$root.store.email,
         opacity: 0.2,
@@ -101,6 +103,7 @@ export default {
         this.form.progress = Math.round((100 * event.loaded) / event.total);
       })
         .then(response => {
+          this.clickButton = false;
           this.$root.toast(
             "successful",
             "File successfully sent",
@@ -108,6 +111,7 @@ export default {
           );
         })
         .catch((err) => {
+          this.clickButton = false;
           this.form.progress = 0;
           this.form.message = "Could not upload the file!";
           this.$root.toast(
@@ -120,8 +124,10 @@ export default {
     },
     onRequest() {
       this.form.submitError = undefined;
+      this.clickButton = true;
       this.$v.form.$touch();
       if (this.$v.form.$anyError) {
+        this.clickButton = false;
         return;
       }
       this.request();
