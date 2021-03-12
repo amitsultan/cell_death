@@ -108,8 +108,8 @@ def run_process(input_path, output_path):
 
 	# The feature model, that stores edge and track features.
 	fm = model.getFeatureModel()
-	print(fm)
-	labels_row = ['id','spot_id','x', 'y', 'frame', 'type', 'length']
+	# print(fm)
+	labels_row = ['id','spot_id','x', 'y', 'frame','quality', 'type', 'length']
 	#'qualitiy','visability', 'track_length']
 	#rows = []
 	track_ids = model.getTrackModel().trackIDs(True)
@@ -123,8 +123,8 @@ def run_process(input_path, output_path):
 			track = model.getTrackModel().trackSpots(id)
 			num_spots = track.size()
 #			print(track)
-#			q=track.getFeature('QUALITY')
-#			row.append(q)
+			# q=track.getFeature('QUALITY')
+			# row.append(q)
 #			snr=track.getFeature('SNR') 
 #			row.append(snr)
 #			mean=track.getFeature('MEAN_INTENSITY')
@@ -153,7 +153,7 @@ def run_process(input_path, output_path):
 #				row.append(snr)
 #				mean=spot.getFeature('MEAN_INTENSITY')
 #				row.append(mean)
-				visibility=spot.getFeature('VISIBILITY')
+				# visibility=spot.getFeature('VISIBILITY')
 #				print(visibility)
 #				break
 #				row.append(visability)

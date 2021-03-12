@@ -115,8 +115,9 @@ const createPNGs = async (serial) => {
             is_dimensions_saved = true
           }
         });
+        console.log("all went well");
         await converter.convertArray(tif_array, save_location).catch((err) => {
-          console.log(err)
+          console.log("converter: "+err)
           reject(err)
         });
         let images_details = {
@@ -292,6 +293,7 @@ router.post('/uploadProject', (req, res) => {
                 loggerController.log('error', 'uploadProject: Python script failed',results)
               }
             }).catch((error)=>{
+              console.log("our error is :" + error)
               let failure_message = 'Unexpected error in server side'
               loggerController.log('error', 'uploadProject: Python script failed',error)
               mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
