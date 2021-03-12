@@ -56,7 +56,7 @@
         <div class='buttons'>
 
             <b-button type="reset" variant="danger" style="width:240px;margin-right:5px;">Reset</b-button>
-            <b-button type="submit" variant="primary" style="width:240px; margin-left:5px;">Register</b-button>
+            <b-button type="submit" :disabled="clickButton" variant="primary" style="width:240px; margin-left:5px;">Register</b-button>
         </div>
         <div class="mt-2">
             You have an account already?
@@ -96,7 +96,8 @@ export default {
                 submitError: undefined
             },
             errors: [],
-            validated: false
+            validated: false,
+            clickButton: false,
         };
     },
     validations: {
@@ -141,6 +142,7 @@ export default {
                     }
                 );
                 if(response.status === 200){
+                    this.clickButton = false;
                     this.$root.toast(
                         "successful",
                         "User registerd successfully",
@@ -148,15 +150,19 @@ export default {
                     );
                     this.$router.push("/Login");
                 }else{
+                    this.clickButton = false;
                     this.form.submitError = response.data.message;   
                 }
             } catch (err) {
+                this.clickButton = false;
                 this.form.submitError = err.response.data.message;
             }
         },
         onRegister() {
             this.$v.form.$touch();
+            this.clickButton = true;
             if (this.$v.form.$anyError) {
+                this.clickButton = false;
                 return;
             }
             // console.log("register method go");
