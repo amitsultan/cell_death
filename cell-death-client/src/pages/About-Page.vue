@@ -1,6 +1,5 @@
 <template>
-
-  <div class="text-center container shadow-lg p-3 mb-5 bg-white rounded left">
+  <div class="text-center wrapper container shadow-lg p-3 mb-5 bg-white rounded left">
     <table>
       <tr>
         <td>
@@ -20,17 +19,14 @@
       </tr>
 
     </table>
-    <!--<cards title="Our Team Members" subTitle="meet our team!" :cards="cards"></cards>-->
   </div>
 </template>
 
 <script>
-//import cards from "../components/AllCards"
 import card from "../components/Card"
 
 export default {
   components:{
-        //cards,
         card
     },
   data() {
@@ -40,22 +36,22 @@ export default {
          {
            title:"Haim Reyes",
           subTitle:"reyes@post.bgu.ac.il",
-          src:"...\assets\\haim.jfif"
+          src: "https://raw.githubusercontent.com/amitsultan/cell_death/534bb4f620e04a0a76b64743ad2d126493b4a237/cell-death-client/src/assets/team/haim.png",
          },
          {
            title:"Liat Cohen",
           subTitle: "liatp@post.bgu.ac.il",
-          src:"cell-death-client/src/assets/liat.jfif"
+          src: "https://raw.githubusercontent.com/amitsultan/cell_death/3bf18426327bc021060fe86f5ba5805d027ab2dd/cell-death-client/src/assets/team/liat.png"
          },
          {
            title:"Yarin Hayun",
           subTitle:"yarinbo@post.bgu.ac.il",
-          src:"...\assets\\yarin.jfif"
+          src: "https://raw.githubusercontent.com/amitsultan/cell_death/3bf18426327bc021060fe86f5ba5805d027ab2dd/cell-death-client/src/assets/team/yarin.png"
           },
          {
            title:"Amit Sultan",
           subTitle:"Amitsultan@gmail.com",
-          src:"...\assets\\amit.jfif"
+          src: "https://raw.githubusercontent.com/amitsultan/cell_death/3bf18426327bc021060fe86f5ba5805d027ab2dd/cell-death-client/src/assets/team/amit.png"
          },
        ],
       tools:

@@ -1,13 +1,11 @@
 import Main from "./pages/Home-Page";
 import VueRouter from "vue-router";
 
-// import NotFound from "./pages/NotFoundPage";
-
 const routes = [
   {
-    path: "/",
-    name: "main",
-    component: Main,
+    path: "/Home",
+    name: "Home",
+    component: () => import("./pages/Home-Page"),
   },
   {
     path: "/Login",
@@ -39,12 +37,11 @@ const routes = [
     name: "ContactPage",
     component: () => import("./pages/Contact-Page"),
   },
-  
-  // {
-  //     path: "*",
-  //     name: "notFound",
-  //     component: NotFound,
-  // },
+  {
+    path: "/",
+    name: "main",
+    component: () => import("./pages/Home-Page"),
+  },
 ];
 
 

@@ -9,15 +9,10 @@
         <p class="card-category" v-if="subTitle">{{subTitle}}</p>
       </slot>
     </div>
-    <div class="card-body" :class="bodyClasses">
+    <div class="card-body">
       <slot>
-          <img loading="lazy" :src="src"/>
-          <!--:src="require(`@/assets/img/${filename}`)"-->
+          <img :src="src" height=165px width=165px/>
       </slot>
-    </div>
-    <slot name="raw-content"></slot>
-    <div class="card-footer" :class="footerClasses" v-if="$slots.footer">
-      <slot name="footer"></slot>
     </div>
   </div>
 </template>

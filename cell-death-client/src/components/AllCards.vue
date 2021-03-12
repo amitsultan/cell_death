@@ -10,11 +10,13 @@
                 <card
                  :title="card.title" 
                  :subTitle="card.subTitle"
+                 :src="card.src"
                  />
             </b-row>
             </slot>
         </b-col>
   </b-container>
+  
 </template>
 <script>
 import card from "./Card"
