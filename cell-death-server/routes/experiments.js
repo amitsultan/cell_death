@@ -14,7 +14,6 @@ const loggerController = require('../controllers/loggerController')
 const csvEditorController = require('../controllers/csvEditorController')
 var sizeOf = require('image-size');
 
-
 var options = {
   logLevel: 0,
 };
@@ -175,6 +174,35 @@ router.get("/getDetails/:experimentId", (req, res) => {
   }
 });
 
+router.get("/experimentCSV/:experimentId", (req, res) => {
+  try{
+    let data_path = "../data/"
+    let experiment_id = req.params.experimentId
+    if(!experiment_id){
+      loggerController.log('error','experimentCSV: No experiment ID folder', {experiment_id: experiment_id, error:err})
+      res.status(500).send("Unable to get csv file for experiment: "+experiment_id);
+    }else{
+      let m_path = require("path");
+      let path = m_path.resolve(data_path + experiment_id + "/" + experiment_id +".csv")
+      console.log(path)
+        fs.readFile(path, 'utf8', function (err,data) {
+          if (err) {
+            console.log(err)
+            loggerController.log('error','experimentCSV: Failed to read file', {experiment_id: experiment_id, error:err})
+            res.status(500).send("Unable to get csv file for experiment: "+experiment_id);
+          }else{
+            console.log("else")
+            res.setHeader('Content-disposition', 'attachment; filename='+experiment_id+'.csv');
+            res.set('Content-Type', 'text/csv');
+            res.status(200).send(data);
+          }
+        });
+    }
+  }catch(err){
+    loggerController.log('error','experimentCSV: Unexcpeted error', {experiment_id: experiment_id, error:err})
+    res.status(500).send("Unable to get csv file for experiment: "+experiment_id);
+  }
+});
 
 //important!!! make sure that the image id is the same as frame id!!!!!
 router.get("/getCsvDataById/:experimentId/:frameId", (req, res) => {

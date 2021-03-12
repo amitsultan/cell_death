@@ -33,32 +33,38 @@
         <hr>
         <div class="menu-item">Remove</div>
     </div>
-    <TableView
-    :key="marks.length"
-    v-if='marks != []'
-    :headers="table_headers"
-    :rows="marks"   
-    :sort="{
-      field: 'first_name',
-      order: 'asc'
-    }"
-    :pagination="{
-      itemsPerPage: 10,
-      align: 'center',
-      visualStyle: 'select'
-    }"
-    css-style="my-css-style"
-  >
-    <template v-slot:items="{ row }">
-        <td>{{ row.id }}</td>  
-        <td>{{ row.x }}</td>              
-        <td>{{ row.y }}</td>
-        <td>{{ row.frame }}</td>            
-    </template>
-        <template v-slot:no-data>
-      <span>No data</span>
-    </template>
-  </TableView>
+    <div class="container shadow-lg p-3 mb-5 bg-white rounded table_div">
+        <div class="table_top">
+            <h4 class="table_header">Cell marks</h4>
+            <b-button class="csv_download_btn" v-on:click='csvDownload'>Download csv</b-button>
+        </div>
+        <TableView
+        :key="marks.length"
+        v-if='marks != []'
+        :headers="table_headers"
+        :rows="marks"   
+        :sort="{
+        field: 'first_name',
+        order: 'asc'
+        }"
+        :pagination="{
+        itemsPerPage: 10,
+        align: 'center',
+        visualStyle: 'select'
+        }"
+        css-style="my-css-style"
+    >
+        <template v-slot:items="{ row }">
+            <td>{{ row.id }}</td>  
+            <td>{{ row.x }}</td>              
+            <td>{{ row.y }}</td>
+            <td>{{ row.frame }}</td>            
+        </template>
+            <template v-slot:no-data>
+        <span>No data</span>
+        </template>
+    </TableView>
+    </div>
 </div>
 </template>
 
@@ -221,6 +227,26 @@ export default {
         onMouseUpdate(e) {
             this.mark.x = e.offsetX;
             this.mark.y = e.offsetY;
+        },
+        async csvDownload(){
+            let config = {
+                url: this.$root.API_BASE + 'experiments/experimentCSV/'+this.id,
+                method: 'GET',
+                responseType: 'blob'
+            }
+            // fetching Image
+            this.axios(config)
+            .then((response) => {
+                console.log("got it")
+                var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                var fileLink = document.createElement('a');
+                fileLink.href = fileURL;
+                fileLink.setAttribute('download', this.id+'.csv');
+                document.body.appendChild(fileLink);
+                fileLink.click();
+            }).catch((error)=>{
+                console.log(error)  
+            });
         },
         async checkMarkProximity(mark){
             let tmp = []
@@ -578,5 +604,15 @@ hr{
 }
 #imageCanvas{
     /* position: absolute; */
+}
+.table_header{
+    float: left;
+}
+.csv_download_btn, .csv_download_btn:hover, .csv_download_btn:focus, .csv_download_btn:active{
+    float: right;
+    background-color: #6CB5FF;
+}
+.table_top{
+    margin-bottom:2.5em;
 }
 </style>
