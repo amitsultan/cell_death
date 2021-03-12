@@ -186,7 +186,7 @@ export default {
             }else{
                 this.menuDisplayed = false;
                 let newMark = {
-                    frame:this.current,
+                    frame:this.current - 1,
                     x: this.pause_mark.x,
                     y: this.pause_mark.y,
                     type: this.menuType,
