@@ -385,72 +385,76 @@ export default {
                 this.marks = []       
             })
         },onPrev(){
-            if(!this.can_skip){
+            if(!this.can_skip || this.current == 1){
                 return;
             }
-            this.saveCurrentFrameData(this.current)
-            if(this.current > 1 ){
-                this.current--
-                this.fetchImage(this.current).then((result)=>{
-                    this.marks = []
-                    this.counter = 2
-                    this.next = this.src
-                    this.src = this.prev
-                    this.prev = result
-                    this.updateImage()
-                    this.draw()
-                    this.fetchImageData(this.current)
-                    if(this.current == 1){
-                    this.prev = this.no_image
-                    }
-                }).catch((error)=>{
+            else{
+                this.saveCurrentFrameData(this.current)
+                if(this.current > 1 ){
+                    this.current--
+                    this.fetchImage(this.current).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        this.next = this.src
+                        this.src = this.prev
+                        this.prev = result
+                        this.updateImage()
+                        this.draw()
+                        this.fetchImageData(this.current)
+                        if(this.current == 1){
+                        this.prev = this.no_image
+                        }
+                    }).catch((error)=>{
+                        this.$root.toast(
+                            "Image loading Failed",
+                            "Failed to fetch image from server",
+                            "danger"
+                        );
+                    })
+                }else{
                     this.$root.toast(
-                        "Image loading Failed",
-                        "Failed to fetch image from server",
+                        "Reached timelapse start!",
+                        "No more pictures to load!",
                         "danger"
                     );
-                })
-            }else{
-                this.$root.toast(
-                    "Reached timelapse start!",
-                    "No more pictures to load!",
-                    "danger"
-                );
+                }
             }
         },
         onNext(){
-            if(!this.can_skip){
+            if(!this.can_skip || this.current == this.details.num_pictures){
                 return;
             }
-            this.saveCurrentFrameData(this.current)
-            // load next picture
-            if(this.current < this.details.num_pictures){
-                this.current++
-                this.fetchImage(this.current).then((result)=>{
-                    this.marks = []
-                    this.counter = 2
-                    this.prev = this.src
-                    this.src = this.next
-                    this.next = result
-                    this.updateImage()
-                    this.draw()
-                    this.fetchImageData(this.current)
-                    if(this.current == this.details.num_pictures){
-                        this.next = this.no_image
-                    }
-                }).catch((error)=>{
+            else{
+                this.saveCurrentFrameData(this.current)
+                // load next picture
+                if(this.current < this.details.num_pictures){
+                    this.current++
+                    this.fetchImage(this.current).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        this.prev = this.src
+                        this.src = this.next
+                        this.next = result
+                        this.updateImage()
+                        this.draw()
+                        this.fetchImageData(this.current)
+                        if(this.current == this.details.num_pictures){
+                            this.next = this.no_image
+                        }
+                    }).catch((error)=>{
+                        this.$root.toast(
+                            "Image loading Failed",
+                            "Failed to fetch image from server",
+                            "danger"
+                        );
+                    })
+                } else {
                     this.$root.toast(
-                        "Image loading Failed",
-                        "Failed to fetch image from server",
+                        "Reached max!",
+                        "No more pictures to load!",
                         "danger"
                     );
-                })
-            } else {
-                this.$root.toast(
-                    "Reached max!",
-                    "No more pictures to load!",
-                    "danger"
-                );
+                }
             }
         }
     },
