@@ -36,6 +36,7 @@
     <div class="container shadow-lg p-3 mb-5 bg-white rounded table_div">
         <div class="table_top">
             <h4 class="table_header">Cell marks</h4>
+            <b-button class="csv_download_btn" style="margin-left:10px" v-on:click="clear">Clear</b-button>
             <b-button class="csv_download_btn" v-on:click='csvDownload'>Download csv</b-button>
         </div>
         <TableView
@@ -124,6 +125,18 @@ export default {
                 window.document.querySelector(".menu").style.display = "none";
             }
             this.menuDisplayed = false;
+        },
+        clear(){
+            if(confirm("Are you sure you want to clear the markings?")){
+                this.marks=[]
+                if(this.current > 1){
+                    this.marks_history[this.current]["accumulated_len"] = this.marks_history[this.current - 1]["accumulated_len"]
+                }else{
+                    this.marks_history[this.current]["accumulated_len"] = 1
+                }
+                this.marks_history[this.current]["marks"] = this.marks
+                this.draw()
+            }
         },
         async normalizeMarks(){
             return new Promise((resolve, reject) =>{
@@ -473,7 +486,7 @@ export default {
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
+            url: this.$root.API_BASE + "experiments/getDetails/"+"20180514",//"20180514"
             method: 'GET'
         }
         await this.axios(config).then((response) =>{
