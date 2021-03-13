@@ -461,7 +461,7 @@ export default {
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
+            url: this.$root.API_BASE + "experiments/getDetails/"+"20180514",//"20180514"
             method: 'GET'
         }
         await this.axios(config).then((response) =>{
