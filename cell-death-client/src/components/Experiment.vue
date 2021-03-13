@@ -366,19 +366,20 @@ export default {
             number = number-1 //start images from 0 and not 1 for trackmate processing
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
-                let max_id = 0
+                let tmp_id = 1
                 results.data.forEach(element => {
                     const mark = {
-                        id: element.id,
+                        id: tmp_id,
                         x: element.x * (this.width / this.details.width),
                         y: element.y * (this.height / this.details.height),
                         frame: element.frame,
                         type: element.type,
                         color: this.typeColor(element.type)
                     }
-                    max_id = Math.max(max_id, element.id + 1)
+                    tmp_id += 1
                     this.marks.push(mark)
                 });
+                this.counter = tmp_id
             this.draw()
             }).catch((error) => {
                 console.log(error)
