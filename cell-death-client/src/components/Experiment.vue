@@ -141,11 +141,18 @@ export default {
         async normalizeMarks(){
             return new Promise((resolve, reject) =>{
                 try{
+                    let tmp_array = []
                     this.marks.forEach(mark => {
-                        mark.x =  mark.x / (this.width / this.details.width);
-                        mark.y =  mark.y / (this.height / this.details.height);
+                        let tmp = {
+                            x:  mark.x / (this.width / this.details.width),
+                            y:  mark.y / (this.height / this.details.height),
+                            frame: mark.frame,
+                            type: mark.type,
+                            id: mark.id
+                        }
+                        tmp_array.push(tmp)
                     })
-                    resolve('done')
+                    resolve(tmp_array)
                 }catch(error){
                     reject(error)
                 }
@@ -154,8 +161,8 @@ export default {
         async saveCurrentFrameData(number){
             number = number-1
             this.can_skip = false
-            this.normalizeMarks().then(()=>{
-            this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: this.marks})
+            this.normalizeMarks().then((results)=>{
+            this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: results})
             .then((response) => {
             this.can_skip = true
             }).catch((error)=>{
@@ -167,6 +174,7 @@ export default {
                 );
             });
             }).catch((error)=>{
+                console.log(error)
                 this.can_skip = true
                 this.$root.toast(
                     "Failed",
@@ -201,9 +209,9 @@ export default {
                     tmp.push(element)
                 }else{
                 }
+            });
                 this.marks = tmp
                 this.draw()
-            });
             }else{
                 this.menuDisplayed = false;
                 let newMark = {
@@ -217,6 +225,8 @@ export default {
                 await this.checkMarkProximity(newMark)
                 this.draw()
             }
+            await this.saveCurrentFrameData(this.current)
+
         },updateImage: async function(){
             try{
                 let canvas = document.getElementById('imageCanvas'),
@@ -311,6 +321,7 @@ export default {
             }
             await this.checkMarkProximity(mark)
             this.menuDisplayed = true;
+            await this.saveCurrentFrameData(this.current)
             this.draw()
         },
         drawPoint(x, y){
