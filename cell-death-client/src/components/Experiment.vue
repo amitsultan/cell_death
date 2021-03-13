@@ -36,6 +36,7 @@
     <div class="container shadow-lg p-3 mb-5 bg-white rounded table_div">
         <div class="table_top">
             <h4 class="table_header">Cell marks</h4>
+            <b-button class="csv_download_btn" style="margin-left:10px" v-on:click="clear">Clear</b-button>
             <b-button class="csv_download_btn" v-on:click='csvDownload'>Download csv</b-button>
         </div>
         <TableView
@@ -91,6 +92,8 @@ export default {
             x: 0,
             y: 0
         },
+        marks_history: {}
+        ,
         pause_mark: {
             x: 0,
             y: 0
@@ -123,14 +126,33 @@ export default {
             }
             this.menuDisplayed = false;
         },
+        clear(){
+            if(confirm("Are you sure you want to clear the markings?")){
+                this.marks=[]
+                if(this.current > 1){
+                    this.marks_history[this.current]["accumulated_len"] = this.marks_history[this.current - 1]["accumulated_len"]
+                }else{
+                    this.marks_history[this.current]["accumulated_len"] = 1
+                }
+                this.marks_history[this.current]["marks"] = this.marks
+                this.draw()
+            }
+        },
         async normalizeMarks(){
             return new Promise((resolve, reject) =>{
                 try{
+                    let tmp_array = []
                     this.marks.forEach(mark => {
-                        mark.x =  mark.x / (this.width / this.details.width);
-                        mark.y =  mark.y / (this.height / this.details.height);
+                        let tmp = {
+                            x:  mark.x / (this.width / this.details.width),
+                            y:  mark.y / (this.height / this.details.height),
+                            frame: mark.frame,
+                            type: mark.type,
+                            id: mark.id
+                        }
+                        tmp_array.push(tmp)
                     })
-                    resolve('done')
+                    resolve(tmp_array)
                 }catch(error){
                     reject(error)
                 }
@@ -139,8 +161,8 @@ export default {
         async saveCurrentFrameData(number){
             number = number-1
             this.can_skip = false
-            this.normalizeMarks().then(()=>{
-            this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: this.marks})
+            this.normalizeMarks().then((results)=>{
+            this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: results})
             .then((response) => {
             this.can_skip = true
             }).catch((error)=>{
@@ -152,6 +174,7 @@ export default {
                 );
             });
             }).catch((error)=>{
+                console.log(error)
                 this.can_skip = true
                 this.$root.toast(
                     "Failed",
@@ -164,7 +187,7 @@ export default {
             let left = e.clientX;
             let top = e.clientY;
             this.pause_mark.x = e.offsetX;
-            this.pause_mark.y = e.offsetY;
+            this.pause_mark.y = this.height - e.offsetY;
             let menuBox = window.document.querySelector(".menu");
             menuBox.style.left = left + "px";
             menuBox.style.top = top + "px";
@@ -186,9 +209,9 @@ export default {
                     tmp.push(element)
                 }else{
                 }
+            });
                 this.marks = tmp
                 this.draw()
-            });
             }else{
                 this.menuDisplayed = false;
                 let newMark = {
@@ -202,6 +225,8 @@ export default {
                 await this.checkMarkProximity(newMark)
                 this.draw()
             }
+            await this.saveCurrentFrameData(this.current)
+
         },updateImage: async function(){
             try{
                 let canvas = document.getElementById('imageCanvas'),
@@ -271,6 +296,10 @@ export default {
             });
             if(!mark.id){
                 mark.id = this.counter++
+            if(this.current in this.marks_history){
+                this.marks_history[this.current] = {"marks":this.marks,
+                                                    "accumulated_len": this.counter}
+            }
             }
             if(!is_replaced)
                 tmp.push(mark)
@@ -285,13 +314,14 @@ export default {
             this.mark.y = y;
             const mark = {
                 x: x,
-                y: y,
+                y: this.height - y,
                 frame:this.current-1,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
             await this.checkMarkProximity(mark)
             this.menuDisplayed = true;
+            await this.saveCurrentFrameData(this.current)
             this.draw()
         },
         drawPoint(x, y){
@@ -327,7 +357,7 @@ export default {
                 ctx.beginPath();
                 ctx.strokeStyle = mark.color // line color
                 ctx.fillStyle = mark.color; // line color
-                ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);
+                ctx.arc(mark.x, this.height - mark.y, 6, 0, 2 * Math.PI);
                 // ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
                 // ctx.font = "20px Arial";
                 // ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
@@ -366,98 +396,108 @@ export default {
             number = number-1 //start images from 0 and not 1 for trackmate processing
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
-                let max_id = 0
+                let tmp_id = 1
+                if(this.current > 1){
+                    tmp_id = this.marks_history[this.current - 1]["accumulated_len"]
+                }
                 results.data.forEach(element => {
                     const mark = {
-                        id: element.id,
+                        id: tmp_id,
                         x: element.x * (this.width / this.details.width),
                         y: element.y * (this.height / this.details.height),
                         frame: element.frame,
                         type: element.type,
                         color: this.typeColor(element.type)
                     }
-                    max_id = Math.max(max_id, element.id + 1)
+                    tmp_id += 1
                     this.marks.push(mark)
                 });
+                this.marks_history[this.current] = {"marks":this.marks,
+                                                    "accumulated_len": tmp_id}
+                this.counter = tmp_id
             this.draw()
             }).catch((error) => {
                 console.log(error)
                 this.marks = []       
             })
         },onPrev(){
-            if(!this.can_skip){
+            if(!this.can_skip || this.current == 1){
                 return;
             }
-            this.saveCurrentFrameData(this.current)
-            if(this.current > 1 ){
-                this.current--
-                this.fetchImage(this.current).then((result)=>{
-                    this.marks = []
-                    this.counter = 2
-                    this.next = this.src
-                    this.src = this.prev
-                    this.prev = result
-                    this.updateImage()
-                    this.draw()
-                    this.fetchImageData(this.current)
-                    if(this.current == 1){
-                    this.prev = this.no_image
-                    }
-                }).catch((error)=>{
+            else{
+                this.saveCurrentFrameData(this.current)
+                if(this.current > 1 ){
+                    this.current--
+                    this.fetchImage(this.current).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        this.next = this.src
+                        this.src = this.prev
+                        this.prev = result
+                        this.updateImage()
+                        this.draw()
+                        this.fetchImageData(this.current)
+                        if(this.current == 1){
+                        this.prev = this.no_image
+                        }
+                    }).catch((error)=>{
+                        this.$root.toast(
+                            "Image loading Failed",
+                            "Failed to fetch image from server",
+                            "danger"
+                        );
+                    })
+                }else{
                     this.$root.toast(
-                        "Image loading Failed",
-                        "Failed to fetch image from server",
+                        "Reached timelapse start!",
+                        "No more pictures to load!",
                         "danger"
                     );
-                })
-            }else{
-                this.$root.toast(
-                    "Reached timelapse start!",
-                    "No more pictures to load!",
-                    "danger"
-                );
+                }
             }
         },
         onNext(){
-            if(!this.can_skip){
+            if(!this.can_skip || this.current == this.details.num_pictures){
                 return;
             }
-            this.saveCurrentFrameData(this.current)
-            // load next picture
-            if(this.current < this.details.num_pictures){
-                this.current++
-                this.fetchImage(this.current).then((result)=>{
-                    this.marks = []
-                    this.counter = 2
-                    this.prev = this.src
-                    this.src = this.next
-                    this.next = result
-                    this.updateImage()
-                    this.draw()
-                    this.fetchImageData(this.current)
-                    if(this.current == this.details.num_pictures){
-                        this.next = this.no_image
-                    }
-                }).catch((error)=>{
+            else{
+                this.saveCurrentFrameData(this.current)
+                // load next picture
+                if(this.current < this.details.num_pictures){
+                    this.current++
+                    this.fetchImage(this.current).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        this.prev = this.src
+                        this.src = this.next
+                        this.next = result
+                        this.updateImage()
+                        this.draw()
+                        this.fetchImageData(this.current)
+                        if(this.current == this.details.num_pictures){
+                            this.next = this.no_image
+                        }
+                    }).catch((error)=>{
+                        this.$root.toast(
+                            "Image loading Failed",
+                            "Failed to fetch image from server",
+                            "danger"
+                        );
+                    })
+                } else {
                     this.$root.toast(
-                        "Image loading Failed",
-                        "Failed to fetch image from server",
+                        "Reached max!",
+                        "No more pictures to load!",
                         "danger"
                     );
-                })
-            } else {
-                this.$root.toast(
-                    "Reached max!",
-                    "No more pictures to load!",
-                    "danger"
-                );
+                }
             }
         }
     },
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
+            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
             method: 'GET'
         }
         await this.axios(config).then((response) =>{
@@ -470,7 +510,7 @@ export default {
                     "danger"
                 );
             }
-        })
+        }).catch((err)=>{console.log(err)})
         // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
     async beforeMount(){
