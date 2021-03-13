@@ -91,6 +91,8 @@ export default {
             x: 0,
             y: 0
         },
+        marks_history: {}
+        ,
         pause_mark: {
             x: 0,
             y: 0
@@ -271,6 +273,10 @@ export default {
             });
             if(!mark.id){
                 mark.id = this.counter++
+            if(this.current in this.marks_history){
+                this.marks_history[this.current] = {"marks":this.marks,
+                                                    "accumulated_len": this.counter}
+            }
             }
             if(!is_replaced)
                 tmp.push(mark)
@@ -366,19 +372,25 @@ export default {
             number = number-1 //start images from 0 and not 1 for trackmate processing
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
-                let max_id = 0
+                let tmp_id = 1
+                if(this.current > 1){
+                    tmp_id = this.marks_history[this.current - 1]["accumulated_len"]
+                }
                 results.data.forEach(element => {
                     const mark = {
-                        id: element.id,
+                        id: tmp_id,
                         x: element.x * (this.width / this.details.width),
                         y: element.y * (this.height / this.details.height),
                         frame: element.frame,
                         type: element.type,
                         color: this.typeColor(element.type)
                     }
-                    max_id = Math.max(max_id, element.id + 1)
+                    tmp_id += 1
                     this.marks.push(mark)
                 });
+                this.marks_history[this.current] = {"marks":this.marks,
+                                                    "accumulated_len": tmp_id}
+                this.counter = tmp_id
             this.draw()
             }).catch((error) => {
                 console.log(error)
