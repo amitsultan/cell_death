@@ -164,7 +164,7 @@ export default {
             let left = e.clientX;
             let top = e.clientY;
             this.pause_mark.x = e.offsetX;
-            this.pause_mark.y = e.offsetY;
+            this.pause_mark.y = this.height - e.offsetY;
             let menuBox = window.document.querySelector(".menu");
             menuBox.style.left = left + "px";
             menuBox.style.top = top + "px";
@@ -285,7 +285,7 @@ export default {
             this.mark.y = y;
             const mark = {
                 x: x,
-                y: y,
+                y: this.height - y,
                 frame:this.current-1,
                 type: this.type,
                 color: this.typeColor(this.type)
@@ -327,7 +327,7 @@ export default {
                 ctx.beginPath();
                 ctx.strokeStyle = mark.color // line color
                 ctx.fillStyle = mark.color; // line color
-                ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);
+                ctx.arc(mark.x, this.height - mark.y, 6, 0, 2 * Math.PI);
                 // ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
                 // ctx.font = "20px Arial";
                 // ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
@@ -461,7 +461,7 @@ export default {
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
+            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
             method: 'GET'
         }
         await this.axios(config).then((response) =>{
@@ -474,7 +474,7 @@ export default {
                     "danger"
                 );
             }
-        })
+        }).catch((err)=>{console.log(err)})
         // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
     async beforeMount(){
