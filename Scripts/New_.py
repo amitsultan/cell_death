@@ -122,17 +122,6 @@ def run_process(input_path, output_path):
 #			model.getLogger().log('Track ' + str(id) + ': mean velocity = ' + str(v) + ' ' + model.getSpaceUnits() + '/' + model.getTimeUnits())
 			track = model.getTrackModel().trackSpots(id)
 			num_spots = track.size()
-#			print(track)
-			# q=track.getFeature('QUALITY')
-			# row.append(q)
-#			snr=track.getFeature('SNR') 
-#			row.append(snr)
-#			mean=track.getFeature('MEAN_INTENSITY')
-#			row.append(mean)
-#			visability=spot.getFeature('VISABILITY')
-#			row.append(visability)
-			# 	row.append(len(track))
- 			# use only first spot in track
 			for spot in track:
 #				print(spot.getFeatures())
 				row = []

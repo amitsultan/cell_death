@@ -300,10 +300,14 @@ router.post('/uploadProject', (req, res) => {
                       var start = new Date();
                       pythonController.runTrackMate(experiment_id).then((results)=>{
                         if(results.message && results.message == "Experiment processed successfully")
-                          var end = (new Date - start)/1000;
-                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' s', experiment_id)
+                          var end = new Date - start
+                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' ms', experiment_id)
                           mailController.sendSuccessEmail(req.session.email, experiment_id)
                           results.send("trackmete succsessfully")
+                      }).catch((error)=>{
+                        console.log(error)
+                        let failure_message = 'Failed to run Trackmate'
+                        mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
                       })
                       
                     }else{

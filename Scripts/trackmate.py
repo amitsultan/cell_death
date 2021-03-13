@@ -5,8 +5,8 @@ import sys
 from trackmate_file_handler import beautify_csv
 import timeit
 
-WORKING_DIR = "F:/Forth_year/Final-Project/cell_death/data/"
-NEW_PY = "F:/Forth_year/Final-Project/cell_death/Scripts/New_.py" # change according to your localhost
+WORKING_DIR = "C:/NodeServer/cell_death/data/"
+NEW_PY = "C:/NodeServer/cell_death/Scripts/New_.py" # change according to your localhost
 
 def runTrackmate(first_file_path, output_file_path):
 	# script_status = subprocess.call('ImageJ-win64 New_.py', capture_output=True)
@@ -21,6 +21,7 @@ def runTrackmate(first_file_path, output_file_path):
 
 	print('Time: ', timeit.default_timer() - start, ' s')
 	if "TrackMate finished successfully" in output:
+		print(output)
 		beautify_csv(output_file_path)
 	else:
 		# raise Exception("Failed to execute trackmate script")
