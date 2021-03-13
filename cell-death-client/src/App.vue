@@ -15,14 +15,14 @@
   
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item-dropdown right v-if="!$root.store.email" text="Hello guest">
+          <b-nav-item-dropdown right v-if="!$root.store.email" text="Hello Guest">
             <div>  
               <b-dropdown-item :to="{ name: 'login' }">Login</b-dropdown-item>
               <b-dropdown-item :to="{ name: 'register' }">Sign up</b-dropdown-item>
             </div>
           </b-nav-item-dropdown>
 
-          <b-nav-item-dropdown right v-if="$root.store.email" text="user">
+          <b-nav-item-dropdown right v-if="$root.store.email" text="User">
               <b-dropdown-item v-on:click='Logout'>Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
 
