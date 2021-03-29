@@ -4,33 +4,46 @@
     <table>
       <tr>
         <td>
-          <card class="card_css" :title="cards[0].title" :subTitle="cards[0].subTitle" :src="cards[0].src"></card>
+          <card class="card_css" 
+            :title="cards[0].title" 
+            :subTitle="cards[0].subTitle" 
+            :src="cards[0].src"
+            :about="cards[0].about"></card>
         </td>
         <td>
-          <card class= "card_css" :title="cards[1].title" :subTitle="cards[1].subTitle" :src="cards[1].src"></card>
+          <card class= "card_css" 
+            :title="cards[1].title" 
+            :subTitle="cards[1].subTitle" 
+            :src="cards[1].src"
+            :about="cards[1].about"></card>
         </td>
       </tr>
       <tr> 
         <td>
-          <card class= "card_css" :title="cards[2].title" :subTitle="cards[2].subTitle" :src="cards[2].src"></card>
+          <card class= "card_css" 
+            :title="cards[2].title" 
+            :subTitle="cards[2].subTitle" 
+            :src="cards[2].src"
+            :about="cards[2].about"></card>
         </td>
         <td>
-          <card class= "card_css" :title="cards[3].title" :subTitle="cards[3].subTitle" :src="cards[3].src"></card>
+          <card class= "card_css" 
+            :title="cards[3].title" 
+            :subTitle="cards[3].subTitle" 
+            :src="cards[3].src"
+            :about="cards[3].about"></card>
         </td>
       </tr>
 
     </table>
-    <!--<cards title="Our Team Members" subTitle="meet our team!" :cards="cards"></cards>-->
   </div>
 </template>
 
 <script>
-//import cards from "../components/AllCards"
 import card from "../components/Card"
 
 export default {
   components:{
-        //cards,
         card
     },
   data() {
@@ -40,22 +53,26 @@ export default {
          {
            title:"Haim Reyes",
           subTitle:"reyes@post.bgu.ac.il",
-          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/haim.png"
+          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/haim.png",
+          about: "27 y/o from Karmiel originaly from Mexico an amature gardner and a spice enthusiast. Im in charge of the client side of this site."
          },
          {
            title:"Liat Cohen",
           subTitle: "liatp@post.bgu.ac.il",
-          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/liat.png"
+          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/liat.png",
+          about: "about Liat"
          },
          {
            title:"Yarin Hayun",
           subTitle:"yarinbo@post.bgu.ac.il",
-          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/yarin.png"
+          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/yarin.png",
+          about: "about Yarin"
           },
          {
            title:"Amit Sultan",
           subTitle:"Amitsultan@gmail.com",
-          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/amit.png"
+          src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/amit.png",
+          about: "about Amit"
          },
        ],
       tools:

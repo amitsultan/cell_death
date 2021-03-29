@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" style="height:430px">
     <div class="card-image" v-if="$slots.image">
       <slot name="image"></slot>
     </div>
@@ -11,8 +11,9 @@
     </div>
     <div class="card-body" :class="bodyClasses">
       <slot>
-          <img loading="lazy" :src="src" width=160px height=160px />
+          <img loading="lazy" :src="src" width=160px height=160px /><br>
           <!--:src="require(`@/assets/img/${filename}`)"-->
+          <br>{{about}}
       </slot>
     </div>
     <slot name="raw-content"></slot>
@@ -36,6 +37,11 @@
       src: {
         type: String,
         description: "Card image src"
+      },
+      about: {
+        type: String,
+        default: 'An awesome teammate!',
+        description: "some text about the team/person"
       }
     }
   };

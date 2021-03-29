@@ -2,9 +2,10 @@
 <div class='Experiment-container'>
     <br>
     <div class='progress-bar' style="margin-left: 120px;">
-        <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
-        <b-progress-bar v-if='details' :value="current-1" :label="current-1+'/'+details.num_pictures"></b-progress-bar>
+        <b-progress v-if='src && details' :max="details.num_pictures" variant="success" striped :animated="true">
+            <b-progress-bar v-if='details' :value="current-1" :label="current-1+'/'+details.num_pictures"></b-progress-bar>
         </b-progress>
+        <input v-if="details.num_pictures" id="scroller" type="range" v-on:change="Scroll_bar(current)" :value="current-1" :max="details.num_pictures"/>
     </div>
     <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
     <div class='outsideWrapper'>
@@ -130,7 +131,7 @@ export default {
             if(confirm("Are you sure you want to clear the markings?")){
                 this.marks=[]
                 if(this.current > 1){
-                    this.marks_history[this.current]["accumulated_len"] = this.marks_history[this.current - 1]["accumulated_len"]
+                    this.marks_history[this.current]["accumulated_len"] = this.marks_history[this.current - 1]["accumulated_len"]||0
                 }else{
                     this.marks_history[this.current]["accumulated_len"] = 1
                 }
@@ -398,7 +399,7 @@ export default {
             .then((results) => {
                 let tmp_id = 1
                 if(this.current > 1){
-                    tmp_id = this.marks_history[this.current - 1]["accumulated_len"]
+                    tmp_id = this.marks_history[this.current - 1]["accumulated_len"]||0
                 }
                 results.data.forEach(element => {
                     const mark = {
@@ -420,6 +421,85 @@ export default {
                 console.log(error)
                 this.marks = []       
             })
+        },async Scroll_bar(value)
+        {
+            console.log("scroll bar ")
+            let is_prev =  this.current > document.getElementById("scroller").value
+            let dif = this.current - document.getElementById("scroller").value
+            // let is_prev = false
+            // let dif = -5
+            this.current = document.getElementById("scroller").value
+            let i = 0
+            // if(is_prev){
+            //     for (i = 0; i < dif; i++) {
+            //          await this.onNext()
+            //     }
+            // }
+            // else {
+            //     for (i = 0; i < -dif; i++) {
+            //          await this.onPrev()
+            //     } 
+            // }
+            // this.updateImage()
+            // this.draw()
+            // }
+            if(this.can_skip && this.current < this.details.num_pictures && this.current > 1){
+                
+                console.log(this.current)
+                this.fetchImage(this.current).then((result)=>{
+                    this.marks = []
+                    this.counter = 2
+                    this.src = result
+                }).catch((error)=>{
+                    this.$root.toast(
+                        "Image loading Failed",
+                        "Failed to fetch image from server",
+                        "danger"
+                    );
+                })
+
+                if(this.current == 1){
+                        this.prev = this.no_image
+                }else{
+                    console.log(this.current-1)
+                    this.fetchImage(this.current-1).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        this.prev = result
+                    }).catch((error)=>{
+                    this.$root.toast(
+                        "Image loading Failed",
+                        "Failed to fetch image from server",
+                        "danger"
+                    );
+                })
+                }
+                
+                if(this.current == this.details.num_pictures){
+                    this.next = this.no_image
+                }else{
+                    console.log(this.current + 1)
+                    this.fetchImage(this.current+1).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        this.next = result
+                    }).catch((error)=>{
+                    this.$root.toast(
+                        "Image loading Failed",
+                        "Failed to fetch image from server",
+                        "danger"
+                    );
+                })
+                }
+            }else{
+                this.$root.toast(
+                    "Reached timelapse start!",
+                    "No more pictures to load!",
+                        "danger"
+                    );
+                }
+            this.updateImage()
+            this.draw()
         },onPrev(){
             if(!this.can_skip || this.current == 1){
                 return;
