@@ -187,7 +187,7 @@ export default {
             let left = e.clientX;
             let top = e.clientY;
             this.pause_mark.x = e.offsetX;
-            this.pause_mark.y = e.offsetY;// flip
+            this.pause_mark.y = e.offsetY;
             let menuBox = window.document.querySelector(".menu");
             menuBox.style.left = left + "px";
             menuBox.style.top = top + "px";
@@ -314,7 +314,7 @@ export default {
             this.mark.y = y;
             const mark = {
                 x: x,
-                y: y,//flip
+                y: y,
                 frame:this.current-1,
                 type: this.type,
                 color: this.typeColor(this.type)
@@ -355,17 +355,14 @@ export default {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             this.marks.forEach((mark) => {
                 ctx.beginPath();
-                ctx.strokeStyle = mark.color // line color
-                ctx.fillStyle = mark.color; // line color
-                ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);//flip
-                // ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
-                // ctx.font = "20px Arial";
-                // ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
+                ctx.strokeStyle = mark.color;
+                ctx.fillStyle = mark.color;
+                ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);
                 ctx.stroke();
             })
         },
         fetchImage: function(number){
-            number = number-1 //start images from 0 and not 1 for trackmate processing
+            number = number-1 //start images from 0 and not 1
             return new Promise((resolve, reject)=>{
                 let config = {
                     url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
@@ -393,7 +390,7 @@ export default {
             }
             return norm_point
         },fetchImageData: function(number){
-            number = number-1 //start images from 0 and not 1 for trackmate processing
+            number = number-1 //start images from 0 and not 1
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
                 let tmp_id = 1
@@ -497,7 +494,7 @@ export default {
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
+            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
             method: 'GET'
         }
         await this.axios(config).then((response) =>{
@@ -511,7 +508,6 @@ export default {
                 );
             }
         }).catch((err)=>{console.log(err)})
-        // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
     async beforeMount(){
         this.current = 1
@@ -536,8 +532,6 @@ export default {
                 "danger"
             );
         })
-        // this.src = result;
-        // this.updateImage()
     },
     async mounted() {
         let canvas = document.getElementById("frameCanvas");
@@ -547,11 +541,7 @@ export default {
         let menuBox = window.document.querySelector(".menu");
         document.addEventListener('mousemove', this.onMouseUpdate, false);
         canvas.addEventListener('click', this.onMouseClick, false);
-        // document.addEventListener('keydown', this.onKeyPress, true);
         this.draw()
-        //var img = document.getElementById("frame2");
-        //console.log(img)
-        //ctx.drawImage(img, 30, 30, 100, 100);
 
         canvas.addEventListener("contextmenu", this.menuContext, false);
         items.forEach((item) => {
