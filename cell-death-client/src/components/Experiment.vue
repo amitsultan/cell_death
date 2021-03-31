@@ -188,7 +188,7 @@ export default {
             let left = e.clientX;
             let top = e.clientY;
             this.pause_mark.x = e.offsetX;
-            this.pause_mark.y = this.height - e.offsetY;
+            this.pause_mark.y = e.offsetY;
             let menuBox = window.document.querySelector(".menu");
             menuBox.style.left = left + "px";
             menuBox.style.top = top + "px";
@@ -316,7 +316,7 @@ export default {
             this.mark.y = y;
             const mark = {
                 x: x,
-                y: this.height - y,
+                y: y,
                 frame:this.current-1,
                 type: this.type,
                 color: this.typeColor(this.type)
@@ -358,12 +358,9 @@ export default {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             this.marks.forEach((mark) => {
                 ctx.beginPath();
-                ctx.strokeStyle = mark.color // line color
-                ctx.fillStyle = mark.color; // line color
-                ctx.arc(mark.x, this.height - mark.y, 6, 0, 2 * Math.PI);
-                // ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
-                // ctx.font = "20px Arial";
-                // ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
+                ctx.strokeStyle = mark.color;
+                ctx.fillStyle = mark.color;
+                ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);
                 ctx.stroke();
             })
         },
@@ -568,11 +565,7 @@ export default {
         let menuBox = window.document.querySelector(".menu");
         document.addEventListener('mousemove', this.onMouseUpdate, false);
         canvas.addEventListener('click', this.onMouseClick, false);
-        // document.addEventListener('keydown', this.onKeyPress, true);
         this.draw()
-        //var img = document.getElementById("frame2");
-        //console.log(img)
-        //ctx.drawImage(img, 30, 30, 100, 100);
 
         canvas.addEventListener("contextmenu", this.menuContext, false);
         items.forEach((item) => {
