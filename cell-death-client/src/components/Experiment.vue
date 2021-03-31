@@ -137,7 +137,7 @@ export default {
                 }
                 this.marks_history[this.current]["marks"] = this.marks
                 this.draw()
-                this.saveCurrentFrameData(this.current)
+                this.changed=true;
             }
         },
         async normalizeMarks(){
