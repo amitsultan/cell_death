@@ -36,8 +36,8 @@
     <div class="container shadow-lg p-3 mb-5 bg-white rounded table_div">
         <div class="table_top">
             <h4 class="table_header">Cell marks</h4>
-            <b-button class="csv_download_btn" style="margin-left:10px" v-on:click="clear">Clear</b-button>
-            <b-button class="csv_download_btn" v-on:click='csvDownload'>Download csv</b-button>
+            <b-button class="csv_download_btn" style="margin-left:10px" v-on:click="clear">Clear Frame</b-button>
+            <b-button class="csv_download_btn" v-on:click='csvDownload'>Download All Spots CSV</b-button>
         </div>
         <TableView
         :key="marks.length"
@@ -109,17 +109,18 @@ export default {
         current: null,
         menuDisplayed: false,
         menuType: 1,
-        details: null
+        details: null,
+        changed: false
     }),
     props: {
         id: String
     },
-    computed: {
-        lcurrent(){
-            return this.current-1
-        }
+    // computed: {
+    //     lcurrent(){
+    //         return this.current-1
+    //     }
         
-    },
+    // },
     methods: {hideMenuDisplayed(e) {
             if (this.menuDisplayed == true) {
                 window.document.querySelector(".menu").style.display = "none";
@@ -227,7 +228,8 @@ export default {
             }
             await this.saveCurrentFrameData(this.current)
 
-        },updateImage: async function(){
+        },
+        updateImage: async function(){
             try{
                 let canvas = document.getElementById('imageCanvas'),
                 context = canvas.getContext('2d');
@@ -321,6 +323,7 @@ export default {
             }
             await this.checkMarkProximity(mark)
             this.menuDisplayed = true;
+            this.changed = true;
             await this.saveCurrentFrameData(this.current)
             this.draw()
         },
@@ -392,13 +395,16 @@ export default {
                 y: point.y * (this.height / this.details.height)
             }
             return norm_point
-        },fetchImageData: function(number){
+        },
+        fetchImageData: function(number){
             number = number-1 //start images from 0 and not 1 for trackmate processing
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
                 let tmp_id = 1
-                if(this.current > 1){
-                    tmp_id = this.marks_history[this.current - 1]["accumulated_len"]
+                if(number > 1){
+                    if(this.marks_history[number]){
+                        tmp_id = this.marks_history[number]["accumulated_len"]
+                    }
                 }
                 results.data.forEach(element => {
                     const mark = {
@@ -420,12 +426,17 @@ export default {
                 console.log(error)
                 this.marks = []       
             })
-        },onPrev(){
+        },
+        onPrev(){
             if(!this.can_skip || this.current == 1){
                 return;
             }
             else{
-                this.saveCurrentFrameData(this.current)
+                this.can_skip = false;
+                if(this.changed){
+                    this.saveCurrentFrameData(this.current)
+                    this.changed = false;
+                }
                 if(this.current > 1 ){
                     this.current--
                     this.fetchImage(this.current).then((result)=>{
@@ -440,12 +451,14 @@ export default {
                         if(this.current == 1){
                         this.prev = this.no_image
                         }
+                    this.can_skip = true;
                     }).catch((error)=>{
                         this.$root.toast(
                             "Image loading Failed",
                             "Failed to fetch image from server",
                             "danger"
                         );
+                        this.can_skip = true;
                     })
                 }else{
                     this.$root.toast(
@@ -461,7 +474,11 @@ export default {
                 return;
             }
             else{
-                this.saveCurrentFrameData(this.current)
+                this.can_skip = false;
+                if(this.changed){
+                    this.saveCurrentFrameData(this.current)
+                    this.changed = false;
+                }
                 // load next picture
                 if(this.current < this.details.num_pictures){
                     this.current++
@@ -477,12 +494,14 @@ export default {
                         if(this.current == this.details.num_pictures){
                             this.next = this.no_image
                         }
+                    this.can_skip = true;
                     }).catch((error)=>{
                         this.$root.toast(
                             "Image loading Failed",
                             "Failed to fetch image from server",
                             "danger"
                         );
+                        this.can_skip = true;
                     })
                 } else {
                     this.$root.toast(
@@ -500,6 +519,8 @@ export default {
             url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
             method: 'GET'
         }
+        this.changed = false;
+        this.can_skip = true;
         await this.axios(config).then((response) =>{
             if(response.status && response.status === 200){
                 this.details = response.data

@@ -75,9 +75,11 @@ exports.experimentDetails = async function (experimentID) {
     let query = "SELECT * FROM experiments WHERE experiment_id = "+ con.escape(experimentID);
     con.query(query, function (err, rows){
       if(err){
+        console.log(err)
         reject(err);
       }
       if(rows === undefined){
+        console.log("Error: rows is undefined")
         reject(new Error("Error: rows is undefined"));
       } else {
         resolve(rows);
@@ -100,9 +102,11 @@ exports.addExperiment = async function (experiment_details) {
         query = sql.format(query, inserts);
         con.query(query, function (err, rows){
           if(err){
+            console.log(err)
             reject(err);
           }
           if(rows === undefined){
+            console.log("Error: rows is undefined")
             reject(new Error("Error: rows is undefined"));
           } else {
             resolve(rows);

@@ -28,7 +28,7 @@ def extractFile(fileName):
         return True
     except Exception as e:
         if 'WinError 183' in str(e):
-            print('Experiment already exists')
+            print(' Experiment already exists')
         else:
             print(e)
         return False
