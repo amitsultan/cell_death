@@ -137,6 +137,7 @@ export default {
                 }
                 this.marks_history[this.current]["marks"] = this.marks
                 this.draw()
+                this.saveCurrentFrameData(this.current)
             }
         },
         async normalizeMarks(){
@@ -365,7 +366,7 @@ export default {
             })
         },
         fetchImage: function(number){
-            number = number-1 //start images from 0 and not 1 for trackmate processing
+            number = number-1 //start images from 0 and not 1
             return new Promise((resolve, reject)=>{
                 let config = {
                     url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
@@ -392,6 +393,7 @@ export default {
                 y: point.y * (this.height / this.details.height)
             }
             return norm_point
+
         },
         fetchImageData: function(number){
             number = number-1 //start images from 0 and not 1 for trackmate processing
@@ -513,7 +515,7 @@ export default {
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
+            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
             method: 'GET'
         }
         this.changed = false;
@@ -529,7 +531,6 @@ export default {
                 );
             }
         }).catch((err)=>{console.log(err)})
-        // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
     async beforeMount(){
         this.current = 1
@@ -554,8 +555,6 @@ export default {
                 "danger"
             );
         })
-        // this.src = result;
-        // this.updateImage()
     },
     async mounted() {
         let canvas = document.getElementById("frameCanvas");
