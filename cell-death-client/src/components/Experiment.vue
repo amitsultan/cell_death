@@ -1,29 +1,20 @@
 <template>
 <div class='Experiment-container'>
-    this.current = {{this.current}}
+    <div align="center"><h3>{{this.id}}</h3></div>
     <br>
     <div class='progress-bar' style="margin-left: 120px;">
         <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
         <b-progress-bar v-if='details' :value="current" :label="current+'/'+(details.num_pictures-1)"></b-progress-bar>
         </b-progress>
     </div>
-    <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
     <div class='outsideWrapper'>
-        <!-- <b-button class='prev-button' v-on:click='onPrev'>
-            Prev
-        </b-button> -->
         <input :disabled="!can_skip" type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
         <div class='insideWrapper'>
             <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
             <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
         </div>
         <input :disabled="!can_skip" type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
-        <!-- <b-button class='next-button' v-on:click='onNext' :src='next'>
-            Next
-        </b-button> -->
     </div>
-    <!-- <img id="frame" style='width: 600px; height: 600px;' v-bind:src="src"> -->
-    <!-- <img id="frame2" src="..\assets\image.png">-->
     <div class="menu">
         <div class="menu-item">New</div>
         <hr>
@@ -58,8 +49,8 @@
     >
         <template v-slot:items="{ row }">
             <td>{{ row.id }}</td>  
-            <td>{{ row.x }}</td>              
-            <td>{{ row.y }}</td>
+            <td>{{ row.x.toFixed(2) }}</td>              
+            <td>{{ row.y.toFixed(2) }}</td>
             <td>{{ row.frame }}</td>            
         </template>
             <template v-slot:no-data>
@@ -116,12 +107,6 @@ export default {
     props: {
         id: String
     },
-    // computed: {
-    //     lcurrent(){
-    //         return this.current
-    //     }
-        
-    // },
     methods: {hideMenuDisplayed(e) {
             if (this.menuDisplayed == true) {
                 window.document.querySelector(".menu").style.display = "none";
@@ -318,7 +303,7 @@ export default {
             const mark = {
                 x: x,
                 y: y,
-                frame:this.current,// 
+                frame:this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
@@ -333,7 +318,7 @@ export default {
                 id: this.counter++,
                 x: x,
                 y: y,
-                frame: this.current, // 
+                frame: this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
@@ -366,7 +351,6 @@ export default {
             })
         },
         fetchImage: function(number){
-            // number = number //start images from 0 and not
             number = number>0?number:0
             return new Promise((resolve, reject)=>{
                 let config = {
@@ -397,7 +381,6 @@ export default {
 
         },
         fetchImageData: function(number){
-            // number = number //start images from 0 and not for trackmate processing
             number = number>0?number:0
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
@@ -440,8 +423,6 @@ export default {
                 }
                 if(this.current > 0 ){
                     this.current--
-                    // this.fetchImage(this.current).then((result)=>{this.prev = result})
-                    // this.fetchImage(this.current).then((result)=>{this.src = result})
                     this.fetchImage(this.current-1).then((result)=>{
                         this.marks = []
                         this.counter = 2
@@ -487,8 +468,6 @@ export default {
                 // load next picture
                 if(this.current < this.details.num_pictures-1){
                     this.current++
-                    // this.fetchImage(this.current).then((result)=>{this.prev = result})
-                    // this.fetchImage(this.current).then((result)=>{this.src = result})
                     if(this.current == this.details.num_pictures-1){
                         this.prev = this.src
                         this.src = this.next
