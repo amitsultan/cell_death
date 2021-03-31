@@ -18,7 +18,7 @@
     <div class="menu">
         <div class="menu-item">New</div>
         <hr>
-        <div class="menu-item" v-on:click="menuType">Type 1</div>
+        <div class="menu-item" v-on:click="menuType=1">Type 1</div>
         <div class="menu-item" v-on:click="menuType=2">Type 2</div>
         <div class="menu-item" v-on:click="menuType=3">Type 3</div>
         <div class="menu-item" v-on:click="menuType='-'">Unclassified</div>
