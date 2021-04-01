@@ -26,6 +26,7 @@ CREATE TABLE `experiments` (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+<<<<<<< HEAD
   CREATE TABLE `permissions` (
     `user_id` int unsigned NOT NULL,
     `experiment_id` varchar(100) NOT NULL,
@@ -33,6 +34,15 @@ CREATE TABLE `experiments` (
     FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id),
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
+=======
+CREATE TABLE `permissions` (
+  `user_id` int unsigned NOT NULL,
+  `experiment_id` varchar(100) UNIQUE NOT NULL,
+  PRIMARY KEY (`user_id`,`experiment_id`),
+  FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+>>>>>>> added 'permissions' table to tables.sql
 
 CREATE TABLE `contactRequests` (
   `contactID` int unsigned UNIQUE NOT NULL AUTO_INCREMENT,
