@@ -114,10 +114,7 @@ export default {
     props: {
         id: String
     },
-    computed: {
-        lcurrent(){
-            return this.current-1
-        }
+    //         return this.current-1
         
     },
     methods: {hideMenuDisplayed(e) {
