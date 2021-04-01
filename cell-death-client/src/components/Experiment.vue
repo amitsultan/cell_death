@@ -114,9 +114,6 @@ export default {
     props: {
         id: String
     },
-    //         return this.current-1
-        
-    },
     methods: {hideMenuDisplayed(e) {
             if (this.menuDisplayed == true) {
                 window.document.querySelector(".menu").style.display = "none";
