@@ -17,6 +17,7 @@ function unArchiveData(input) {
             if(err){
                 reject(err)
             }else{
+                console.log(results)
                 if(results.includes('Experiment already exists')){
                     resolve({message : 'Experiment already exists'})
                 }else{

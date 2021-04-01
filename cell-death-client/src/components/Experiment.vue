@@ -1,28 +1,20 @@
 <template>
 <div class='Experiment-container'>
+    <div align="center"><h3>{{this.id}}</h3></div>
     <br>
     <div class='progress-bar' style="margin-left: 120px;">
         <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
-        <b-progress-bar v-if='details' :value="current-1" :label="current-1+'/'+details.num_pictures"></b-progress-bar>
+        <b-progress-bar v-if='details' :value="current" :label="current+'/'+(details.num_pictures-1)"></b-progress-bar>
         </b-progress>
     </div>
-    <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
     <div class='outsideWrapper'>
-        <!-- <b-button class='prev-button' v-on:click='onPrev'>
-            Prev
-        </b-button> -->
         <input :disabled="!can_skip" type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
         <div class='insideWrapper'>
             <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
             <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
         </div>
         <input :disabled="!can_skip" type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
-        <!-- <b-button class='next-button' v-on:click='onNext' :src='next'>
-            Next
-        </b-button> -->
     </div>
-    <!-- <img id="frame" style='width: 600px; height: 600px;' v-bind:src="src"> -->
-    <!-- <img id="frame2" src="..\assets\image.png">-->
     <div class="menu">
         <div class="menu-item">New</div>
         <hr>
@@ -36,8 +28,8 @@
     <div class="container shadow-lg p-3 mb-5 bg-white rounded table_div">
         <div class="table_top">
             <h4 class="table_header">Cell marks</h4>
-            <b-button class="csv_download_btn" style="margin-left:10px" v-on:click="clear">Clear</b-button>
-            <b-button class="csv_download_btn" v-on:click='csvDownload'>Download csv</b-button>
+            <b-button class="csv_download_btn" style="margin-left:10px" v-on:click="clear">Clear Frame</b-button>
+            <b-button class="csv_download_btn" v-on:click='csvDownload'>Download All Spots CSV</b-button>
         </div>
         <TableView
         :key="marks.length"
@@ -57,8 +49,8 @@
     >
         <template v-slot:items="{ row }">
             <td>{{ row.id }}</td>  
-            <td>{{ row.x }}</td>              
-            <td>{{ row.y }}</td>
+            <td>{{ row.x.toFixed(2) }}</td>              
+            <td>{{ row.y.toFixed(2) }}</td>
             <td>{{ row.frame }}</td>            
         </template>
             <template v-slot:no-data>
@@ -77,7 +69,7 @@ export default {
         TableView
     },
     data: () => ({
-        counter: 1,
+        counter:0,
         pointProximity: 12,
         no_image: require('@/assets/no_image_found.png'),
         table_headers: [
@@ -109,7 +101,8 @@ export default {
         current: null,
         menuDisplayed: false,
         menuType: 1,
-        details: null
+        details: null,
+        changed: false
     }),
     props: {
         id: String
@@ -123,13 +116,14 @@ export default {
         clear(){
             if(confirm("Are you sure you want to clear the markings?")){
                 this.marks=[]
-                if(this.current > 1){
+                if(this.current > 0){
                     this.marks_history[this.current]["accumulated_len"] = this.marks_history[this.current - 1]["accumulated_len"]
                 }else{
                     this.marks_history[this.current]["accumulated_len"] = 1
                 }
                 this.marks_history[this.current]["marks"] = this.marks
                 this.draw()
+                this.changed=true;
             }
         },
         async normalizeMarks(){
@@ -153,7 +147,7 @@ export default {
                 });
             },
         async saveCurrentFrameData(number){
-            number = number-1
+            number = number>0?number:0
             this.can_skip = false
             this.normalizeMarks().then((results)=>{
             this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: results})
@@ -181,7 +175,7 @@ export default {
             let left = e.clientX;
             let top = e.clientY;
             this.pause_mark.x = e.offsetX;
-            this.pause_mark.y = this.height - e.offsetY;
+            this.pause_mark.y = e.offsetY;
             let menuBox = window.document.querySelector(".menu");
             menuBox.style.left = left + "px";
             menuBox.style.top = top + "px";
@@ -209,7 +203,7 @@ export default {
             }else{
                 this.menuDisplayed = false;
                 let newMark = {
-                    frame:this.current - 1,
+                    frame:this.current,
                     x: this.pause_mark.x,
                     y: this.pause_mark.y,
                     type: this.menuType,
@@ -221,7 +215,8 @@ export default {
             }
             await this.saveCurrentFrameData(this.current)
 
-        },updateImage: async function(){
+        },
+        updateImage: async function(){
             try{
                 let canvas = document.getElementById('imageCanvas'),
                 context = canvas.getContext('2d');
@@ -279,7 +274,6 @@ export default {
                     if(is_replaced == false){
                         element.type = mark.type
                         element.color = this.typeColor(element.type)
-                        console.log(element.type)
                         is_replaced = true
                         tmp.push(element)
                     }
@@ -308,13 +302,14 @@ export default {
             this.mark.y = y;
             const mark = {
                 x: x,
-                y: this.height - y,
-                frame:this.current-1,
+                y: y,
+                frame:this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
             await this.checkMarkProximity(mark)
             this.menuDisplayed = true;
+            this.changed = true;
             await this.saveCurrentFrameData(this.current)
             this.draw()
         },
@@ -323,7 +318,7 @@ export default {
                 id: this.counter++,
                 x: x,
                 y: y,
-                frame: this.current-1,
+                frame: this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
@@ -349,17 +344,14 @@ export default {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             this.marks.forEach((mark) => {
                 ctx.beginPath();
-                ctx.strokeStyle = mark.color // line color
-                ctx.fillStyle = mark.color; // line color
-                ctx.arc(mark.x, this.height - mark.y, 6, 0, 2 * Math.PI);
-                // ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
-                // ctx.font = "20px Arial";
-                // ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
+                ctx.strokeStyle = mark.color;
+                ctx.fillStyle = mark.color;
+                ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);
                 ctx.stroke();
             })
         },
         fetchImage: function(number){
-            number = number-1 //start images from 0 and not 1 for trackmate processing
+            number = number>0?number:0
             return new Promise((resolve, reject)=>{
                 let config = {
                     url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
@@ -386,13 +378,17 @@ export default {
                 y: point.y * (this.height / this.details.height)
             }
             return norm_point
-        },fetchImageData: function(number){
-            number = number-1 //start images from 0 and not 1 for trackmate processing
+
+        },
+        fetchImageData: function(number){
+            number = number>0?number:0
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
                 let tmp_id = 1
-                if(this.current > 1){
-                    tmp_id = this.marks_history[this.current - 1]["accumulated_len"]
+                if(number > 0){
+                    if(this.marks_history[number]){
+                        tmp_id = this.marks_history[number]["accumulated_len"]
+                    }
                 }
                 results.data.forEach(element => {
                     const mark = {
@@ -414,32 +410,41 @@ export default {
                 console.log(error)
                 this.marks = []       
             })
-        },onPrev(){
-            if(!this.can_skip || this.current == 1){
+        },
+        onPrev(){
+            if(!this.can_skip || this.current == 0){
                 return;
             }
             else{
-                this.saveCurrentFrameData(this.current)
-                if(this.current > 1 ){
+                this.can_skip = false;
+                if(this.changed){
+                    this.saveCurrentFrameData(this.current)
+                    this.changed = false;
+                }
+                if(this.current > 0 ){
                     this.current--
-                    this.fetchImage(this.current).then((result)=>{
+                    this.fetchImage(this.current-1).then((result)=>{
                         this.marks = []
                         this.counter = 2
-                        this.next = this.src
-                        this.src = this.prev
+                        let src = this.src
+                        let prev = this.prev
+                        this.next = src
+                        this.src = prev
                         this.prev = result
                         this.updateImage()
-                        this.draw()
                         this.fetchImageData(this.current)
-                        if(this.current == 1){
+                        this.draw()
+                        if(this.current == 0){
                         this.prev = this.no_image
                         }
+                    this.can_skip = true;
                     }).catch((error)=>{
                         this.$root.toast(
                             "Image loading Failed",
                             "Failed to fetch image from server",
                             "danger"
                         );
+                        this.can_skip = true;
                     })
                 }else{
                     this.$root.toast(
@@ -451,49 +456,70 @@ export default {
             }
         },
         onNext(){
-            if(!this.can_skip || this.current == this.details.num_pictures){
+            if(!this.can_skip || this.current == this.details.num_pictures-1){
                 return;
             }
             else{
-                this.saveCurrentFrameData(this.current)
+                this.can_skip = false;
+                if(this.changed){
+                    this.saveCurrentFrameData(this.current)
+                    this.changed = false;
+                }
                 // load next picture
-                if(this.current < this.details.num_pictures){
+                if(this.current < this.details.num_pictures-1){
                     this.current++
-                    this.fetchImage(this.current).then((result)=>{
-                        this.marks = []
-                        this.counter = 2
+                    if(this.current == this.details.num_pictures-1){
                         this.prev = this.src
                         this.src = this.next
-                        this.next = result
+                        this.next = this.no_image
+                        this.fetchImageData(this.current)
                         this.updateImage()
                         this.draw()
+                        this.can_skip = true;
+                    }
+                    else{
+                    this.fetchImage(this.current+1).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        let next = this.next
+                        let src = this.src
+                        this.prev = src
+                        this.src = next
+                        this.next = result
+                        this.updateImage()
                         this.fetchImageData(this.current)
-                        if(this.current == this.details.num_pictures){
+                        if(this.current == this.details.num_pictures -1){
                             this.next = this.no_image
                         }
+                        this.draw()
+                    this.can_skip = true;
                     }).catch((error)=>{
                         this.$root.toast(
                             "Image loading Failed",
                             "Failed to fetch image from server",
                             "danger"
                         );
+                        this.can_skip = true;
                     })
-                } else {
+                } }else {
                     this.$root.toast(
                         "Reached max!",
                         "No more pictures to load!",
                         "danger"
                     );
                 }
+                
             }
         }
     },
     async created() {
         this.image = new Image();
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,//"20180514"
+            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
             method: 'GET'
         }
+        this.changed = false;
+        this.can_skip = true;
         await this.axios(config).then((response) =>{
             if(response.status && response.status === 200){
                 this.details = response.data
@@ -505,10 +531,9 @@ export default {
                 );
             }
         }).catch((err)=>{console.log(err)})
-        // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
     },
     async beforeMount(){
-        this.current = 1
+        this.current = 0
         this.prev = this.no_image
         this.fetchImage(this.current).then((result)=>{
             this.src = result
@@ -521,7 +546,7 @@ export default {
                 "danger"
             );
         })
-        this.fetchImage(this.current + 1).then((result)=>{
+        this.fetchImage(this.current+1).then((result)=>{
             this.next = result
         }).catch((error)=>{
             this.$root.toast(
@@ -530,8 +555,6 @@ export default {
                 "danger"
             );
         })
-        // this.src = result;
-        // this.updateImage()
     },
     async mounted() {
         let canvas = document.getElementById("frameCanvas");
@@ -541,11 +564,7 @@ export default {
         let menuBox = window.document.querySelector(".menu");
         document.addEventListener('mousemove', this.onMouseUpdate, false);
         canvas.addEventListener('click', this.onMouseClick, false);
-        // document.addEventListener('keydown', this.onKeyPress, true);
         this.draw()
-        //var img = document.getElementById("frame2");
-        //console.log(img)
-        //ctx.drawImage(img, 30, 30, 100, 100);
 
         canvas.addEventListener("contextmenu", this.menuContext, false);
         items.forEach((item) => {
@@ -617,7 +636,7 @@ hr{
 .progress-bar{
     background-color: white;
     /* color: white; */
-    /* font-size: 1.25rem; */
+    /* font-size:.25rem; */
     width: 600px;
 }
 .outsideWrapper{

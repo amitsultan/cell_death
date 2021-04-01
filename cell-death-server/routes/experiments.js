@@ -296,22 +296,26 @@ router.post('/uploadProject', (req, res) => {
                   DButils.addExperiment(experiment_details).then((results)=>{
                     if(results && results.affectedRows && results.affectedRows == 1){
                       loggerController.log('info','uploadProject: experiment added to db', experiment_id)
+                      mailController.sendSuccessEmail(req.session.email, experiment_id)
                       // send email after successfully update the database with the experiment
-                      var start = new Date();
-                      pythonController.runTrackMate(experiment_id).then((results)=>{
-                        if(results.message && results.message == "Experiment processed successfully")
-                          var end = new Date - start
-                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' ms', experiment_id)
-                          mailController.sendSuccessEmail(req.session.email, experiment_id)
-                          results.send("trackmete succsessfully")
-                      }).catch((error)=>{
-                        console.log(error)
-                        let failure_message = 'Failed to run Trackmate'
-                        mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                      })
+
+                      // add back when trackmate script is working
+                      // var start = new Date();
+                      // pythonController.runTrackMate(experiment_id).then((results)=>{
+                      //   if(results.message && results.message == "Experiment processed successfully")
+                      //     var end = new Date - start
+                      //     loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' ms', experiment_id)
+                      //     mailController.sendSuccessEmail(req.session.email, experiment_id)
+
+                      // }).catch((error)=>{
+                      //   console.log(error)
+                      //   let failure_message = 'Failed to run Trackmate'
+                      //   mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
+                      // })
                       
                     }else{
                       // already in database
+                      console.log(1)
                       let failure_message = 'Experiment already found in our database'
                       mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
                     }
@@ -322,6 +326,7 @@ router.post('/uploadProject', (req, res) => {
                   })
                 // mail the user for success
               }else if(results.message &&  results.message ==  'Experiment already exists'){
+                console.log(results)
                 let failure_message = 'Experiment already found in our database'
                 mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
               }else{ // else for unexpceted cases
@@ -336,6 +341,7 @@ router.post('/uploadProject', (req, res) => {
               mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
             })
           }else{
+            console.log(3)
             let failure_message = 'Experiment already found in our database'
             mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
           }
