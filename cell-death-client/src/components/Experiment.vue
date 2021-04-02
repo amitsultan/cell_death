@@ -655,9 +655,6 @@ hr{
     left: 0;
     top: 0;
 }
-#imageCanvas{
-    /* position: absolute; */
-}
 .table_header{
     float: left;
 }
