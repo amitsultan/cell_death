@@ -6,6 +6,7 @@
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
+          <b-nav-item :to="{ name: 'ProfilePage' }">My Profile</b-nav-item>
           <b-nav-item active :to="{ name: 'main' }">Home</b-nav-item>
           <b-nav-item :to="{ name: 'Experiments'}">Experiments</b-nav-item>
           <b-nav-item :to="{ name: 'requestPage'}">Request-experiment</b-nav-item>
@@ -22,7 +23,8 @@
             </div>
           </b-nav-item-dropdown>
 
-          <b-nav-item-dropdown right v-if="$root.store.email" text="User">
+         <b-nav-item-dropdown right v-if="$root.store.email" text="User">
+          <!-- <b-nav-item-dropdown right  text="User">-->
               <b-dropdown-item v-on:click='Logout'>Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
 

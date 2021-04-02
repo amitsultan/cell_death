@@ -28,7 +28,7 @@ CREATE TABLE `experiments` (
 
 CREATE TABLE `permissions` (
   `user_id` int unsigned NOT NULL,
-  `experiment_id` varchar(100) UNIQUE NOT NULL,
+  `experiment_id` varchar(100) NOT NULL,
   PRIMARY KEY (`user_id`,`experiment_id`),
   FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id),
   FOREIGN KEY (user_id) REFERENCES users(id)

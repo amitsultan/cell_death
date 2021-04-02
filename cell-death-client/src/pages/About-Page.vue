@@ -1,5 +1,4 @@
 <template>
-
   <div class="text-center shadow-lg p-3 mb-5 bg-white rounded left" style="width:700px">
     <table>
       <tr>
@@ -20,17 +19,14 @@
       </tr>
 
     </table>
-    <!--<cards title="Our Team Members" subTitle="meet our team!" :cards="cards"></cards>-->
   </div>
 </template>
 
 <script>
-//import cards from "../components/AllCards"
 import card from "../components/Card"
 
 export default {
   components:{
-        //cards,
         card
     },
   data() {
