@@ -59,13 +59,23 @@ import {
 
 const shared_data = {
   email: sessionStorage.getItem("email") ? sessionStorage.getItem("email") : undefined,
-  login(email) {
+  firstName: sessionStorage.getItem("firstName"),
+  lastName: sessionStorage.getItem("lastName"),
+  login(email,firstName,lastName) {
     sessionStorage.setItem("email", email);
     this.email = email;
+    sessionStorage.setItem("firstName",firstName);
+    this.firstName = firstName;
+    sessionStorage.setItem("lastName",lastName);
+    this.lastName = lastName;
   },
   logout() {
     sessionStorage.removeItem("email");
     this.email = undefined;
+    sessionStorage.removeItem("firstName");
+    this.firstName = undefined;
+    sessionStorage.removeItem("lastName");
+    this.lastName = undefined;
     // axios.get("http://localhost:3000/users/logout");
   },
 };

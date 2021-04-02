@@ -93,6 +93,12 @@ export default {
     async Login() {
       try {
         this.axios.defaults.withCredentials = true;
+        const fullNameResponse = await this.axios.post(
+          this.$root.API_BASE+"getFullNameByEmail",
+          {
+            email: this.form.email,
+          }
+        );
         const response = await this.axios.post(
           this.$root.API_BASE+"Login",
           {
@@ -100,14 +106,13 @@ export default {
             password: this.form.password,
           }
         );
-        if (response.status == 200) {
-          this.$root.store.first_name = this.form.email
+        if (response.status == 200 && fullNameResponse.status == 200) {
           this.$root.toast(
             "successful",
             "User successfully logged in",
             "success"
           );
-          this.$root.store.login(this.form.email);
+          this.$root.store.login(this.form.email, fullNameResponse.data[0], fullNameResponse.data[1]);
           this.clickButton = false;
           this.$router.push("/");
         } else {
@@ -127,6 +132,7 @@ export default {
           "danger"
         );
       }
+
     },
     onLogin() {
       this.form.submitError = undefined;
