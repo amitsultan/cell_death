@@ -6,7 +6,7 @@
     <div  v-if='Object.keys(this.experiments).length==0'>  no experiments for you... yet!</div>
     <ul>
       {{this.experiments}}
-      <li :v-for="experiment in computed_experiments" v-bind:key="experiment">
+      <li :v-for="experiment in experiments" v-bind:key="experiment">
         {{experiment?experiment:experiment+"."}}
         <b-button v-on:click="test2()" class="add_btn">
           Remove Permissions
@@ -33,7 +33,7 @@ export default {
     },
     computed:{
       // permissions: this.experiments.permissions
-      computed_experiments: function(){return this.experiments}
+      // computed_experiments: function(){return this.experiments}
 
     },
     components:{
@@ -41,10 +41,19 @@ export default {
     },
     methods: {
         async getUserExperiments(id){
-            let val = "2021-05-02"
-            let res = Array()
-            res.push(val)
-            return res
+          let config = {
+              url: this.$root.API_BASE + 'profile/getProfile/',
+              method: 'Post',
+              data: {userId:'1'}
+          }
+          await this.axios(config).then((response) =>{
+              console.log(response)
+              if(response.status && response.status === 200){
+              }else{
+              }
+          }).catch((err)=>{console.log(err)})
+
+          return response
         },
         test(){
             // this.permissions = ["loading one...","loading two...","loading three..."]
