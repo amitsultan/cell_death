@@ -8,7 +8,7 @@
         </div>
         <div class="team-content">
             <h3 class="name">{{title}}</h3>
-            <h4 class="title">Web Developer</h4>
+            <h4 class="title">Software Developer</h4>
         </div>
         <ul class="social">
             <li>
