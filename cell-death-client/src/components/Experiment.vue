@@ -1,10 +1,12 @@
 <template>
-<div class='Experiment-container'>
-    <div align="center"><h3>{{this.id}}</h3></div>
+<div class='Experiment-container shadow-lg p-3 mb-5 bg-white rounded'>
+    <div class='title_container' align="center"><h3 class='experiment_title'>{{this.id}}</h3></div>
     <br>
-    <div class='progress-bar' style="margin-left: 120px;">
-        <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
-        <b-progress-bar v-if='details' :value="current" :label="current+'/'+(details.num_pictures-1)"></b-progress-bar>
+    <div class='progress-bar'>
+        <b-progress v-if='src && details' :max="details.num_pictures"  variant="info" striped :animated="true">
+            <b-progress-bar v-if='details' :value="current + 1">
+                <b-progress-value>{{(current + 1)+'/'+(details.num_pictures)}}</b-progress-value>    
+            </b-progress-bar>
         </b-progress>
     </div>
     <div class='outsideWrapper'>
@@ -576,6 +578,7 @@ export default {
 </script>
 
 <style>
+<<<<<<< HEAD
 .menu {
     background-color: white;
     opacity: 0.85;
@@ -665,4 +668,7 @@ hr{
 .table_top{
     margin-bottom:2.5em;
 }
+=======
+    @import './../scss/experiment.scss';
+>>>>>>> beautify about and experiment
 </style>
