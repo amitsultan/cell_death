@@ -26,13 +26,13 @@ CREATE TABLE `experiments` (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE `permissions` (
-  `user_id` int unsigned NOT NULL,
-  `experiment_id` varchar(100) NOT NULL,
-  PRIMARY KEY (`user_id`,`experiment_id`),
-  FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
+  CREATE TABLE `permissions` (
+    `user_id` int unsigned NOT NULL,
+    `experiment_id` varchar(100) NOT NULL,
+    PRIMARY KEY (`user_id`,`experiment_id`),
+    FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
 
 CREATE TABLE `contactRequests` (
   `contactID` int unsigned UNIQUE NOT NULL AUTO_INCREMENT,
@@ -43,9 +43,3 @@ CREATE TABLE `contactRequests` (
   `message` varchar(1000) NOT NULL
 );
 
-INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('amit','sultan','amitsul@post.bgu.ac.il','123456aA!');
-INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('yarin','hayun','yarinbo@post.bgu.ac.il','123456aA!');
-INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('liat','cohen','liatp@post.bgu.ac.il','123456aA!');
-INSERT INTO dbo.users (first_name,last_name,email,password) VALUES('haim','reyes','reyes@post.bgu.ac.il','123456aA!');
-
-INSERT INTO dbo.experiments (experiment_id,date,num_pictures,width,height,user_id) VALUES('20180514','2018-05-14','60','1392','1040','1');

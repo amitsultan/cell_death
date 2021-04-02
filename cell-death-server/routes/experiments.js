@@ -63,19 +63,6 @@ function EditListOfData(listOfData) {
 //   });
 
 
-router.get("/nextImage/:experimentId/:imageId", (req, res) => {
-  //returns the next image of the $experimentId
-});
-
-router.get("/getImages/:experimentId/:numberOfImages", (req, res) => {
-  //returns $numberOfImages from $experimentId and total number of images in the experiment
-
-});
-
-// router.get("/saveData", (req, res) => {
-
-// });
-
 router.get("/getExperiments", (req, res) => {
   try {
     const directories_names = getDirectories(dataDirectory);
