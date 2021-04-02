@@ -1,10 +1,12 @@
 <template>
-<div class='Experiment-container'>
-    <div align="center"><h3>{{this.id}}</h3></div>
+<div class='Experiment-container shadow-lg p-3 mb-5 bg-white rounded'>
+    <div class='title_container' align="center"><h3 class='experiment_title'>{{this.id}}</h3></div>
     <br>
-    <div class='progress-bar' style="margin-left: 120px;">
-        <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
-        <b-progress-bar v-if='details' :value="current" :label="current+'/'+(details.num_pictures-1)"></b-progress-bar>
+    <div class='progress-bar'>
+        <b-progress v-if='src && details' :max="details.num_pictures"  variant="info" striped :animated="true">
+            <b-progress-bar v-if='details' :value="current + 1">
+                <b-progress-value>{{(current + 1)+'/'+(details.num_pictures)}}</b-progress-value>    
+            </b-progress-bar>
         </b-progress>
     </div>
     <div class='outsideWrapper'>
@@ -576,96 +578,5 @@ export default {
 </script>
 
 <style>
-.menu {
-    background-color: white;
-    opacity: 0.85;
-    width: 160px;
-    box-shadow: 3px 3px 5px #888888;
-    border-style: solid;
-    border-width: 1px;
-    border-color: grey;
-    border-radius: 2px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    position: fixed;
-    display: none;
-    z-index: 10;
-}
-
-.menu-item {
-    background-color: white;
-    opacity: 1;
-    height: max-content;
-    font-size: 16px;
-}
-hr{
-    margin-top: 3px;
-    margin-bottom: 3px;
-}
-
-.menu-item:hover {
-    opacity: 1;
-    background-color: #6CB5FF;
-    cursor: pointer;
-}
-.Experiment-container{
-    width: 50%;
-    margin: 0 auto;
-}
-.Experiment-canvas{
-    border:1px solid #d3d3d3;
-}
-.navigation-button{
-    height: 300px;
-    width: 300px;
-    transition: 1s;
-}
-.navigation-button:hover{
-  transform: scale(2);
-}
-.prev-button{
-    margin-right:20px;
-    float: left;
-}
-.next-button{
-    margin-left:20px;
-    float: right;
-}
-.progress-bar{
-    background-color: white;
-    /* color: white; */
-    /* font-size:.25rem; */
-    width: 600px;
-}
-.outsideWrapper{
-    margin-top:50px;
-    display: flex;
-    align-items: center;
-    height: max-content;
-}
-.insideWrapper{
-    height: max-content;
-    width: max-content;
-    position: relative;
-}
-#frameCanvas{
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-#imageCanvas{
-    /* position: absolute; */
-}
-.table_header{
-    float: left;
-}
-.csv_download_btn, .csv_download_btn:hover, .csv_download_btn:focus, .csv_download_btn:active{
-    float: right;
-    background-color: #6CB5FF;
-}
-.table_top{
-    margin-bottom:2.5em;
-}
+    @import './../scss/experiment.scss';
 </style>
