@@ -579,6 +579,7 @@ export default {
 
 <style>
 <<<<<<< HEAD
+<<<<<<< HEAD
 .menu {
     background-color: white;
     opacity: 0.85;
@@ -668,6 +669,9 @@ hr{
 .table_top{
     margin-bottom:2.5em;
 }
+=======
+    @import './../scss/experiment.scss';
+>>>>>>> beautify about and experiment
 =======
     @import './../scss/experiment.scss';
 >>>>>>> beautify about and experiment
