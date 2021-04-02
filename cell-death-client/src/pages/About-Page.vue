@@ -39,7 +39,8 @@ export default {
            title:"Haim Reyes",
           details:{
             email:"reyes@post.bgu.ac.il",
-            facebook: "https://www.facebook.com/haim.reyes"
+            facebook: "https://www.facebook.com/haim.reyes",
+            linkedin: "https://www.linkedin.com/in/haim-reyes-7a6126190/"
             },
           src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/haim.png"
          },
@@ -47,7 +48,8 @@ export default {
            title:"Liat Cohen",
           details:{ 
             email:"liatp@post.bgu.ac.il",
-            facebook: "https://www.facebook.com/liati177"
+            facebook: "https://www.facebook.com/liati177",
+            linkedin: "https://www.linkedin.com/in/liat-cohen-101a89205/"
           },
           src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/liat.png"
          },
@@ -55,7 +57,8 @@ export default {
            title:"Yarin Hayun",
           details:{
             email:"yarinbo@post.bgu.ac.il",
-            facebook: "https://www.facebook.com/yarin.bokobza.1"
+            facebook: "https://www.facebook.com/yarin.bokobza.1",
+            linkedin: "https://www.linkedin.com/in/yarin-hayun-57491b204/"
             },
           src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/yarin.png"
           },
@@ -63,7 +66,8 @@ export default {
            title:"Amit Sultan",
           details:{
             email:"Amitsultan@gmail.com",
-            facebook: "https://www.facebook.com/amit.sultan/"
+            facebook: "https://www.facebook.com/amit.sultan/",
+            linkedin: "https://www.linkedin.com/in/sultanamit/"
             },
           src:"https://raw.githubusercontent.com/amitsultan/cell_death/master/cell-death-client/src/assets/team/amit.png"
          },
