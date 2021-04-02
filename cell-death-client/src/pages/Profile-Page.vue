@@ -40,20 +40,20 @@ export default {
      // ExperimentItem
     },
     methods: {
-        async getUserExperiments(id){
+        async getUserExperiments(userId){
           let config = {
               url: this.$root.API_BASE + 'profile/getProfile/',
               method: 'Post',
-              data: {userId:'1'}
+              data: {userId:userId?userId:'1'}
           }
           await this.axios(config).then((response) =>{
               console.log(response)
               if(response.status && response.status === 200){
+                  return response.data
               }else{
               }
           }).catch((err)=>{console.log(err)})
-
-          return response
+          return []
         },
         test(){
             // this.permissions = ["loading one...","loading two...","loading three..."]
@@ -74,7 +74,7 @@ export default {
     },
     async beforeMount(){
       // experiments = {'2021-05-02':{permissions: ["reyes@post.co.il"]}}
-      this.experiments = await this.getUserExperiments(0)
+      this.experiments = await this.getUserExperiments()
       console.log(this.experiments)
     },
 };
