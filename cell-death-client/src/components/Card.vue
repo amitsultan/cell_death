@@ -11,9 +11,21 @@
             <h4 class="title">Web Developer</h4>
         </div>
         <ul class="social">
-            <li><a class='a_link' :href="details.facebook"><img :src='icons.facebook' class="fa fa-facebook" aria-hidden="true"></a></li>
-            <li><img :src="icons.linkedin" class="fa fa-linkedin" aria-hidden="true"></li>
-            <li><img :src="icons.google" class="fa fa-google-plus" aria-hidden="true"></li>
+            <li>
+              <a class='a_link' :href="details.facebook">
+                <img :src='icons.facebook' class="fa fa-facebook" aria-hidden="true">
+              </a>
+            </li>
+            <li>
+              <a class='a_link' :href="details.linkedin">
+                <img :src="icons.linkedin" class="fa fa-linkedin" aria-hidden="true">
+              </a>
+            </li>
+            <li>
+              <a class='a_link' :href="`mailto:${this.details.email}`">
+                <img :src="icons.google" class="fa fa-google-plus" aria-hidden="true">
+             </a>
+            </li>
         </ul>
         </div>
     </div>
