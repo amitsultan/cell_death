@@ -3,7 +3,7 @@
       <h6 class='list-title'>Experiments</h6>
       <ul class='list'>
           <li v-for="exp in experiments" :key="exp.serial" v-on:click='experimentOnClick'> 
-            <span>{{ exp }}</span>
+            <span class="experiment_text">{{ exp }}</span>
           </li>
       </ul>
     </div>
@@ -30,7 +30,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .list-container{
-    width: 200px;
+    width: 280px;
     margin-left: 10px;
     margin-top: 10px;
 }
@@ -50,6 +50,9 @@ li::before{
     background-size: contain;
     background-repeat: no-repeat;
     margin-right:0.5em;
+}
+.experiment_text{
+  font-size: 16px;
 }
 
 </style>
