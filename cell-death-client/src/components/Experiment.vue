@@ -580,6 +580,7 @@ export default {
 <style>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 .menu {
     background-color: white;
     opacity: 0.85;
@@ -675,4 +676,7 @@ hr{
 =======
     @import './../scss/experiment.scss';
 >>>>>>> beautify about and experiment
+=======
+    @import './../scss/experiment.scss';
+>>>>>>> fixed css on experiment page
 </style>
