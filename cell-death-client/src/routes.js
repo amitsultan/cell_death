@@ -1,4 +1,5 @@
 import Main from "./pages/Home-Page";
+// import Profile from "./pages/Profile-Page";
 import VueRouter from "vue-router";
 
 // import NotFound from "./pages/NotFoundPage";
