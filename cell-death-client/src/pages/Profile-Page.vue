@@ -4,7 +4,7 @@
     <b-button class="add_btn" v-on:click="test()">print experiments</b-button>
     <b-button class="add_btn" v-on:click="addPermissionsButton(this.experiment)">add another one</b-button>
     <b-button v-on:click="test2()" class="remove_btn">remove one</b-button>
-    <h1>hello {{$root.store.firstName?$root.store.firstName+'!':'guest,'}}</h1><br>
+    <h1>Hello {{$root.store.firstName?$root.store.firstName+'!':'guest,'}}</h1><br>
     <h1>My Experiments</h1>
     <div v-if='active' style="float:right;width:30%;" class="shadow-lg p-4 bg-white rounded">
       {{add?'add':'remove'}} a user {{add?'to':'from'}} the <b>{{current?"\'"+current+"\'":''}}</b> permissions by entering a user's email:<br>
@@ -113,7 +113,7 @@ export default {
           // second we send a request to add record to permissions table
           let path = 'profile/addPermissions'
           if(!this.add) // remove instead of add
-            path = 'profile/removePermissions'
+            path = 'profile/deletePermissions'
           config = {
             url: this.$root.API_BASE + path,
             method: 'Post',
@@ -123,13 +123,35 @@ export default {
               projectId: experiment,
             }
           }
+          let message = this.add?'added':'removed'
           await this.axios(config).then((response) =>{
             if(response.status && response.status === 200){
-              console.log('permission updated')
+              message = 'permission ' + message
+              console.log(message)
+              this.$root.toast(
+                'successfuly updated!',
+                message,
+                "success")
+                this.email=''
+            }else{
+              // console.log(response.message)
+              this.$root.toast(
+                'permission unchanged!',
+                'response.message',
+                "danger")
             }
-          })
+          }).catch((err) =>{           
+              console.log('permission unchanged')
+              this.$root.toast(
+                'permission unchanged',
+                'permission already '+message,
+                "danger")})
         }else{
           console.log('permission unchanged')
+          this.$root.toast(
+                'permission unchanged!',
+                'error while updating permission!',
+                "danger")
         }
       },
     },
