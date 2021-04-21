@@ -165,7 +165,7 @@ exports.addPremissions = async function (user_id, projectId) {
     query = sql.format(query, inserts);
     con.query(query, function (err, rows){
       if(err){
-        console.log(err)
+        // console.log(err)
         reject(err);
       }
       if(rows === undefined){
@@ -260,8 +260,11 @@ exports.deletePremissions = async function (user_id, projectId) {
       }
       if(rows === undefined){
         reject(new Error("Error: rows is undefined"));
-      } else {
-        resolve(rows);
+      } else if(rows.affectedRows === 1) {
+          resolve("success!");
+      }
+      else{
+        resolve(rows)
       }
   })
 })  

@@ -91,11 +91,11 @@ router.post("/addPermissions", async (req, res, next) =>
                     }
                 }
                 else{
-                    res.status(400).send({status: 400, message: "could not add permission. user or experiment not exists"});
+                    return res.status(400).send({status: 400, message: "could not add permission. user or experiment not exists"});
                 }
             }
             else{
-                res.status(400).send({status: 400, message: "permission denied!"});
+                return res.status(400).send({status: 400, message: "permission denied!"});
             }
         }
             
@@ -119,11 +119,17 @@ router.post("/deletePermissions", async (req, res, next) => {
                     console.log('delete permission from db')
                     try {
                         const success = await DButils.deletePremissions(user[0].id, project[0].experiment_id);
-                        console.log("delete premission successfully");
-                        res.status(200).send({status: 200, message: "delete premission successfully"});
+                        if(success.length>0){
+                          console.log("delete premission successfully");
+                          return res.status(200).send({status: 200, message: "delete premission successfully"});
+
+                        }
+                        else{
+                          res.status(400).send({status: 400, message: "could not delete permission. user or experiment not exists"});
+                        }
                     }catch(error){
                         console.log("not found in db")
-                        res.status(500).send("not found in db")
+                        res.status(500).send({status: 500, message:"not found in db"})
                     }
                 }
                 else{
