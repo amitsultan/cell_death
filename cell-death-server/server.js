@@ -36,18 +36,19 @@ app.use(
     saveUninitialized: false,
     cookie: {
       expires: 120 * 60 * 1000,
+      // expires:  60,
     },
     unset: "destroy",
   })
 );
 
 // Session middleware to check if user cookie is still saved when user is not set
-app.use((req, res, next) => {
-  if (req.cookies.user_sid && !req.session.userID) {
-    res.clearCookie("user_sid");
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (req.cookies.user_sid && !req.session.userID) {
+//     res.clearCookie("user_sid");
+//   }
+//   next();
+// });
 //settings cors
 const corsConfig = {
   origin: true,

@@ -1,5 +1,4 @@
-const { text } = require("express");
-const nodemailer = require("nodemailer");
+
 const path = require('path');
 const loggerController = require('./loggerController')
 const script_path = path.join(__dirname,"../../Scripts")
@@ -60,6 +59,17 @@ function sendFailureEmail(to_email, experiment_id, message) {
                 +"You may try again or contact us for further information about the problem" +'\n'
                 +"please if needed contact us by replying back!"+"\n"
                 +"Thank you,\n BGU team Amit, Liat, Yarin, Haim"
+    sendMail(to_email, subject, text)
+}
+
+function sendRegistrationMail(to_email, first_name, last_name) {
+    let subject = "Welcome to Cell-Death-Tracking Tool!"
+    let text = "Hey, "+ first_name+" "+last_name+"! and welcome to Cell-Death-Tracking Tool"+'\n'
+                +"Your registration completed successfully"+'\n'
+                +"You now can use your email address and password to login"+'\n'
+                +"please if needed contact us by replying back!"+"\n"
+                +"Thank you,\n BGU team Amit, Liat, Yarin, Haim"
+
     sendMail(to_email, subject, text)
 }
 
