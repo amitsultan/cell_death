@@ -255,7 +255,7 @@ exports.deletePremissions = async function (user_id, projectId) {
     query = sql.format(query, details);
     con.query(query, function (err, rows){
       if(err){
-        console.log(err)
+        // console.log(err)
         reject(err);
       }
       if(rows === undefined){
