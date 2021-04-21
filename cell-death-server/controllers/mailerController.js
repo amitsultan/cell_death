@@ -21,7 +21,7 @@ function sendMail(to_email, subject, text){
             if(err){
                 let message = 'Failed to send mail-python shell';
                 // let content = mail_options
-                loggerController.log('error', message)
+                loggerController.log('error', err)
             }
             else{
                 let message = 'Email successfully sent';
