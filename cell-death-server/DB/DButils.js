@@ -176,26 +176,26 @@ exports.addPremissions = async function (user_id, projectId) {
   })
 })  
 }
-async function checkInPermissions(user_id, project_id)
-{
-  return new Promise(function (resolve, reject){
-    let query1 = "select * from permissions where user_id=? and experiment_id=?"
-    let inserts = [user_id, project_id];
-    query1 = sql.format(query1, inserts);
-    con.query(query1, function (err, rows){
-      if(err){
-        console.log(err)
-        reject(err);
-      }
-      if(rows === undefined){
-        resolve(false);
-      } else {
-        console.log(rows)
-        resolve(true);
-      }
-    })
-  });
-}
+// async function checkInPermissions(user_id, project_id)
+// {
+//   return new Promise(function (resolve, reject){
+//     let query1 = "select * from permissions where user_id=? and experiment_id=?"
+//     let inserts = [user_id, project_id];
+//     query1 = sql.format(query1, inserts);
+//     con.query(query1, function (err, rows){
+//       if(err){
+//         console.log(err)
+//         reject(err);
+//       }
+//       if(rows === undefined){
+//         resolve(false);
+//       } else {
+//         console.log(rows)
+//         resolve(true);
+//       }
+//     })
+//   });
+// }
 async function checkInExperiments(user_id, project_id)
 {
   return new Promise(function(resolve, reject){
