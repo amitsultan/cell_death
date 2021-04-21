@@ -1,9 +1,5 @@
 <template>
   <div class="shadow-lg p-3 mb-5 bg-white rounded" style="width:80%;">
-    {{$root.store}}
-    <b-button class="add_btn" v-on:click="test()">print experiments</b-button>
-    <b-button class="add_btn" v-on:click="addPermissionsButton(this.experiment)">add another one</b-button>
-    <b-button v-on:click="test2()" class="remove_btn">remove one</b-button>
     <h1>Hello {{$root.store.firstName?$root.store.firstName+'!':'guest,'}}</h1><br>
     <h1>My Experiments</h1>
     <div v-if='active' style="float:right;width:30%;" class="shadow-lg p-4 bg-white rounded">
@@ -43,10 +39,6 @@ export default {
     props:{
     },
     methods: {
-        test(){
-          console.log("print experiments")
-          console.log(this.experiments)
-        },
         async removeButton(experiment){
           this.active = false
           this.current = experiment

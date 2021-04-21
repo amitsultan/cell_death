@@ -32,7 +32,7 @@ export default {
         }
     },async beforeMount(){
         try{
-            if(!this.$root.store.userID){
+            if(!this.$root.store.email||!this.$root.store.userID){
                 // send request for users ID
                 let config = {
                     url: this.$root.API_BASE + 'profile/getUserIdByEmail',
