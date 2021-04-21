@@ -163,7 +163,6 @@ exports.addPremissions = async function (user_id, projectId) {
     let query = 'insert into permissions (user_id, experiment_id) values (?,?)';
     let inserts = [user_id, projectId];
     query = sql.format(query, inserts);
-    console.log(query)
     con.query(query, function (err, rows){
       if(err){
         console.log(err)
@@ -172,7 +171,6 @@ exports.addPremissions = async function (user_id, projectId) {
       if(rows === undefined){
         reject(new Error("Error: rows is undefined"));
       } else {
-        console.log(rows)
         resolve(rows);
       }
   })
@@ -245,4 +243,26 @@ exports.getExperimantForUser = async function(userId){
       })
     }
   })
+}
+
+exports.deletePremissions = async function (user_id, projectId) {
+  return new Promise(function (resolve, reject){
+    if(!user_id || !projectId){
+      reject("Missing fields!")
+    }
+    let query = 'delete from permissions where user_id=? and experiment_id=?;';
+    let details = [user_id, projectId];
+    query = sql.format(query, details);
+    con.query(query, function (err, rows){
+      if(err){
+        console.log(err)
+        reject(err);
+      }
+      if(rows === undefined){
+        reject(new Error("Error: rows is undefined"));
+      } else {
+        resolve(rows);
+      }
+  })
+})  
 }
