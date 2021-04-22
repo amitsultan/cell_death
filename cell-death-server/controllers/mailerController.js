@@ -86,3 +86,4 @@ function sendContactUs(Name, from_email, subject, message) {
 exports.sendSuccessEmail = sendSuccessEmail
 exports.sendFailureEmail = sendFailureEmail
 exports.sendContactUs = sendContactUs
+exports.sendRegistrationMail = sendRegistrationMail
