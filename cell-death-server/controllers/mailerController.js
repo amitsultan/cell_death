@@ -13,7 +13,8 @@ function sendMail(to_email, subject, text){
         pythonPath: 'python',
         pythonOptions: ['-u'],
         scriptPath: script_path,
-        args: [process.env.MAILER_EMAIL, process.env.MAILER_PASSWORD, to_email, subject, text]
+        // change to 'true' for the emails to be sent
+        args: ['false', process.env.MAILER_EMAIL, process.env.MAILER_PASSWORD, to_email, subject, text]
     };
     try{
         PythonShell.run('MailSender.py', options, function (err, results){
@@ -67,6 +68,7 @@ function sendRegistrationMail(to_email, first_name, last_name) {
     let text = "Hey, "+ first_name+" "+last_name+"! and welcome to Cell-Death-Tracking Tool"+'\n'
                 +"Your registration completed successfully"+'\n'
                 +"You now can use your email address and password to login"+'\n'
+                +"https://icc.ise.bgu.ac.il/njsw11#/"+'\n'
                 +"please if needed contact us by replying back!"+"\n"
                 +"Thank you,\n BGU team Amit, Liat, Yarin, Haim"
 
