@@ -114,31 +114,17 @@ router.post("/getFullNameByEmail", async (req, res, next) => {
       throw { status: 500, message: "email must be provided" };
     }
     fullName=[]
-    DButils.execQuery("SELECT email FROM users")
-    .then((users) => {
-      if (!users.find((x) => x.email === req.body.email))
-        throw { status: 401, message: "Email is incorrect" };
       DButils.userByEmail(req.body.email)
         .then((user) => {
-          if (user.length > 1) {
-            throw {
-              status: 401,
-              message: "Error occurred, Please contact us",
-            };
-          } else if (user.length == 0) {
-            throw { status: 401, message: "Email is incorrect" };
-          } else {  
+          if (user.length == 0) {
+            throw { status: 500, message: "Email is incorrect" };
+          }else  { 
             fullName.push(user[0].first_name)
             fullName.push(user[0].last_name)
             req.session.firstName = fullName[0].first_name
             req.session.lastName = fullName[0].last_name
             res.status(200).send(fullName);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          next(error);
-        });
+      }
     })
   }catch(error){
     next(error);
