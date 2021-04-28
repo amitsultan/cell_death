@@ -12,6 +12,7 @@ const pythonController = require('../controllers/pythonController')
 const mailController = require('../controllers/mailerController')
 const loggerController = require('../controllers/loggerController')
 const csvEditorController = require('../controllers/csvEditorController')
+const projectController = require('../controllers/projectController')
 var sizeOf = require('image-size');
 
 var options = {
@@ -73,11 +74,11 @@ router.get("/getExperiments", (req, res) => {
   }
 });
 
-const createPNGs = async (serial) => {
+const createPNGs = async (serial, extension) => {
   return new Promise(async (resolve, reject) => {
-    let location = dataDirectory + "/" + serial + "/images/";
-    let save_location = dataDirectory + "/" + serial + "/images/images_png";
-    fs.readdir(dataDirectory + "/" + serial + "/images", async (err, files) => {
+    let location = dataDirectory + "/" + serial + extension + "/images/";
+    let save_location = dataDirectory + "/" + serial + extension + "/images/images_png";
+    fs.readdir(dataDirectory + "/" + serial + extension + "/images", async (err, files) => {
       if (err) {
         reject(err)
       } else {
@@ -238,7 +239,11 @@ router.post("/updateCsvDataById/:experimentId/:frameId", (req, res) => {
 });
 
 // Reciving file should be located under projectRar name.
+<<<<<<< HEAD
 router.post('/uploadProject', async (req, res)=> {
+=======
+router.post('/uploadProject', async (req, res) => {
+>>>>>>> init branch
   if(!req.session.userID){
     loggerController.log('error', 'uploadProject: Unauthorized user', 'User must be logged in')
     return res.status(500).send({ msg: "User must be logged in"})
@@ -249,10 +254,12 @@ router.post('/uploadProject', async (req, res)=> {
       return res.status(500).send({ msg: "file is not found"})
     }
     // accessing the file
-    const myFile = req.files.projectRar;
+    const project_rar = req.files.projectRar;
+    const extra_channel = req.files.extraChannel;
     if (!req.files.projectRar){
       return res.status(500).send({ msg: "No file found under rar" });
     }
+<<<<<<< HEAD
     //  mv() method places the file inside public directory
     myFile.mv(`../data/${myFile.name}`,async function (err) {
       if (err) {
@@ -341,6 +348,31 @@ router.post('/uploadProject', async (req, res)=> {
     let failure_message = 'Unexpected error in server side'
     loggerController.log('error', 'uploadProject: Unexcpeted error',error)
     mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)})
+=======
+      //  mv() method places the file inside public directory
+      project_rar.mv(`../data/${project_rar.name}`, async function (err) {
+        if (err) {
+          console.log(err);
+          return res.status(500).send({ msg: "Error occured" });
+        }
+        let fileName = project_rar.name;
+        let experiment_id = fileName.split('.').slice(0, -1).join('.');
+        res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
+        // check if the experiment is in the database
+        let isExists = projectController.isExperimentExists(experiment_id);
+        if(!isExists){
+          let experiment_details = await projectController.extractRar(fileName, experiment_id, req.session.userID, '_testme');
+          console.log(experiment_details);
+          if(experiment_details != undefined){
+            if(projectController.addProjectToDB(experiment_details, experiment_id)){
+              loggerController.log('info','uploadProject: upload succesfully', experiment_id);
+            }
+          }else{
+            console.log("no")
+          }
+        }
+      });
+>>>>>>> init branch
   }catch(error){
     loggerController.log('error', 'uploadProject: Unexcpeted error',error)
     return res.status(500).send({ msg: "Error occured" });

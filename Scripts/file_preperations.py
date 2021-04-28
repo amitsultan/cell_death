@@ -15,16 +15,16 @@ def fix_files_name(path):
         os.rename(path+"/"+filelist[i],path+"/"+new_filename)
 
 # File name must contain either Rar or zip extension
-def extractFile(fileName):
+def extractFile(fileName, extension):
     if not os.path.exists(BASE_FOLDER + fileName):
         print('file not found')
         return False
     try:
         fileNameNoExtension = BASE_FOLDER + fileName[0 : len(fileName) - 4]
-        os.mkdir(BASE_FOLDER + fileNameNoExtension)
-        os.mkdir(BASE_FOLDER + fileNameNoExtension + '/images')
-        patoolib.extract_archive(BASE_FOLDER + fileName, outdir=BASE_FOLDER + fileNameNoExtension + '/images')
-        fix_files_name(BASE_FOLDER + fileNameNoExtension + '/images')
+        os.mkdir(BASE_FOLDER + fileNameNoExtension + extension)
+        os.mkdir(BASE_FOLDER + fileNameNoExtension + extension + '/images')
+        patoolib.extract_archive(BASE_FOLDER + fileName, outdir=BASE_FOLDER + fileNameNoExtension+extension + '/images')
+        fix_files_name(BASE_FOLDER + fileNameNoExtension +extension+ '/images')
         return True
     except Exception as e:
         if 'WinError 183' in str(e):
@@ -37,8 +37,11 @@ def main(argv):
     if len(argv) == 0:
         raise Exception('No argument given')
     experiment_rar = argv[0]
+    extension = ''
+    if len(argv) == 2:
+        extension = argv[1]
     try:
-        if extractFile(experiment_rar):
+        if extractFile(experiment_rar, extension):
             print('Extracted')
         else:
             return False
