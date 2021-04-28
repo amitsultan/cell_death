@@ -238,7 +238,7 @@ router.post("/updateCsvDataById/:experimentId/:frameId", (req, res) => {
 });
 
 // Reciving file should be located under projectRar name.
-router.post('/uploadProject', (req, res) => {
+router.post('/uploadProject', async (req, res)=> {
   if(!req.session.userID){
     loggerController.log('error', 'uploadProject: Unauthorized user', 'User must be logged in')
     return res.status(500).send({ msg: "User must be logged in"})
@@ -253,43 +253,55 @@ router.post('/uploadProject', (req, res) => {
     if (!req.files.projectRar){
       return res.status(500).send({ msg: "No file found under rar" });
     }
-      //  mv() method places the file inside public directory
-      myFile.mv(`../data/${myFile.name}`, function (err) {
-        if (err) {
-          console.log(err);
-          return res.status(500).send({ msg: "Error occured" });
-        }
-        let fileName = myFile.name;
-        let experiment_id = fileName.split('.').slice(0, -1).join('.');
-        res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
+    //  mv() method places the file inside public directory
+    myFile.mv(`../data/${myFile.name}`,async function (err) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send({ msg: "Error occured" });
+      }
+      let fileName = myFile.name;
+      let experiment_id = fileName.split('.').slice(0, -1).join('.');
+      res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
         // check if the experiment is in the database
-        DButils.experimentDetails(experiment_id).then((results)=>{
-          if(results.length == 0){
+      let experiment_data = await DButils.experimentDetails(experiment_id).catch((error)=>{
+        loggerController.log('error', 'uploadProject: Failed to fetch experiemtn data from database',error)
+        return res.status(500).send({ msg: "Error occured" });
+      })
+      if(experiment_data.length == 0){
             // new project
             // Call python to handle unrar\unzip of the project file
             // After unziping the experiment pngs files will be avilable to watch
-            pythonController.unArchiveData(fileName).then((results)=>{
-              loggerController.log('info','uploadProject: unrar successesfully', experiment_id)
+        let unarchive = await pythonController.unArchiveData(fileName).catch((error)=>{
+          console.log("our error is :" + error)
+          let failure_message = 'Unexpected error in server side'
+          loggerController.log('error', 'uploadProject: Python script failed',error)
+          mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
+          })
+          loggerController.log('info','uploadProject: unrar successesfully', experiment_id)
               // check if python script excuted in success
               // if not, we have a folder with the same experiment name
-              if(results.message &&  results.message == 'Images created successfully'){
-                let experiment_details = {
-                  experiment_id: experiment_id,
-                  date: new Date(),
-                  num_pictures: results.num_pictures,
-                  width: results.width,
-                  height: results.height,
-                  user_id: req.session.userID}
-                  DButils.addExperiment(experiment_details).then((results)=>{
-                    if(results && results.affectedRows && results.affectedRows == 1){
-                      loggerController.log('info','uploadProject: experiment added to db', experiment_id)
-                      DButils.addPremissions(experiment_details.user_id, experiment_details.experiment_id).then((res)=>{
-                        mailController.sendSuccessEmail(req.session.email, experiment_id)
-                      }).catch((err)=>{
-                        let failure_message = 'could not add permission'
-                        loggerController.log('error', 'uploadProject: Adding premissions failed',err)
-                        mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                      })
+          if(unarchive.message &&  unarchive.message == 'Images created successfully'){
+            let experiment_details = {
+              experiment_id: experiment_id,
+              date: new Date(),
+              num_pictures: unarchive.num_pictures,
+              width: unarchive.width,
+              height: unarchive.height,
+              user_id: req.session.userID}
+              let add_exp = await DButils.addExperiment(experiment_details).catch((error)=>{
+                let failure_message = 'Unexpected error in server side'
+                loggerController.log('error', 'uploadProject: Adding experiment to database failed',error)
+                mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)})
+
+              if(add_exp && add_exp.affectedRows && add_exp.affectedRows == 1){
+                  loggerController.log('info','uploadProject: experiment added to db', experiment_id)
+                  await DButils.addPremissions(experiment_details.user_id, experiment_details.experiment_id).catch((err)=>{
+                    let failure_message = 'could not add permission'
+                    loggerController.log('error', 'uploadProject: Adding premissions failed',err)
+                    mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)})
+
+                  mailController.sendSuccessEmail(req.session.email, experiment_id)
+                      
                       // send email after successfully update the database with the experiment
 
                       // add back when trackmate script is working
@@ -306,43 +318,29 @@ router.post('/uploadProject', (req, res) => {
                       //   mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
                       // })
                       
-                    }else{
-                      // already in database
-                      // console.log(1)
-                      let failure_message = 'Experiment already found in our database'
-                      mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                    }
-                  }).catch((error)=>{
-                      let failure_message = 'Unexpected error in server side'
-                      loggerController.log('error', 'uploadProject: Adding experiment to database failed',error)
-                      mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                  })
-                // mail the user for success
-              }else if(results.message &&  results.message ==  'Experiment already exists'){
-                // console.log(results)
-                let failure_message = 'Experiment already found in our database'
-                mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-              }else{ // else for unexpceted cases
-                let failure_message = 'Unexpected error in server side'
-                mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                loggerController.log('error', 'uploadProject: Python script failed',results)
+              }else{
+                  // already in database
+                  let failure_message = 'Experiment already found in our database'
+                  mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
               }
-            }).catch((error)=>{
-              console.log("our error is :" + error)
-              let failure_message = 'Unexpected error in server side'
-              loggerController.log('error', 'uploadProject: Python script failed',error)
-              mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-            })
-          }else{
-            // console.log(3)
+                // mail the user for success
+          }else if(results.message &&  results.message ==  'Experiment already exists'){
+            // console.log(results)
             let failure_message = 'Experiment already found in our database'
             mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-          }
-        }).catch((error)=>{
-          loggerController.log('error', 'uploadProject: Failed to fetch experiemtn data from database',error)
-          return res.status(500).send({ msg: "Error occured" });
-        })
-      });
+          }else{ // else for unexpceted cases
+            let failure_message = 'Unexpected error in server side'
+            mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
+            loggerController.log('error', 'uploadProject: Python script failed',results)
+            }
+    }else{
+      let failure_message = 'Experiment already found in our database'
+      mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
+    }
+  }).catch((error)=>{
+    let failure_message = 'Unexpected error in server side'
+    loggerController.log('error', 'uploadProject: Unexcpeted error',error)
+    mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)})
   }catch(error){
     loggerController.log('error', 'uploadProject: Unexcpeted error',error)
     return res.status(500).send({ msg: "Error occured" });
