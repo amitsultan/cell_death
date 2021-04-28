@@ -68,3 +68,5 @@ app.use(function (err, req, res, next) {
 const host = '0.0.0.0'
 app.listen(port, host);
 console.log(`Running on PORT: ${port} on host ${host}`);
+
+module.exports = app
