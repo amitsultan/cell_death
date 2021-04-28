@@ -1,4 +1,5 @@
 import Main from "./pages/Home-Page";
+// import Profile from "./pages/Profile-Page";
 import VueRouter from "vue-router";
 
 // import NotFound from "./pages/NotFoundPage";
@@ -8,6 +9,11 @@ const routes = [
     path: "/",
     name: "main",
     component: Main,
+  },
+  {
+    path: "/Profile",
+    name: "ProfilePage",
+    component: () => import("./pages/Profile-Page"),
   },
   {
     path: "/Login",

@@ -11,7 +11,7 @@ const path = require('path')
 const auth = require("./routes/auth");
 const experiments = require("./routes/experiments");
 const general_jobs = require("./routes/general");
-
+const profile = require("./routes/profile");
 
 
 var app = express();
@@ -36,18 +36,19 @@ app.use(
     saveUninitialized: false,
     cookie: {
       expires: 120 * 60 * 1000,
+      // expires:  60,
     },
     unset: "destroy",
   })
 );
 
 // Session middleware to check if user cookie is still saved when user is not set
-app.use((req, res, next) => {
-  if (req.cookies.user_sid && !req.session.email) {
-    res.clearCookie("user_sid");
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (req.cookies.user_sid && !req.session.userID) {
+//     res.clearCookie("user_sid");
+//   }
+//   next();
+// });
 //settings cors
 const corsConfig = {
   origin: true,
@@ -60,7 +61,9 @@ app.options("*", cors(corsConfig));
 
 app.use(auth);
 app.use("/experiments", experiments);
-app.use("/administration",general_jobs)
+app.use("/administration",general_jobs);
+app.use("/profile", profile);
+
 app.use(function (err, req, res, next) {
   console.error(err);
   res.status(err.status || 500).send({ message: err.message, success: false });
