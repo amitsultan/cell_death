@@ -63,19 +63,6 @@ function EditListOfData(listOfData) {
 //   });
 
 
-router.get("/nextImage/:experimentId/:imageId", (req, res) => {
-  //returns the next image of the $experimentId
-});
-
-router.get("/getImages/:experimentId/:numberOfImages", (req, res) => {
-  //returns $numberOfImages from $experimentId and total number of images in the experiment
-
-});
-
-// router.get("/saveData", (req, res) => {
-
-// });
-
 router.get("/getExperiments", (req, res) => {
   try {
     const directories_names = getDirectories(dataDirectory);
@@ -296,7 +283,13 @@ router.post('/uploadProject', (req, res) => {
                   DButils.addExperiment(experiment_details).then((results)=>{
                     if(results && results.affectedRows && results.affectedRows == 1){
                       loggerController.log('info','uploadProject: experiment added to db', experiment_id)
-                      mailController.sendSuccessEmail(req.session.email, experiment_id)
+                      DButils.addPremissions(experiment_details.user_id, experiment_details.experiment_id).then((res)=>{
+                        mailController.sendSuccessEmail(req.session.email, experiment_id)
+                      }).catch((err)=>{
+                        let failure_message = 'could not add permission'
+                        loggerController.log('error', 'uploadProject: Adding premissions failed',err)
+                        mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
+                      })
                       // send email after successfully update the database with the experiment
 
                       // add back when trackmate script is working
@@ -315,7 +308,7 @@ router.post('/uploadProject', (req, res) => {
                       
                     }else{
                       // already in database
-                      console.log(1)
+                      // console.log(1)
                       let failure_message = 'Experiment already found in our database'
                       mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
                     }
@@ -326,7 +319,7 @@ router.post('/uploadProject', (req, res) => {
                   })
                 // mail the user for success
               }else if(results.message &&  results.message ==  'Experiment already exists'){
-                console.log(results)
+                // console.log(results)
                 let failure_message = 'Experiment already found in our database'
                 mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
               }else{ // else for unexpceted cases
@@ -341,7 +334,7 @@ router.post('/uploadProject', (req, res) => {
               mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
             })
           }else{
-            console.log(3)
+            // console.log(3)
             let failure_message = 'Experiment already found in our database'
             mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
           }

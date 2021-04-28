@@ -64,8 +64,9 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
       throw { status: 500, message: "credentials must be provided" };
     }
     // check that username exists
-    DButils.execQuery("SELECT email FROM users")
+    DButils.execQuery("SELECT * FROM users")
       .then((users) => {
+        console.log(users)
         if (!users.find((x) => x.email === req.body.email))
           throw { status: 401, message: "Email or Password incorrect" };
         DButils.userByEmail(req.body.email)
@@ -87,6 +88,8 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
               } else {
                 req.session.userID = user.id
                 req.session.email = user.email
+                // req.session.first_name = user.first_name,
+                // req.session.last_name = user.last_name,
                 res
                   .status(200)
                   .send({

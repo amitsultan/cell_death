@@ -11,7 +11,7 @@ const path = require('path')
 const auth = require("./routes/auth");
 const experiments = require("./routes/experiments");
 const general_jobs = require("./routes/general");
-
+const profile = require("./routes/profile");
 
 
 var app = express();
@@ -60,7 +60,9 @@ app.options("*", cors(corsConfig));
 
 app.use(auth);
 app.use("/experiments", experiments);
-app.use("/administration",general_jobs)
+app.use("/administration",general_jobs);
+app.use("/profile", profile);
+
 app.use(function (err, req, res, next) {
   console.error(err);
   res.status(err.status || 500).send({ message: err.message, success: false });
