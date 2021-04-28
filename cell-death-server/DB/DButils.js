@@ -215,7 +215,6 @@ async function checkInExperiments(user_id, project_id)
 exports.checkForPermissions = async function(user_id, project_id){
       // let per = await checkInPermissions(user_id, project_id)
       let exp = await checkInExperiments(user_id, project_id)
-      // console.log(exp)
       if(exp){
         return true 
       }
