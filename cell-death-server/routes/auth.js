@@ -16,7 +16,7 @@ var sessionChecker = (req, res, next) => {
     }    
 };
 
- router.post("/Register", sessionChecker, async (req, res, next) => {
+router.post("/Register", sessionChecker, async (req, res, next) => {
   // missing parameters
   try{
     if (!req.body.firstname ||
@@ -63,54 +63,32 @@ var sessionChecker = (req, res, next) => {
 router.post("/Login", sessionChecker, async (req, res, next) => {
   try {
     if (!req.body.email || !req.body.password) {
-      throw { status: 500, message: "credentials must be provided" };
+      return res.status(500).send("credentials must be provided");
     }
     // check that username exists
-    DButils.execQuery("SELECT * FROM users")
-      .then((users) => {
-        console.log(users)
-        if (!users.find((x) => x.email === req.body.email))
-          throw { status: 401, message: "Email or Password incorrect" };
-        DButils.userByEmail(req.body.email)
-          .then((user) => {
-            if (user.length > 1) {
-              throw {
-                status: 401,
-                message: "Error occurred, Please contact us",
-              };
-            } else if (user.length == 0) {
-              throw { status: 401, message: "Email or Password incorrect" };
-            } else {
-              user = user[0];
-              if (!bcrypt.compareSync(req.body.password, user.password)) {
-                throw {
-                  status: 401,
-                  message: "Username or Password incorrect",
-                };
-              } else {
-                req.session.userID = user.id
-                req.session.email = user.email
-                // req.session.first_name = user.first_name,
-                // req.session.last_name = user.last_name,
-                res
-                  .status(200)
-                  .send({
-                    status: 200,
-                    message: "User authentication succeeded",
-                  });
+    const users = await DButils.execQuery("SELECT * FROM users")
+    if (!users.find((x) => x.email === req.body.email))
+      return res.status(401).send("Email or Password incorrect");
+    var user = await DButils.userByEmail(req.body.email)
+    if (user.length == 0) {
+      return res.status(401).send("Email or Password incorrect");
+    }else {
+      user = user[0];
+      if (!bcrypt.compareSync(req.body.password, user.password)) {
+        return res.status(401).send("Username or Password incorrect");
+      }else {
+      req.session.userID = user.id
+      req.session.email = user.email
+      // req.session.first_name = user.first_name,
+      // req.session.last_name = user.last_name,
+      return res.status(200).send({status: 200,message: "User authentication succeeded",});
               }
-            }
-          })
-          .catch((error) => {
-            next(error);
-          });
-      })
-      .catch((error) => {
-        next(error);
-      });
-  } catch (error) {
-    next(error);
   }
+
+} catch(error){
+    console.log(error)
+    return res.status(401).send("An error has occurred");
+}
 });
 
 router.post("/getFullNameByEmail", async (req, res, next) => {

@@ -13,13 +13,11 @@ var DButils = require("../DB/DButils");
 // });
 
 router.post("/getProfile", async(req, res, next)=>{
-    console.log(req.body)
     if(req.body.userId){
         DButils.getExperimantForUser(req.body.userId).then((experiments)=>{
             if(experiments.length > 0){
                 ids = []
                 experiments.forEach(exp => ids.push(exp.experiment_id))
-                console.log(ids)
                 res.status(200).send(ids);
             }
             else{
@@ -36,32 +34,17 @@ router.post("/getProfile", async(req, res, next)=>{
 router.post("/getUserIdByEmail", async (req, res, next) => {
     try{
       if (!req.body.email) {
-        throw { status: 500, message: "email must be provided" };
+        return res.status(500).send({message: "email must be provided" });
       }
-      DButils.execQuery("SELECT email FROM users")
-      .then((users) => {
-        if (!users.find((x) => x.email === req.body.email))
-          throw { status: 401, message: "Email is incorrect" };
-        DButils.userByEmail(req.body.email)
-          .then((user) => {
-            if (user.length > 1) {
-              throw {
-                status: 401,
-                message: "Error occurred, Please contact us",
-              };
-            } else if (user.length == 0) {
-              throw { status: 401, message: "Email is incorrect" };
-            } else {  
-              res.status(200).send({status: 200, message: user[0].id});
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-            next(error);
-          });
-      })
+      var user = await DButils.userByEmail(req.body.email)
+      if (user.length == 0) {
+        return res.status(401).send({message: "Email is incorrect"});
+      } else {
+
+        return res.status(200).send({message: user[0].id});
+      }
     }catch(error){
-      next(error);
+      return res.status(401).send({message: "user not found"});
     }
   });
   
@@ -72,7 +55,7 @@ router.post("/addPermissions", async (req, res, next) =>
 {
     try{
         if(!req.body.user_id || !req.body.email || !req.body.projectId){
-            throw { status: 500, message: "one or more of the details is missing" };
+            return res.status(500).send({ message: "one or more of the details is missing" });
         }
         else{
             const check = await DButils.checkForPermissions(req.body.user_id, req.body.projectId)
@@ -108,7 +91,7 @@ router.post("/addPermissions", async (req, res, next) =>
 router.post("/deletePermissions", async (req, res, next) => {
   try{
       if(!req.body.user_id || !req.body.email || !req.body.projectId){
-          throw { status: 500, message: "one or more of the details is missing" };
+          return res.status(500).send({ status: 500, message: "one or more of the details is missing" });
       }
       else{
           const check = await DButils.checkForPermissions(req.body.user_id, req.body.projectId)
@@ -145,4 +128,16 @@ router.post("/deletePermissions", async (req, res, next) => {
       next(error);
   }
 });
+
+router.post("/deleteExperiment", async (req, res, next) => {
+  if(!req.body.user_id || !req.body.experiment_id){
+    return res.status(500).send("one or more of the details is missing")
+  }
+  const check = await DButils.checkForPermissions(req.body.user_id, req.body.projectId)
+  if(check === true){
+    //remove experiment from all tables
+    // remove from data directory
+  }
+
+})
 module.exports = router;
