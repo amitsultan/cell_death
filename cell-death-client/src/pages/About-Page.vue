@@ -18,17 +18,14 @@
       </tr>
 
     </table>
-    <!--<cards title="Our Team Members" subTitle="meet our team!" :cards="cards"></cards>-->
   </div>
 </template>
 
 <script>
-//import cards from "../components/AllCards"
 import card from "../components/Card"
 
 export default {
   components:{
-        //cards,
         card
   },
   data() {

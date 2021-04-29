@@ -69,6 +69,21 @@ exports.userByEmail = async function (email) {
         })
     })
 }
+exports.projectById = async function (projectId) {
+  return new Promise(function (resolve, reject){
+      let query = "SELECT * FROM experiments WHERE experiment_id = " + con.escape(projectId);
+      con.query(query, function (err, rows){
+          if (err) {
+              reject(err);
+          }
+          if (rows === undefined) {
+              reject(new Error("Error: rows is undefined"));
+          } else {
+              resolve(rows);
+          }
+      })
+  })
+}
 
 exports.experimentDetails = async function (experimentID) {
   return new Promise(function (resolve, reject){
@@ -116,8 +131,6 @@ exports.addExperiment = async function (experiment_details) {
   })
 }
 
-
-
 exports.addContactRequest = async function (Name, from_email, subject, message) {
   return new Promise(function (resolve, reject){
     if(!Name || !from_email || !subject || !message){
@@ -139,4 +152,120 @@ exports.addContactRequest = async function (Name, from_email, subject, message) 
       })
     }
   })
+}
+
+
+exports.addPremissions = async function (user_id, projectId) {
+  return new Promise(function (resolve, reject){
+    if(!user_id || !projectId){
+      reject("Missing fields!")
+    }
+    let query = 'insert into permissions (user_id, experiment_id) values (?,?)';
+    let inserts = [user_id, projectId];
+    query = sql.format(query, inserts);
+    con.query(query, function (err, rows){
+      if(err){
+        // console.log(err)
+        reject(err);
+      }
+      if(rows === undefined){
+        reject(new Error("Error: rows is undefined"));
+      } else {
+        resolve(rows);
+      }
+  })
+})  
+}
+// async function checkInPermissions(user_id, project_id)
+// {
+//   return new Promise(function (resolve, reject){
+//     let query1 = "select * from permissions where user_id=? and experiment_id=?"
+//     let inserts = [user_id, project_id];
+//     query1 = sql.format(query1, inserts);
+//     con.query(query1, function (err, rows){
+//       if(err){
+//         console.log(err)
+//         reject(err);
+//       }
+//       if(rows === undefined){
+//         resolve(false);
+//       } else {
+//         console.log(rows)
+//         resolve(true);
+//       }
+//     })
+//   });
+// }
+async function checkInExperiments(user_id, project_id)
+{
+  return new Promise(function(resolve, reject){
+    let query2 = "select * from experiments where user_id=? and experiment_id=?"
+    let inserts = [user_id, project_id];
+    query2 = sql.format(query2, inserts);
+    con.query(query2, function (err, rows){
+      if(err)
+        reject(err);
+      if(rows && rows.length > 0)
+        resolve(true);
+      else
+        resolve(false)
+    })
+  });
+}
+exports.checkForPermissions = async function(user_id, project_id){
+      // let per = await checkInPermissions(user_id, project_id)
+      let exp = await checkInExperiments(user_id, project_id)
+      if(exp){
+        return true 
+      }
+      else{
+        return false
+      }
+}
+
+exports.getExperimantForUser = async function(userId){
+  return new Promise(function (resolve, reject){
+    if(!userId)
+      reject("Missing fields!")
+    else{
+      let query = 'select * from permissions where user_id=' + con.escape(userId);
+      con.query(query, function (err, rows){
+        if(err){
+          console.log(err)
+          reject(err);
+        }
+        if(rows === undefined){
+          console.log("Error: rows is undefined")
+          reject(new Error("Error: rows is undefined"));
+        } else {
+          resolve(rows);
+        }
+      })
+    }
+  })
+}
+
+exports.deletePremissions = async function (user_id, projectId) {
+  return new Promise(function (resolve, reject){
+    if(!user_id || !projectId){
+      reject("Missing fields!")
+    }
+    let query = 'delete from permissions where user_id=? and experiment_id=?;';
+    let details = [user_id, projectId];
+    query = sql.format(query, details);
+    con.query(query, function (err, rows){
+      if(err){
+        // console.log(err)
+        reject(err);
+      }
+      if(rows === undefined){
+        reject(new Error("Error: rows is undefined"));
+      } else if(rows.affectedRows === 1) {
+          resolve("success!");
+      }
+      else{
+        resolve(rows)
+      }
+  })
+})  
 }
