@@ -64,10 +64,33 @@ function EditListOfData(listOfData) {
 //   });
 
 
+<<<<<<< HEAD
 router.get("/getExperiments", (req, res) => {
+=======
+router.get("/nextImage/:experimentId/:imageId", (req, res) => {
+  //returns the next image of the $experimentId
+});
+
+router.get("/getImages/:experimentId/:numberOfImages", (req, res) => {
+  //returns $numberOfImages from $experimentId and total number of images in the experiment
+
+});
+
+// router.get("/saveData", (req, res) => {
+
+// });
+
+router.get("/getExperiments", async (req, res) => {
+>>>>>>> added extra channel
   try {
     const directories_names = getDirectories(dataDirectory);
-    res.status(200).send(directories_names);
+    let results = []
+    for await (directory of directories_names) {
+      if(!directory.endsWith("_SC")){
+        results.push(directory)
+      }
+    }
+    res.status(200).send(results);
   } catch (error) {
     console.log(error)
     res.status(500).send("Unable to load experiments");
@@ -352,23 +375,30 @@ router.post('/uploadProject', async (req, res) => {
       //  mv() method places the file inside public directory
       project_rar.mv(`../data/${project_rar.name}`, async function (err) {
         if (err) {
-          console.log(err);
-          return res.status(500).send({ msg: "Error occured" });
-        }
-        let fileName = project_rar.name;
-        let experiment_id = fileName.split('.').slice(0, -1).join('.');
-        res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
-        // check if the experiment is in the database
-        let isExists = projectController.isExperimentExists(experiment_id);
-        if(!isExists){
-          let experiment_details = await projectController.extractRar(fileName, experiment_id, req.session.userID, '_testme');
-          console.log(experiment_details);
-          if(experiment_details != undefined){
-            if(projectController.addProjectToDB(experiment_details, experiment_id)){
-              loggerController.log('info','uploadProject: upload succesfully', experiment_id);
+          console.log("here error: "+err);
+          res.status(500).send({ msg: "Error occured" });
+          return
+        }else{
+          let fileName = project_rar.name;
+          let experiment_id = fileName.split('.').slice(0, -1).join('.');
+          let fileName_sc = extra_channel.name;
+          let experiment_id_sc = fileName_sc.split('.').slice(0, -1).join('.')+"_SC";
+          res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
+          // check if the experiment is in the database
+          let isExists = await projectController.isExperimentExists(experiment_id);
+          if(!isExists){
+            let experiment_details = await projectController.extractRar(fileName, experiment_id, req.session.userID, '');
+            console.log(experiment_details);
+            if(experiment_details != undefined){
+              if(projectController.addProjectToDB(experiment_details, experiment_id, experiment_id_sc)){
+                loggerController.log('info','uploadProject: upload succesfully', experiment_id);
+                if(extra_channel){
+                  projectController.handleExtraChannel(extra_channel, req.session.userID, experiment_id);
+                }
+              }
+            }else{
+                loggerController.log('error', 'uploadProject: Unexcpeted error')
             }
-          }else{
-            console.log("no")
           }
         }
       });

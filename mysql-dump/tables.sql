@@ -22,8 +22,11 @@ CREATE TABLE `experiments` (
   `width` int NOT NULL,
   `height` int NOT NULL,
   `user_id` int unsigned NOT NULL,
+  `second_ch` varchar(100)
+  ,
   PRIMARY KEY (`experiment_id`),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id) ON DELETE CASCADE
 );
 
 <<<<<<< HEAD

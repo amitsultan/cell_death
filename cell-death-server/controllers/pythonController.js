@@ -19,20 +19,19 @@ function unArchiveData(input, extension) {
             if(err){
                 reject(err)
             }else{
-                console.log(results)
+                console.log('results: '+results)
                 if(results.includes('Experiment already exists')){
                     resolve({message : 'Experiment already exists'})
                 }else{
                     // new experiment
                     let experiment_id = input.split('.').slice(0, -1).join('.');
                     let date = new Date();
-                    console.log('results : ',results)
                     // remove file extension
                     if(input == null){
                         // TODO
                         // Handle file not found (input == null)
                     }else{
-                        console.log("before PONGS\n\n\n");
+                        console.log("before PNGS\n\n\n");
                         experiments.createPNGs(input.split('.').slice(0, -1).join('.'), extension).then((results) =>{
                             results.message = 'Images created successfully';
                             resolve(results)

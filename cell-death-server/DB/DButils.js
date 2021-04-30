@@ -103,7 +103,7 @@ exports.experimentDetails = async function (experimentID) {
   })
 }
 
-exports.addExperiment = async function (experiment_details) {
+exports.addExperiment = async function (experiment_details, parent_id) {
   return new Promise(function (resolve, reject){
     console.log(experiment_details)
     if(!experiment_details  || !experiment_details.experiment_id || !experiment_details.num_pictures || !experiment_details.date ||
@@ -111,9 +111,15 @@ exports.addExperiment = async function (experiment_details) {
         // Missing information for addition of experiment
         reject({message: "Missing information for experiment"})
       }else{
-        let query = "INSERT INTO experiments (experiment_id,date,num_pictures,width,height,user_id) VALUES(?, ?, ?, ?, ?, ?)";
+        let query = ''
         let inserts = [experiment_details.experiment_id, experiment_details.date, experiment_details.num_pictures,
         experiment_details.width, experiment_details.height, experiment_details.user_id];
+        if(parent_id){
+          query = "INSERT INTO experiments (experiment_id,date,num_pictures,width,height,user_id, second_ch) VALUES(?, ?, ?, ?, ?, ?, ?)";
+          inserts.push(parent_id)
+        }else{
+          query = "INSERT INTO experiments (experiment_id,date,num_pictures,width,height,user_id) VALUES(?, ?, ?, ?, ?, ?)";
+        }
         query = sql.format(query, inserts);
         con.query(query, function (err, rows){
           if(err){

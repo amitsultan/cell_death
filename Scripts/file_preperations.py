@@ -1,17 +1,25 @@
 import patoolib
 import sys
 import os
+from functools import cmp_to_key
+import re
+
 
 BASE_FOLDER = '../data/'
 TRACKMATE_PATH = '../../trackmate/'
 
 
-def fix_files_name(path):
+def sort_func(x, y):
+    x_last = int(re.sub('[^0-9]','', x.split("_")[-1]))
+    y_last = int(re.sub('[^0-9]','', y.split("_")[-1]))
+    return x_last - y_last
+
+def fix_files_name(path, extension):
     filelist = os.listdir(path)
-    filelist = sorted(filelist)
+    filelist = sorted(filelist, key=cmp_to_key(sort_func))
     for i in range(len(filelist)):
         splited_filename = filelist[i].split("_")
-        new_filename = str(splited_filename[0]+"_"+str((i))+".tif")
+        new_filename = str(splited_filename[0]+extension+"_"+str((i))+".tif")
         os.rename(path+"/"+filelist[i],path+"/"+new_filename)
 
 # File name must contain either Rar or zip extension
@@ -24,11 +32,11 @@ def extractFile(fileName, extension):
         os.mkdir(BASE_FOLDER + fileNameNoExtension + extension)
         os.mkdir(BASE_FOLDER + fileNameNoExtension + extension + '/images')
         patoolib.extract_archive(BASE_FOLDER + fileName, outdir=BASE_FOLDER + fileNameNoExtension+extension + '/images')
-        fix_files_name(BASE_FOLDER + fileNameNoExtension +extension+ '/images')
+        fix_files_name(BASE_FOLDER + fileNameNoExtension +extension+ '/images', extension)
         return True
     except Exception as e:
         if 'WinError 183' in str(e):
-            print(' Experiment already exists')
+            print('Experiment already exists')
         else:
             print(e)
         return False
