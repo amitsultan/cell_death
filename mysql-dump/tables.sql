@@ -46,3 +46,4 @@ CREATE TABLE `contactRequests` (
   `message` varchar(1000) NOT NULL
 );
 
+INSERT INTO permissions ('user_id', 'experiment_id') VALUES ('1','2021-05-02');
