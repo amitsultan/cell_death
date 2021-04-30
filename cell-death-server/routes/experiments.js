@@ -64,7 +64,7 @@ function EditListOfData(listOfData) {
 //   });
 
 
-router.get("/getExperiments", (req, res) => {
+router.get("/getExperiments", async (req, res) => {
   try {
     const directories_names = getDirectories(dataDirectory);
     let results = []
