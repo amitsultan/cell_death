@@ -63,12 +63,6 @@ hr{
     /* font-size:.25rem; */
     width: 600px;
 }
-.outsideWrapper{
-    margin-top:50px;
-    display: flex;
-    align-items: center;
-    height: max-content;
-}
 .insideWrapper{
     height: max-content;
     width: max-content;
@@ -96,9 +90,27 @@ b-progress-value{
     margin: auto; /* Will not center vertically and won't work in IE6/7. */
     left: 0;
     right: 0;
-    position: fixed;
+    position: absolute;
     color: black;
 }
 .experiment_title{
     text-shadow: 3px 3px 5px;
+}
+.outerDiv{
+    flex-direction: column;
+    align-items: center;
+}
+.channel_btn, .channel_btn:hover, .channel_btn:focus, .channel_btn:active{
+        background-color: #6CB5FF;
+    order: 0;  
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.outsideWrapper{
+    order: 1;
+    display: flex;
+    align-items: center;
+    height: max-content;
 }

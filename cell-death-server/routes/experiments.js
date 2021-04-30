@@ -67,7 +67,13 @@ function EditListOfData(listOfData) {
 router.get("/getExperiments", (req, res) => {
   try {
     const directories_names = getDirectories(dataDirectory);
-    res.status(200).send(directories_names);
+    let results = []
+    for await (directory of directories_names) {
+      if(!directory.endsWith("_SC")){
+        results.push(directory)
+      }
+    }
+    res.status(200).send(results);
   } catch (error) {
     console.log(error)
     res.status(500).send("Unable to load experiments");
