@@ -305,7 +305,5 @@ router.post('/uploadProject', async (req, res) => {
 })
 
 
-
-
 module.exports = router;
 exports.createPNGs = createPNGs;
