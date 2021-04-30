@@ -1,6 +1,6 @@
 <template>
 <div class='Experiment-container shadow-lg p-3 mb-5 bg-white rounded'>
-    <div class='title_container' align="center"><h3 class='experiment_title'>{{this.id}}</h3></div>
+    <div class='title_container' align="center"><h3 class='experiment_title'>{{this.experiment_id}}</h3></div>
     <br>
     <div class='progress-bar'>
         <b-progress v-if='src && details' :max="details.num_pictures"  variant="info" striped :animated="true">
@@ -9,13 +9,16 @@
             </b-progress-bar>
         </b-progress>
     </div>
-    <div class='outsideWrapper'>
-        <input :disabled="!can_skip" type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
-        <div class='insideWrapper'>
-            <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
-            <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
+    <div class='outerDiv'>
+        <b-button class='channel_btn' v-on:click='channelSwitch'>Switch between channels</b-button>
+        <div class='outsideWrapper'>
+            <input :disabled="!can_skip" type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
+            <div class='insideWrapper'>
+                <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
+                <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
+            </div>
+            <input :disabled="!can_skip" type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
         </div>
-        <input :disabled="!can_skip" type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
     </div>
     <div class="menu">
         <div class="menu-item">New</div>
@@ -71,6 +74,7 @@ export default {
         TableView
     },
     data: () => ({
+        experiment_id: '',
         counter:0,
         pointProximity: 12,
         no_image: require('@/assets/no_image_found.png'),
@@ -218,6 +222,33 @@ export default {
             await this.saveCurrentFrameData(this.current)
 
         },
+        channelSwitch: async function(){
+            if(this.details.second_ch){
+                this.experiment_id = this.details.second_ch
+                await this.fetchExperimentDetails(this.experiment_id);
+                if(this.prev != this.no_image){
+                    this.fetchImage(this.current - 1).then((results)=>{
+                        this.prev = results
+                    })
+                }
+                this.fetchImage(this.current).then((results)=>{
+                    this.src = results
+                    this.updateImage()
+                })
+                if(this.next != this.no_image){
+                    this.fetchImage(this.current + 1).then((results)=>{
+                        this.next = results
+                    })
+                }
+            }else{
+                this.$root.toast(
+                    "Failed to find channel",
+                    "No extra channel found",
+                    "danger"
+                );
+            }
+        }
+        ,
         updateImage: async function(){
             try{
                 let canvas = document.getElementById('imageCanvas'),
@@ -246,7 +277,7 @@ export default {
         },
         async csvDownload(){
             let config = {
-                url: this.$root.API_BASE + 'experiments/experimentCSV/'+this.id,
+                url: this.$root.API_BASE + 'experiments/experimentCSV/'+this.experiment_id,
                 method: 'GET',
                 responseType: 'blob'
             }
@@ -356,7 +387,7 @@ export default {
             number = number>0?number:0
             return new Promise((resolve, reject)=>{
                 let config = {
-                    url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
+                    url: this.$root.API_BASE + 'experiments/getImageById/'+this.experiment_id+'/'+number,
                     method: 'GET',
                     responseType: 'blob'
                 }
@@ -512,19 +543,23 @@ export default {
                 }
                 
             }
-        }
-    },
-    async created() {
-        this.image = new Image();
+        },
+    async fetchExperimentDetails(id){
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
+            url: this.$root.API_BASE + "experiments/getDetails/"+id,
             method: 'GET'
         }
         this.changed = false;
         this.can_skip = true;
         await this.axios(config).then((response) =>{
             if(response.status && response.status === 200){
-                this.details = response.data
+                if(this.details){
+                    this.details.date = response.data.date
+                    this.details.experiment_id = response.data.experiment_id
+                    this.details.second_ch = response.data.second_ch
+                }else{
+                    this.details = response.data
+                }
             }else{
                 this.$root.toast(
                     "Error occurred",
@@ -533,7 +568,15 @@ export default {
                 );
             }
         }).catch((err)=>{console.log(err)})
+    }
     },
+    async created() {
+        this.image = new Image();
+        this.experiment_id = this.id
+        await this.fetchExperimentDetails(this.id);
+
+    }
+    ,
     async beforeMount(){
         this.current = 0
         this.prev = this.no_image
