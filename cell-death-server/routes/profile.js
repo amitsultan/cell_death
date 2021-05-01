@@ -1,16 +1,8 @@
 var express = require("express");
 var router = express.Router();
 var DButils = require("../DB/DButils");
+const loggerController = require('../controllers/loggerController')
 
-// router.use(function (req, res, next){    
-//     if (req.session.email && req.cookies.user_sid) {
-//         res.status(200);
-//         console.log("middle testing");
-//         next();
-//     } else {
-//         res.redirect('/');
-//     }    
-// });
 
 router.post("/getProfile", async(req, res, next)=>{
     if(req.body.userId){
@@ -61,15 +53,15 @@ router.post("/addPermissions", async (req, res, next) =>
             const check = await DButils.checkForPermissions(req.body.user_id, req.body.projectId)
             if(check === true){
                 const user = await DButils.userByEmail(req.body.email);
-                const project = await DButils.projectById(req.body.projectId);
+                const project = await DButils.experimentDetails(req.body.projectId);
                 if(user.length>0 && project.length>0){
-                    console.log('add the permission to db')
+                  loggerController.log('info','add the permission to db')
                     try {
                         const success = await DButils.addPremissions(user[0].id, project[0].experiment_id);
-                        console.log("added premission successfully");
+                        loggerController.log('info',"added premission successfully", {user: user[0].id, project: project[0].experiment_id});
                         res.status(200).send({status: 200, message: "added premission successfully"});
                     }catch(error){
-                        console.log("already exist in db")
+                        loggerController.log('error', "already exist in db", {user: user[0].id, project: project[0].experiment_id})
                         res.status(500).send("already exist in db")
                     }
                 }
@@ -97,20 +89,20 @@ router.post("/deletePermissions", async (req, res, next) => {
           const check = await DButils.checkForPermissions(req.body.user_id, req.body.projectId)
           if(check === true){
               const user = await DButils.userByEmail(req.body.email);
-              const project = await DButils.projectById(req.body.projectId);
+              const project = await DButils.experimentDetails(req.body.projectId);
               if(user.length>0 && project.length>0){
-                  console.log('delete permission from db')
+                loggerController.log('info','delete permission from db')
                   try {
                       const success = await DButils.deletePremissions(user[0].id, project[0].experiment_id);
                       if(success.length>0){
-                        console.log("delete premission successfully");
+                        loggerController.log('info',"delete premission successfully", {user: user[0].id, project: project[0].experiment_id});
                         return res.status(200).send({status: 200, message: "delete premission successfully"});
                       }
                       else{
                         res.status(400).send({status: 400, message: "could not delete permission. user or experiment not exists"});
                       }
                   }catch(error){
-                      console.log("not found in db")
+                    loggerController.log('error',"not found in db")
                       res.status(500).send({status: 500, message:"not found in db"})
                   }
               }

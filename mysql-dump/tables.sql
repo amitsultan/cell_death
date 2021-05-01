@@ -10,7 +10,7 @@ CREATE TABLE `users` (
   `id` int unsigned NOT NULL AUTO_INCREMENT UNIQUE,
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `email` varchar(255) UNIQUE NOT NULL,
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 );
@@ -26,7 +26,7 @@ CREATE TABLE `experiments` (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-  CREATE TABLE `permissions` (
+CREATE TABLE `permissions` (
     `user_id` int unsigned NOT NULL,
     `experiment_id` varchar(100) NOT NULL,
     PRIMARY KEY (`user_id`,`experiment_id`),
