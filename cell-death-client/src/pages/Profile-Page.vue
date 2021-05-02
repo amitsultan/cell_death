@@ -1,11 +1,12 @@
 <template>
-  <div class="shadow-lg p-3 mb-5 bg-white rounded" style="width:80%;">
-    <h1>Hello {{$root.store.firstName?$root.store.firstName+'!':'guest,'}}</h1><br>
+  <div class="shadow-lg p-3 bg-white rounded container" style="width:80%;">
+    <h4>Hello {{$root.store.firstName?$root.store.firstName+'!':'guest,'}}</h4><br>
     <h1>My Experiments</h1>
     <div v-if='active' style="float:right;width:30%;" class="shadow-lg p-4 bg-white rounded">
-      <h4>{{current}}</h4>
+      <h4>Experiment: {{current}}</h4>
       {{add?'add':'remove'}} a user {{add?'to':'from'}} the <b>{{current?"\'"+current+"\'":''}}</b> permissions by entering a user's email:<br>
       <input v-model="email" value="enter email" /><br><br>
+      Note: You can't edit permissions for an experiment you dont own! <br><br>
       <input type="button" :value="add?'Add':'Remove'" v-on:click="EditPermission(email,current)" style="float:right;"/>
       <input type="button" value="Cancel" v-on:click="active=false" style="float:left;"/>
     </div>
