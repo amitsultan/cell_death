@@ -6,6 +6,7 @@
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
+          <b-nav-item v-if="$root.store.email"  :to="{ name: 'ProfilePage' }">My Profile</b-nav-item>
           <b-nav-item active :to="{ name: 'main' }">Home</b-nav-item>
           <b-nav-item :to="{ name: 'Experiments'}">Experiments</b-nav-item>
           <b-nav-item :to="{ name: 'requestPage'}">Request-experiment</b-nav-item>
@@ -23,11 +24,11 @@
           </b-nav-item-dropdown>
 
           <!-- <b-nav-item-dropdown right v-if="$root.store.email" text="User"> -->
-          <b-nav-item right v-if="$root.store.email" :to="{ name: 'ProfilePage' }">
+          <b-nav-item right v-if="$root.store.email">
            <b> {{ $root.store.firstName }} {{ $root.store.lastName }} </b>
           </b-nav-item>
           <b-nav-item-dropdown right v-if="$root.store.email">
-            <b-dropdown-item :to="{ name: 'ProfilePage' }">Profile Page</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'ProfilePage' }">My Profile</b-dropdown-item>
             <b-dropdown-item v-on:click='Logout'>Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>

@@ -3,16 +3,17 @@
     <h1>Hello {{$root.store.firstName?$root.store.firstName+'!':'guest,'}}</h1><br>
     <h1>My Experiments</h1>
     <div v-if='active' style="float:right;width:30%;" class="shadow-lg p-4 bg-white rounded">
+      <h4>{{current}}</h4>
       {{add?'add':'remove'}} a user {{add?'to':'from'}} the <b>{{current?"\'"+current+"\'":''}}</b> permissions by entering a user's email:<br>
       <input v-model="email" value="enter email" /><br><br>
-      <input type="button" value="Do it!" v-on:click="EditPermission(email,current)" style="float:right;"/>
-      <input type="button" value="Never mind" v-on:click="active=false" style="float:left;"/>
+      <input type="button" :value="add?'Add':'Remove'" v-on:click="EditPermission(email,current)" style="float:right;"/>
+      <input type="button" value="Cancel" v-on:click="active=false" style="float:left;"/>
     </div>
     <div v-if='Object.keys(this.experiments).length==0'>  no experiments for you... yet!</div>
     <div v-else>Edit permissions on your Experiments:</div>
     <div v-for="exp in experiments" :key="exp" style="width:68%;margin-top:10px" class="shadow-lg p-4 bg-white rounded">
           {{exp}}
-    <b-button class="remove_btn" v-on:click="removeButton(exp)">Remove</b-button>
+    <!-- <b-button class="remove_btn" v-on:click="removeButton(exp)">Remove</b-button> -->
     <b-button class="add_btn" v-on:click="removePermissionsButton(exp)">Remove Permissions</b-button>
     <b-button class="add_btn" v-on:click="addPermissionsButton(exp)">Add Permissions</b-button>
     </div>
@@ -58,6 +59,9 @@ export default {
             if(response.status && response.status === 200){
               console.log('permission updated')
             }
+            if(response.status && response.status === 400){
+              console.log(response.body.message)
+            }
           }).catch((err)=>{
             console.log(err)
             pop = false
@@ -93,6 +97,7 @@ export default {
             email: email,
           }
         }
+        console.log(config)
         await this.axios(config).then((response) =>{
           if(response.status && response.status === 200){
             this.userID = response.data.message
@@ -110,7 +115,7 @@ export default {
             url: this.$root.API_BASE + path,
             method: 'Post',
             data: {
-              user_id: this.userID,
+              user_id: this.$root.store.userID,
               email: this.email,
               projectId: experiment,
             }
@@ -129,14 +134,14 @@ export default {
               // console.log(response.message)
               this.$root.toast(
                 'permission unchanged!',
-                'response.message',
+                response.data.message,
                 "danger")
             }
-          }).catch((err) =>{           
+          }).catch((err) =>{         
               console.log('permission unchanged')
               this.$root.toast(
                 'permission unchanged',
-                'permission already '+message,
+                'permission has not been '+message,
                 "danger")})
         }else{
           console.log('permission unchanged')
