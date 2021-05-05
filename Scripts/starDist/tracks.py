@@ -10,14 +10,16 @@ def tracks_from_points(points, window=1):
     frame = 0
     if len(points) == 0:
         return tracks
-    for mark in points[0]:
-        tmp = Node(mark, frame)
+    mark, prob = points[0]
+    for i in range(len(mark)):
+        tmp = Node(mark[i], frame, prob[i])
         relevant_marks.append(tmp)
         tracks[track_id] = tmp
         track_id += 1
     frame += 1
-    for point in points[1:]:
-        window_marks = list_to_nodes(point, frame)
+    for i in range(1, len(points)):
+        mark, prob = points[i]
+        window_marks = list_to_nodes(mark, frame, prob)
         for i in range(len(relevant_marks)):
             if len(window_marks) == 0:
                 break

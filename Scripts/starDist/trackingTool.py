@@ -51,6 +51,7 @@ def main():
 	points = star.get_images_points(df['image'].values)
 	print("Calculating tracks...")
 	tracks = tracks_from_points(points)
+	print(tracks)
 	print("Exporting results...")
 	if export_csv(df, tracks, output_path+f"/{project_name}.csv", len(images)):
 		return 0

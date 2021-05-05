@@ -2,10 +2,11 @@ import numpy as np
 
 
 class Node:
-    def __init__(self, data, frame):
+    def __init__(self, data, frame, prob):
         # store data
         self.data = data
         self.frame = frame
+        self.prob = prob
         # store reference (next item)
         self.next = None
         self.prev = None
@@ -24,10 +25,10 @@ class Node:
     def __repr__(self):
          return "({}, {})".format(self.data[0], self.data[1])
         
-def list_to_nodes(e_lists, frame):
+def list_to_nodes(e_lists, frame, prob_list):
     node_list = []
-    for e in e_lists:
-        node_list.append(Node(e, frame))
+    for i in range(len(e_lists)):
+        node_list.append(Node(e_lists[i], frame, prob_list[i]))
     return node_list
 
 def nodes_distance(p1, p2):

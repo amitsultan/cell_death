@@ -270,8 +270,14 @@ router.post('/uploadProject', async (req, res) => {
         }else{
           let fileName = project_rar.name;
           let experiment_id = fileName.split('.').slice(0, -1).join('.');
-          let fileName_sc = extra_channel.name;
-          let experiment_id_sc = fileName_sc.split('.').slice(0, -1).join('.')+"_SC";
+          let fileName_sc = undefined
+          let experiment_id_sc = undefined
+          if(extra_channel){
+            fileName_sc = extra_channel.name;
+            experiment_id_sc = fileName_sc.split('.').slice(0, -1).join('.')+"_SC";
+          }else{
+            experiment_id_sc = null
+          }
           res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
           // check if the experiment is in the database
           let isExists = await projectController.isExperimentExists(experiment_id);
