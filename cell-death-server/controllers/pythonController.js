@@ -1,10 +1,11 @@
+const { content } = require('googleapis/build/src/apis/content');
 const path = require('path');
 const experiments = require('../routes/experiments')
 const script_path = path.join(__dirname,"../../Scripts")
 var sizeOf = require('image-size');
 const fs = require("fs");
 
-function unArchiveData(input) {
+function unArchiveData(input, extension) {
     return new Promise(function (resolve, reject){
     let { PythonShell } = require('python-shell');
     let options = {
@@ -12,9 +13,10 @@ function unArchiveData(input) {
         pythonPath: 'python',
         pythonOptions: ['-u'], // get print results in real-time
         scriptPath: script_path,
-        args: [input]
+        args: [input, extension]
     };
     try{
+        console.log(options.args)
         PythonShell.run('file_preperations.py', options, function (err, results) {
             if(err){
                 reject(err)
@@ -26,17 +28,17 @@ function unArchiveData(input) {
                     // new experiment
                     let experiment_id = input.split('.').slice(0, -1).join('.');
                     let date = new Date();
-                    console.log('results : ',results)
                     // remove file extension
                     if(input == null){
                         // TODO
                         // Handle file not found (input == null)
                     }else{
-                        console.log("before PONGS\n\n\n");
-                        experiments.createPNGs(input.split('.').slice(0, -1).join('.')).then((results) =>{
+                        console.log("before PNGS\n\n\n");
+                        experiments.createPNGs(input.split('.').slice(0, -1).join('.'), extension).then((results) =>{
                             results.message = 'Images created successfully';
                             resolve(results)
                         }).catch((error) => {
+                            console.log(error)
                             reject(error)
                         })
                     }   
@@ -44,34 +46,10 @@ function unArchiveData(input) {
             }
         })
     }catch(err){
+        console.log(err)
         reject(err)
     }
   })
-}
-function runTrackMate(exp_id){
-    return new Promise(function (resolve, reject){
-        let { PythonShell } = require('python-shell');
-        let options = {
-            mode: 'text',
-            pythonPath: 'python',
-            pythonOptions: ['-u'], // get print results in real-time
-            scriptPath: script_path,
-            args: [exp_id]
-        };
-    try{
-        //run trackmete script
-        PythonShell.run('trackmate.py', options, function (err, results) {
-            if(err){
-                reject(err);
-            }
-            else{
-                results.message = "Experiment processed successfully";
-            }
-        })
-    }catch(err){
-        results.message("Could not run trackmate");
-    }
-    })
 }
 
 function convertTifToPng(inputPath, outputPath){

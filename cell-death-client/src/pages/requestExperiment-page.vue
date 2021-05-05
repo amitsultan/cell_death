@@ -36,6 +36,36 @@
         </b-form-invalid-feedback>
       </b-form-group>
 
+      <b-form-group>
+        <b-form-checkbox 
+          v-model="form.selected" 
+          name="some-radios" 
+          :value=true>Include extra channel
+        </b-form-checkbox>
+      </b-form-group>
+
+
+
+      <b-form-group
+        id="input-group-ExtraChannelRar"
+        label-cols-sm="3"
+        label="Extra channel rar:"
+        label-for="ExtraChannel"
+        :hidden='!form.selected'
+      >
+      <b-form-file
+      v-model="form.extraChannel"
+      :state="Boolean(form.extraChannel)"
+      placeholder="Choose a file or drop it here..."
+      drop-placeholder="Drop file here..."
+      accept='.zip, .rar'
+      :disabled="!$root.store.email"
+    ></b-form-file>
+        <b-form-invalid-feedback>
+          File is required
+        </b-form-invalid-feedback>
+      </b-form-group>
+
       <b-button
         type="submit"
         variant="primary"
@@ -71,8 +101,10 @@ export default {
     return {
         form: {
         projectRar: undefined,
+        extraChannel: undefined,
         progress: 0,
         message: "",
+        selected: false,
         fileInfos: [],
         submitError: undefined,
       },
@@ -99,7 +131,7 @@ export default {
     },
     async request() {
       this.form.progress = 0;
-      UploadService.upload(this.form.projectRar, event => {
+      UploadService.upload(this.form.projectRar, this.form.extraChannel, event => {
         this.form.progress = Math.round((100 * event.loaded) / event.total);
       })
         .then(response => {
