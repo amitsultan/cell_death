@@ -101,6 +101,6 @@ function convertTifToPng(inputPath, outputPath){
     })
 }
 
-exports.runTrackMate = runTrackMate
+// exports.runTrackMate = runTrackMate
 exports.unArchiveData = unArchiveData
 exports.convertTifToPng = convertTifToPng

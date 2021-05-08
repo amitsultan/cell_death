@@ -2,7 +2,7 @@
 const path = require('path');
 const loggerController = require('./loggerController')
 const script_path = path.join(__dirname,"../../Scripts")
-
+const sendMailFleg = 'false'
 
 
 
@@ -14,7 +14,7 @@ function sendMail(to_email, subject, text){
         pythonOptions: ['-u'],
         scriptPath: script_path,
         // change to 'true' for the emails to be sent
-        args: ['false', process.env.MAILER_EMAIL, process.env.MAILER_PASSWORD, to_email, subject, text]
+        args: [sendMailFleg, process.env.MAILER_EMAIL, process.env.MAILER_PASSWORD, to_email, subject, text]
     };
     try{
         PythonShell.run('MailSender.py', options, function (err, results){
