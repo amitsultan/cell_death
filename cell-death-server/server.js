@@ -65,9 +65,11 @@ app.use("/administration",general_jobs);
 app.use("/profile", profile);
 
 app.use(function (err, req, res, next) {
-  console.error(err);
+  console.log(err);
   res.status(err.status || 500).send({ message: err.message, success: false });
 });
 const host = '0.0.0.0'
 app.listen(port, host);
 console.log(`Running on PORT: ${port} on host ${host}`);
+
+module.exports = app;
