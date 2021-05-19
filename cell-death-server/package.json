@@ -8,7 +8,14 @@
     "start-dev": "nodemon server.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:reset": "npx sequelize-cli db:migrate:undo:all && npm run migrate",
-    "test": "jest"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
+    "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "dependencies": {
     "@fortawesome/vue-fontawesome": "^2.0.0",

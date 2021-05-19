@@ -22,14 +22,6 @@ var options = {
 var converter = new ConvertTiff(options);
 
 
-// Helper function - return directories inside path
-const getDirectories = (source) =>
-  fs
-    .readdirSync(source, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
-
-
 function EditListOfData(listOfData) {
   return listOfData.map((row) => {
     return {
@@ -63,88 +55,84 @@ function EditListOfData(listOfData) {
 //     }
 //   });
 
-
-// router.get("/getExperiments", async (req, res) => {
-//   try {
-//     const directories_names = getDirectories(dataDirectory);
-//     let results = []
-//     for await (directory of directories_names) {
-//       if(!directory.endsWith("_SC")){
-//         results.push(directory)
-//       }
-//     }
-//     res.status(200).send(results);
-//   } catch (error) {
-//     console.log(error)
-//     res.status(500).send("Unable to load experiments");
-//   }
-// });
-
-const createPNGs = async (serial, extension) => {
-  return new Promise(async (resolve, reject) => {
-    let location = dataDirectory + "/" + serial?serial:'' + extension?extension:'' + "/images/";
-    let save_location = dataDirectory + "/" + serial?serial:'' + extension?extension:'' + "/images/images_png";
-    fs.readdir(dataDirectory + "/" + serial?serial:'' + extension?extension:'' + "/images", async (err, files) => {
-      if (err) {
-        reject(err)
-      } else {
-        // Filter tif files from others
-        let tif_array = [];
-        const tifFiles = files.filter((el) => /\.tif$/.test(el));
-        let is_dimensions_saved = false
-        let width = 0
-        let height = 0
-        tifFiles.forEach((file) => {
-          tif_array.push(location + file);
-          if (!is_dimensions_saved){
-            sizeOf(location + file, function (err, dimensions) {
-              if(err){
-                reject("Couldn't fetch image dimensions")
-              }else{
-                width = dimensions.width;
-                height = dimensions.height;
-              }
-            });
-            is_dimensions_saved = true
-          }
-        });
-        console.log("all went well");
-        await converter.convertArray(tif_array, save_location).catch((err) => {
-          console.log("converter: "+err)
-          reject(err)
-        });
-        let images_details = {
-          num_pictures: tifFiles.length,
-          width: width,
-          height: height
-        }
-        resolve(images_details)
-      }
-    });
-  })
+const createPNGs = async (serial) => {
+  // return new Promise(async (resolve, reject) => {
+  try
+  {
+    let location = dataDirectory + "/" + serial + "/images/";
+    let save_location = dataDirectory + "/" + serial + "/images/images_png/";
+    if (!fs.existsSync(save_location)){
+      fs.mkdirSync(save_location);
+    }
+    let res = await pythonController.convertTifToPng(location, save_location)
+    return res
+  }
+  catch(error)
+  {
+    throw error
+  }
+  
+  //   fs.readdir(dataDirectory + "/" + serial + "/images", async (err, files) => {
+  //     if (err) {
+  //       reject(err)
+  //     } else {
+  //       // Filter tif files from others
+  //       let tif_array = [];
+  //       const tifFiles = files.filter((el) => /\.tif$/.test(el));
+  //       let is_dimensions_saved = false
+  //       let width = 0
+  //       let height = 0
+  //       tifFiles.forEach((file) => {
+  //         tif_array.push(location + file);
+  //         if (!is_dimensions_saved){
+  //           sizeOf(location + file, function (err, dimensions) {
+  //             if(err){
+  //               reject("Couldn't fetch image dimensions")
+  //             }else{
+  //               width = dimensions.width;
+  //               height = dimensions.height;
+  //             }
+  //           });
+  //           is_dimensions_saved = true
+  //         }
+  //       });
+  //       await converter.convertArray(tif_array, save_location).catch((err) => {
+  //         console.log("converter: "+err)
+  //         reject(err)
+  //       });
+  //       console.log("all went well");
+  //       let images_details = {
+  //         num_pictures: tifFiles.length,
+  //         width: width,
+  //         height: height
+  //       }
+  //       resolve(images_details)
+  //     }
+  //   });
+  // })
 }
 
 router.get("/getImageById/:experimentId/:imageId", (req, res) => {
   try {
     if (!req.params.experimentId || !req.params.imageId) {
-      res.status(400).send("Missing params");
+      return res.status(400).send("Missing params");
     }
     const experimentId = req.params.experimentId;
     const imageId = req.params.imageId;
     const path = experimentId + "/images/images_png/" + experimentId + "_" + imageId + ".png";
     if (!fs.existsSync(dataDirectory + "/" + experimentId + "/images/images_png")) {
       createPNGs(experimentId).then(() => {
-        res.status(200).sendFile(path, { root: dataDirectory });
+        return res.status(200).sendFile(path, { root: dataDirectory });
       }).catch((err) => {
         console.log(err);
-        res.status(500).send("Unable to get image");
+        return res.status(500).send("Unable to get image");
       })
     } else {
-      res.status(200).sendFile(path, { root: dataDirectory });
+      return res.status(200).sendFile(path, { root: dataDirectory });
     }
   } catch (err) {
     console.log(err)
-    res.status(500).send("Unable to get image");
+    return res.status(500).send("Unable to get image");
   }
 });
 

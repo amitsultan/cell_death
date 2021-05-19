@@ -19,7 +19,7 @@ exports.execQuery = async function (query) {
     return new Promise(function(resolve, reject){
         con.query(query, function(err, rows){
             if(err){
-              console.log(config)
+              // console.log(config)
                 reject(err)
             }                                                
             if(rows === undefined){
@@ -69,32 +69,15 @@ exports.userByEmail = async function (email) {
         })
     })
 }
-exports.projectById = async function (projectId) {
-  return new Promise(function (resolve, reject){
-      let query = "SELECT * FROM experiments WHERE experiment_id = " + con.escape(projectId);
-      con.query(query, function (err, rows){
-          if (err) {
-              reject(err);
-          }
-          if (rows === undefined) {
-              reject(new Error("Error: rows is undefined"));
-          } else {
-              resolve(rows);
-          }
-      })
-  })
-}
 
 exports.experimentDetails = async function (experimentID) {
   return new Promise(function (resolve, reject){
     let query = "SELECT * FROM experiments WHERE experiment_id = "+ con.escape(experimentID);
     con.query(query, function (err, rows){
       if(err){
-        console.log(err)
         reject(err);
       }
       if(rows === undefined){
-        console.log("Error: rows is undefined")
         reject(new Error("Error: rows is undefined"));
       } else {
         resolve(rows);
@@ -105,7 +88,6 @@ exports.experimentDetails = async function (experimentID) {
 
 exports.addExperiment = async function (experiment_details, parent_id) {
   return new Promise(function (resolve, reject){
-    console.log(experiment_details)
     if(!experiment_details  || !experiment_details.experiment_id || !experiment_details.num_pictures || !experiment_details.date ||
       !experiment_details.width || !experiment_details.height || !experiment_details.user_id){
         // Missing information for addition of experiment
@@ -123,11 +105,9 @@ exports.addExperiment = async function (experiment_details, parent_id) {
         query = sql.format(query, inserts);
         con.query(query, function (err, rows){
           if(err){
-            console.log(err)
             reject(err);
           }
           if(rows === undefined){
-            console.log("Error: rows is undefined")
             reject(new Error("Error: rows is undefined"));
           } else {
             resolve(rows);
@@ -171,7 +151,6 @@ exports.addPremissions = async function (user_id, projectId) {
     query = sql.format(query, inserts);
     con.query(query, function (err, rows){
       if(err){
-        console.log(err)
         reject(err);
       }
       if(rows === undefined){
@@ -182,26 +161,7 @@ exports.addPremissions = async function (user_id, projectId) {
   })
 })  
 }
-// async function checkInPermissions(user_id, project_id)
-// {
-//   return new Promise(function (resolve, reject){
-//     let query1 = "select * from permissions where user_id=? and experiment_id=?"
-//     let inserts = [user_id, project_id];
-//     query1 = sql.format(query1, inserts);
-//     con.query(query1, function (err, rows){
-//       if(err){
-//         console.log(err)
-//         reject(err);
-//       }
-//       if(rows === undefined){
-//         resolve(false);
-//       } else {
-//         console.log(rows)
-//         resolve(true);
-//       }
-//     })
-//   });
-// }
+
 async function checkInExperiments(user_id, project_id)
 {
   return new Promise(function(resolve, reject){
@@ -219,14 +179,17 @@ async function checkInExperiments(user_id, project_id)
   });
 }
 exports.checkForPermissions = async function(user_id, project_id){
-      // let per = await checkInPermissions(user_id, project_id)
-      let exp = await checkInExperiments(user_id, project_id)
-      if(exp){
-        return true 
-      }
-      else{
-        return false
-      }
+  try{
+    let exp = await checkInExperiments(user_id, project_id)
+    if(exp){
+      return true
+    }
+    else{
+      return false
+    }
+  }catch(error){
+    return false
+  }    
 }
 
 exports.getExperimantForUser = async function(userId){
@@ -237,11 +200,9 @@ exports.getExperimantForUser = async function(userId){
       let query = 'select * from permissions where user_id=' + con.escape(userId);
       con.query(query, function (err, rows){
         if(err){
-          console.log(err)
           reject(err);
         }
         if(rows === undefined){
-          console.log("Error: rows is undefined")
           reject(new Error("Error: rows is undefined"));
         } else {
           resolve(rows);
@@ -261,7 +222,6 @@ exports.deletePremissions = async function (user_id, projectId) {
     query = sql.format(query, details);
     con.query(query, function (err, rows){
       if(err){
-        // console.log(err)
         reject(err);
       }
       if(rows === undefined){

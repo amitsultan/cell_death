@@ -1,25 +1,15 @@
 var express = require("express");
 var router = express.Router();
 var DButils = require("../DB/DButils");
+const loggerController = require('../controllers/loggerController')
 
-// router.use(function (req, res, next){    
-//     if (req.session.email && req.cookies.user_sid) {
-//         res.status(200);
-//         console.log("middle testing");
-//         next();
-//     } else {
-//         res.redirect('/');
-//     }    
-// });
 
 router.post("/getProfile", async(req, res, next)=>{
-    console.log(req.body)
     if(req.body.userId){
         DButils.getExperimantForUser(req.body.userId).then((experiments)=>{
             if(experiments.length > 0){
                 ids = []
                 experiments.forEach(exp => ids.push(exp.experiment_id))
-                console.log(ids)
                 res.status(200).send(ids);
             }
             else{
@@ -36,32 +26,17 @@ router.post("/getProfile", async(req, res, next)=>{
 router.post("/getUserIdByEmail", async (req, res, next) => {
     try{
       if (!req.body.email) {
-        throw { status: 500, message: "email must be provided" };
+        return res.status(500).send({message: "email must be provided" });
       }
-      DButils.execQuery("SELECT email FROM users")
-      .then((users) => {
-        if (!users.find((x) => x.email === req.body.email))
-          throw { status: 401, message: "Email is incorrect" };
-        DButils.userByEmail(req.body.email)
-          .then((user) => {
-            if (user.length > 1) {
-              throw {
-                status: 401,
-                message: "Error occurred, Please contact us",
-              };
-            } else if (user.length == 0) {
-              throw { status: 401, message: "Email is incorrect" };
-            } else {  
-              res.status(200).send({status: 200, message: user[0].id});
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-            next(error);
-          });
-      })
+      var user = await DButils.userByEmail(req.body.email)
+      if (user.length == 0) {
+        return res.status(401).send({message: "Email is incorrect"});
+      } else {
+
+        return res.status(200).send({message: user[0].id});
+      }
     }catch(error){
-      next(error);
+      return res.status(401).send({message: "user not found"});
     }
   });
   
@@ -72,21 +47,21 @@ router.post("/addPermissions", async (req, res, next) =>
 {
     try{
         if(!req.body.user_id || !req.body.email || !req.body.projectId){
-            throw { status: 500, message: "one or more of the details is missing" };
+            return res.status(500).send({ message: "one or more of the details is missing" });
         }
         else{
             const check = await DButils.checkForPermissions(req.body.user_id, req.body.projectId)
             if(check === true){
                 const user = await DButils.userByEmail(req.body.email);
-                const project = await DButils.projectById(req.body.projectId);
+                const project = await DButils.experimentDetails(req.body.projectId);
                 if(user.length>0 && project.length>0){
-                    console.log('add the permission to db')
+                  loggerController.log('info','add the permission to db')
                     try {
                         const success = await DButils.addPremissions(user[0].id, project[0].experiment_id);
-                        console.log("added premission successfully");
+                        loggerController.log('info',"added premission successfully", {user: user[0].id, project: project[0].experiment_id});
                         res.status(200).send({status: 200, message: "added premission successfully"});
                     }catch(error){
-                        console.log("already exist in db")
+                        loggerController.log('error', "already exist in db", {user: user[0].id, project: project[0].experiment_id})
                         res.status(500).send("already exist in db")
                     }
                 }

@@ -2,6 +2,8 @@ const { content } = require('googleapis/build/src/apis/content');
 const path = require('path');
 const experiments = require('../routes/experiments')
 const script_path = path.join(__dirname,"../../Scripts")
+var sizeOf = require('image-size');
+const fs = require("fs");
 
 function unArchiveData(input, extension) {
     return new Promise(function (resolve, reject){
@@ -50,5 +52,55 @@ function unArchiveData(input, extension) {
   })
 }
 
+function convertTifToPng(inputPath, outputPath){
+    return new Promise((resolve, reject)=>{
+        let { PythonShell } = require('python-shell');
+        let options = {
+            mode: 'text',
+            pythonPath: 'python',
+            pythonOptions: ['-u'], // get print results in real-time
+            scriptPath: script_path,
+            args: [inputPath, outputPath]
+        };
+        try
+        {
+            PythonShell.run('convert_tif_to_png.py', options, async function (err, results){
+                if(err){
+                    reject(err)
+                }
+                else{
+                    var files = fs.readdirSync(outputPath);
+                    let file = files[1]
+                    let width = 0
+                    let height = 0
+                    try
+                    {
+                        dimensions = await sizeOf(outputPath + file)
+                        width = dimensions.width;
+                        height = dimensions.height;
+                        
+                        let images_details = {
+                            num_pictures: files.length,
+                            width: width,
+                            height: height
+                        }
+                        resolve(images_details)
+                    }
+                    catch(err)
+                    {
+                        reject("Couldn't fetch image dimensions")
+                    }
+                            
+                }
+            })
+        }
+        catch(error)
+        {
+            reject(error)
+        }
+    })
+}
 
+// exports.runTrackMate = runTrackMate
 exports.unArchiveData = unArchiveData
+exports.convertTifToPng = convertTifToPng
