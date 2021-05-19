@@ -10,7 +10,7 @@ const path = require('path')
 //routes import
 const auth = require("./routes/auth");
 const experiments = require("./routes/experiments");
-const general_jobs = require("./routes/general");
+const contact = require("./routes/contact");
 const profile = require("./routes/profile");
 
 
@@ -61,7 +61,7 @@ app.options("*", cors(corsConfig));
 
 app.use(auth);
 app.use("/experiments", experiments);
-app.use("/administration",general_jobs);
+app.use("/administration",contact);
 app.use("/profile", profile);
 
 app.use(function (err, req, res, next) {
@@ -72,4 +72,4 @@ const host = '0.0.0.0'
 app.listen(port, host);
 console.log(`Running on PORT: ${port} on host ${host}`);
 
-module.exports = app;
+module.exports = app
