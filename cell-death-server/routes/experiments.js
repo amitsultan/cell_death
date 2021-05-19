@@ -237,4 +237,4 @@ router.post('/uploadProject',uploadProjectHandler)
 
 module.exports = router
 exports.createPNGs = createPNGs
-exports.getDirectories = getDirectories
+// exports.getDirectories = getDirectories
