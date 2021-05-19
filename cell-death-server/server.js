@@ -65,7 +65,7 @@ app.use("/administration",general_jobs);
 app.use("/profile", profile);
 
 app.use(function (err, req, res, next) {
-  console.log(err);
+  // console.error(err);
   res.status(err.status || 500).send({ message: err.message, success: false });
 });
 const host = '0.0.0.0'

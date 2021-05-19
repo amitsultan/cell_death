@@ -29,13 +29,14 @@ CREATE TABLE `experiments` (
   FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id) ON DELETE CASCADE
 );
 
-  CREATE TABLE `permissions` (
+ CREATE TABLE `permissions` (
     `user_id` int unsigned NOT NULL,
     `experiment_id` varchar(100) NOT NULL,
     PRIMARY KEY (`user_id`,`experiment_id`),
     FOREIGN KEY (experiment_id) REFERENCES experiments(experiment_id),
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
+
 
 CREATE TABLE `contactRequests` (
   `contactID` int unsigned UNIQUE NOT NULL AUTO_INCREMENT,
@@ -46,4 +47,3 @@ CREATE TABLE `contactRequests` (
   `message` varchar(1000) NOT NULL
 );
 
-INSERT INTO permissions ('user_id', 'experiment_id') VALUES ('1','2021-05-02');

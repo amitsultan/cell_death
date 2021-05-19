@@ -23,17 +23,17 @@ var sessionChecker = (req, res, next) => {
     !req.body.lastname ||
     !req.body.email ||
     !req.body.password)
-      return res.send({ status: 500, message: "one or more of the details is missing" });
+      return res.status(500).send({message: "one or more of the details is missing" });
   }
   catch(error)
   {
-    return res.send({ status: 500, message: "one or more of the details is missing" });
+    return res.status(500).send({message: "one or more of the details is missing" });
   }
   let users = 0 
   try{
     users = await DButils.userByEmail(req.body.email)
     if (users.length>0)
-      return res.send({ status: 422, message: "Email already exists!" });
+      return res.status(422).send({message: "Email already exists!" });
   }catch(error)
   {
     next(error)
@@ -58,8 +58,6 @@ var sessionChecker = (req, res, next) => {
   }
 })
   
-
-
 router.post("/Login", sessionChecker, async (req, res, next) => {
   try {
     if (!req.body.email || !req.body.password) {
@@ -68,7 +66,6 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
     // check that username exists
     DButils.execQuery("SELECT * FROM users")
       .then((users) => {
-        console.log(users)
         if (!users.find((x) => x.email === req.body.email))
           throw { status: 401, message: "Email or Password incorrect" };
         DButils.userByEmail(req.body.email)
@@ -79,7 +76,7 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
                 message: "Error occurred, Please contact us",
               };
             } else if (user.length == 0) {
-              throw { status: 401, message: "Email or Password incorrect" };
+                throw { status: 401, message: "Email or Password incorrect" };
             } else {
               user = user[0];
               if (!bcrypt.compareSync(req.body.password, user.password)) {
@@ -90,8 +87,6 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
               } else {
                 req.session.userID = user.id
                 req.session.email = user.email
-                // req.session.first_name = user.first_name,
-                // req.session.last_name = user.last_name,
                 res
                   .status(200)
                   .send({
@@ -116,34 +111,21 @@ router.post("/Login", sessionChecker, async (req, res, next) => {
 router.post("/getFullNameByEmail", async (req, res, next) => {
   try{
     if (!req.body.email) {
+      // res.status(500).send({message: "email must be provided" });
       throw { status: 500, message: "email must be provided" };
     }
     fullName=[]
-    DButils.execQuery("SELECT email FROM users")
-    .then((users) => {
-      if (!users.find((x) => x.email === req.body.email))
-        throw { status: 401, message: "Email is incorrect" };
       DButils.userByEmail(req.body.email)
         .then((user) => {
-          if (user.length > 1) {
-            throw {
-              status: 401,
-              message: "Error occurred, Please contact us",
-            };
-          } else if (user.length == 0) {
-            throw { status: 401, message: "Email is incorrect" };
-          } else {  
+          if (user.length == 0) {
+            throw { status: 500, message: "Email is incorrect" };
+          }else  { 
             fullName.push(user[0].first_name)
             fullName.push(user[0].last_name)
             req.session.firstName = fullName[0].first_name
             req.session.lastName = fullName[0].last_name
             res.status(200).send(fullName);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          next(error);
-        });
+      }
     })
   }catch(error){
     next(error);
