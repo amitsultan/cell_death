@@ -28,8 +28,12 @@ const uploadProjectHandler = async function(req, res){
           }else{
             let fileName = project_rar.name;
             let experiment_id = fileName.split('.').slice(0, -1).join('.');
-            let fileName_sc = extra_channel.name;
-            let experiment_id_sc = fileName_sc.split('.').slice(0, -1).join('.')+"_SC";
+            let fileName_sc = '-'
+            let experiment_id_sc = '-'
+            if(extra_channel&&extra_channel.name){
+              fileName_sc = extra_channel.name;
+              experiment_id_sc = fileName_sc.split('.').slice(0, -1).join('.')+"_SC";
+            }
             res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
             // check if the experiment is in the database
             let isExists = await projectController.isExperimentExists(experiment_id);
@@ -37,9 +41,18 @@ const uploadProjectHandler = async function(req, res){
               let experiment_details = await projectController.extractRar(fileName, experiment_id, req.session.userID, '');
               console.log(experiment_details);
               if(experiment_details != undefined){
-                if(projectController.addProjectToDB(experiment_details, experiment_id, experiment_id_sc)){
-                  loggerController.log('info','uploadProject: upload succesfully', experiment_id);
+                flag = false;
+                try{
+                  flag = await projectController.addProjectToDB(experiment_details, experiment_id, experiment_id_sc)
+                  console.log(flag)
+                }catch(err) {
+                  flag=false
+                  console.log(flag)
+                  console.log(err)
+                }
+                if(flag){
                   try{
+                  loggerController.log('info','uploadProject: upload succesfully', experiment_id);
                     await DButils.addPremissions(experiment_details.user_id, experiment_details.experiment_id)
                   }catch(error){
                     let failure_message = 'could not add permission'
