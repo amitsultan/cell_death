@@ -101,6 +101,39 @@ function convertTifToPng(inputPath, outputPath){
     })
 }
 
+function runStarDist(inputPath, experimentId, outputPath)
+{
+    console.log(inputPath)
+    console.log(outputPath)
+    return new Promise((resolve, reject)=>{
+        let { PythonShell } = require('python-shell');
+        let options = {
+            mode: 'text',
+            pythonPath: 'python',
+            pythonOptions: ['-u'], // get print results in real-time
+            scriptPath: script_path,
+            args: [inputPath, experimentId, outputPath]
+        };
+        try
+        {
+            PythonShell.run('starDist/trackingTool.py', options, async function (err, results){
+                if(err){
+                    console.log(err)
+                    reject(err)
+                }
+                else{
+                    resolve(results)      
+                }
+            })
+        }
+        catch(error)
+        {
+            reject(error)
+        }
+    })
+}
+
 // exports.runTrackMate = runTrackMate
 exports.unArchiveData = unArchiveData
 exports.convertTifToPng = convertTifToPng
+exports.runStarDist = runStarDist

@@ -1,6 +1,7 @@
 const mailController = require('../controllers/mailerController')
 const loggerController = require('../controllers/loggerController')
 const projectController = require('../controllers/projectController')
+const pythonController = require("../controllers/pythonController")
 var DButils = require("../DB/DButils");
 
 const uploadProjectHandler = async function(req, res){
@@ -44,19 +45,25 @@ const uploadProjectHandler = async function(req, res){
                 flag = false;
                 try{
                   flag = await projectController.addProjectToDB(experiment_details, experiment_id, experiment_id_sc)
-                  console.log(flag)
                 }catch(err) {
                   flag=false
-                  console.log(flag)
                   console.log(err)
                 }
                 if(flag){
                   try{
-                  loggerController.log('info','uploadProject: upload succesfully', experiment_id);
                     await DButils.addPremissions(experiment_details.user_id, experiment_details.experiment_id)
                   }catch(error){
                     let failure_message = 'could not add permission'
                     loggerController.log('error', 'uploadProject: Adding premissions failed',err)
+                    mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
+                  }
+                  try{
+                    await pythonController.runStarDist("../data/"+experiment_id+"/images/images_png", experiment_id, "../data/"+experiment_id)
+                    mailController.sendSuccessEmail(req.session.email, experiment_id)
+                    loggerController.log('info','uploadProject: upload succesfully', experiment_id);
+                  }catch(error){
+                    let failure_message = 'could not run starDist'
+                    loggerController.log('error', 'uploadProject: run stardist failed',err)
                     mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
                   }
                   if(extra_channel){
