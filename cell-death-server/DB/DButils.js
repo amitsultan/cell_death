@@ -19,7 +19,6 @@ exports.execQuery = async function (query) {
     return new Promise(function(resolve, reject){
         con.query(query, function(err, rows){
             if(err){
-              // console.log(config)
                 reject(err)
             }                                                
             if(rows === undefined){
