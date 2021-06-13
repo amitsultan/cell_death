@@ -56,9 +56,13 @@ class StarModel:
     def get_images_points(self, images):
             results = self.run_multiple_preds(images)
             points = []
+            probs = []
+            tmp = []
             for result in results:
                 points.append(result['details']['points'])
-            return points
+                probs.append(result['details']['prob'])
+                tmp.append((result['details']['points'], result['details']['prob']))
+            return tmp
     
     
     def print_img_preds(self, img, show_dist=True):
