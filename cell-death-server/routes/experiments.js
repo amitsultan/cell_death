@@ -55,12 +55,15 @@ function EditListOfData(listOfData) {
 //     }
 //   });
 
-const createPNGs = async (serial) => {
+const createPNGs = async (serial, extension) => {
   // return new Promise(async (resolve, reject) => {
   try
   {
-    let location = dataDirectory + "/" + serial + "/images/";
-    let save_location = dataDirectory + "/" + serial + "/images/images_png/";
+    if(!extension || extension == '-'){
+      extension = ''
+    }
+    let location = dataDirectory + "/" + serial + extension + "/images/";
+    let save_location = dataDirectory + "/" + serial + extension + "/images/images_png/";
     if (!fs.existsSync(save_location)){
       fs.mkdirSync(save_location);
     }

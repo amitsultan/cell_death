@@ -122,12 +122,14 @@ function runStarDist(inputPath, experimentId, outputPath)
                     reject(err)
                 }
                 else{
+                    console.log("StarDist Complete for experiment: ", experimentId)
                     resolve(results)      
                 }
             })
         }
         catch(error)
         {
+            console.log(error)
             reject(error)
         }
     })

@@ -223,7 +223,7 @@ export default {
 
         },
         channelSwitch: async function(){
-            if(this.details.second_ch){
+            if(this.details.second_ch && this.details.second_ch != ''){
                 this.experiment_id = this.details.second_ch
                 await this.fetchExperimentDetails(this.experiment_id);
                 if(this.prev != this.no_image){
