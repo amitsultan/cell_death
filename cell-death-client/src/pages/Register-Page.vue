@@ -170,12 +170,12 @@ export default {
         },
         onReset() {
             this.form = {
-                username: "haim",
-                firstName: "Haim",
-                lastName: "Reyes",
-                password: "aA123456!",
-                confirmedPassword: "aA123456!",
-                email: "reyes@post.bgu.ac.il",
+                username: "",
+                firstName: "",
+                lastName: "",
+                password: "",
+                confirmedPassword: "",
+                email: "",
                 submitError: undefined
             };
             this.$nextTick(() => {
