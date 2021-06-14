@@ -7,7 +7,9 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item active :to="{ name: 'main' }">Home</b-nav-item>
+
           <b-nav-item v-if="$root.store.email"  :to="{ name: 'ProfilePage' }">My Profile</b-nav-item>
+
           <b-nav-item :to="{ name: 'Experiments'}">Experiments</b-nav-item>
           <b-nav-item :to="{ name: 'requestPage'}">Request-experiment</b-nav-item>
           <b-nav-item :to="{ name: 'AboutPage'}">About</b-nav-item>

@@ -5,6 +5,7 @@ import sys
 from trackmate_file_handler import beautify_csv
 import timeit
 
+
 WORKING_DIR = "C:/NodeServer/cell_death/data/"
 NEW_PY = "C:/NodeServer/cell_death/Scripts/New_.py" # change according to your localhost
 
@@ -17,6 +18,7 @@ def runTrackmate(first_file_path, output_file_path):
 	start = timeit.default_timer()
 	command = 'ImageJ-win64 '+NEW_PY+' "{}" "{}"'.format(first_file_path, output_file_path)
 	p = subprocess.run(command,shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	print('Time: ', timeit.default_timer() - start, ' s')
 	output = p.stdout.decode('ascii')
 
 	print('Time: ', timeit.default_timer() - start, ' s')

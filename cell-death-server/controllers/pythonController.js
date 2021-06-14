@@ -19,6 +19,7 @@ function unArchiveData(input, extension) {
         console.log(options.args)
         PythonShell.run('file_preperations.py', options, function (err, results) {
             if(err){
+                console.log(err)
                 reject(err)
             }else{
                 // console.log(results)

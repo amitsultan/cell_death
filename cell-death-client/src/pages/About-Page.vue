@@ -1,5 +1,6 @@
 <template>
 
+
   <div class="text-center shadow-lg p-3 mb-5 bg-white rounded left cards_container">
     <table class='cards_table'>
       <tr>

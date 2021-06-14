@@ -74,45 +74,6 @@ const createPNGs = async (serial, extension) => {
   {
     throw error
   }
-  
-  //   fs.readdir(dataDirectory + "/" + serial + "/images", async (err, files) => {
-  //     if (err) {
-  //       reject(err)
-  //     } else {
-  //       // Filter tif files from others
-  //       let tif_array = [];
-  //       const tifFiles = files.filter((el) => /\.tif$/.test(el));
-  //       let is_dimensions_saved = false
-  //       let width = 0
-  //       let height = 0
-  //       tifFiles.forEach((file) => {
-  //         tif_array.push(location + file);
-  //         if (!is_dimensions_saved){
-  //           sizeOf(location + file, function (err, dimensions) {
-  //             if(err){
-  //               reject("Couldn't fetch image dimensions")
-  //             }else{
-  //               width = dimensions.width;
-  //               height = dimensions.height;
-  //             }
-  //           });
-  //           is_dimensions_saved = true
-  //         }
-  //       });
-  //       await converter.convertArray(tif_array, save_location).catch((err) => {
-  //         console.log("converter: "+err)
-  //         reject(err)
-  //       });
-  //       console.log("all went well");
-  //       let images_details = {
-  //         num_pictures: tifFiles.length,
-  //         width: width,
-  //         height: height
-  //       }
-  //       resolve(images_details)
-  //     }
-  //   });
-  // })
 }
 
 router.get("/getImageById/:experimentId/:imageId", (req, res) => {
@@ -236,6 +197,7 @@ router.post("/updateCsvDataById/:experimentId/:frameId", (req, res) => {
 });
 
 // Reciving file should be located under projectRar name.
+
 router.post('/uploadProject',uploadProjectHandler)
 
 module.exports = router
