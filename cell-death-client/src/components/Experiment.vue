@@ -1,28 +1,25 @@
 <template>
-<div class='Experiment-container'>
+<div class='Experiment-container shadow-lg p-3 mb-5 bg-white rounded'>
+    <div class='title_container' align="center"><h3 class='experiment_title'>{{this.experiment_id}}</h3></div>
     <br>
-    <div class='progress-bar' style="margin-left: 120px;">
-        <b-progress v-if='src && details' :max="details.num_pictures"  variant="success" striped :animated="true">
-        <b-progress-bar v-if='details' :value="current-1" :label="current-1+'/'+details.num_pictures"></b-progress-bar>
+    <div class='progress-bar'>
+        <b-progress v-if='src && details' :max="details.num_pictures"  variant="info" striped :animated="true">
+            <b-progress-bar v-if='details' :value="current + 1">
+                <b-progress-value>{{(current + 1)+'/'+(details.num_pictures)}}</b-progress-value>    
+            </b-progress-bar>
         </b-progress>
     </div>
-    <!-- <b-progress v-if='src' :value="current" :max="60"  variant="success" :label="current" striped :animated="true" ></b-progress> -->
-    <div class='outsideWrapper'>
-        <!-- <b-button class='prev-button' v-on:click='onPrev'>
-            Prev
-        </b-button> -->
-        <input :disabled="!can_skip" type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
-        <div class='insideWrapper'>
-            <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
-            <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
+    <div class='outerDiv'>
+        <b-button class='channel_btn' v-on:click='channelSwitch'>Switch between channels</b-button>
+        <div class='outsideWrapper'>
+            <input :disabled="!can_skip" type="image" class='navigation-button prev-button' v-on:click='onPrev' :src="prev"/>
+            <div class='insideWrapper'>
+                <canvas id="imageCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
+                <canvas id="frameCanvas" class="Experiment-canvas" :height="height" :width="width"></canvas>
+            </div>
+            <input :disabled="!can_skip" type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
         </div>
-        <input :disabled="!can_skip" type="image" class='navigation-button next-button' v-on:click='onNext' :src="next"/>
-        <!-- <b-button class='next-button' v-on:click='onNext' :src='next'>
-            Next
-        </b-button> -->
     </div>
-    <!-- <img id="frame" style='width: 600px; height: 600px;' v-bind:src="src"> -->
-    <!-- <img id="frame2" src="..\assets\image.png">-->
     <div class="menu">
         <div class="menu-item">New</div>
         <hr>
@@ -33,32 +30,39 @@
         <hr>
         <div class="menu-item">Remove</div>
     </div>
-    <TableView
-    :key="marks.length"
-    v-if='marks != []'
-    :headers="table_headers"
-    :rows="marks"   
-    :sort="{
-      field: 'first_name',
-      order: 'asc'
-    }"
-    :pagination="{
-      itemsPerPage: 10,
-      align: 'center',
-      visualStyle: 'select'
-    }"
-    css-style="my-css-style"
-  >
-    <template v-slot:items="{ row }">
-        <td>{{ row.id }}</td>  
-        <td>{{ row.x }}</td>              
-        <td>{{ row.y }}</td>
-        <td>{{ row.frame }}</td>            
-    </template>
-        <template v-slot:no-data>
-      <span>No data</span>
-    </template>
-  </TableView>
+    <div class="container shadow-lg p-3 mb-5 bg-white rounded table_div">
+        <div class="table_top">
+            <h4 class="table_header">Cell marks</h4>
+            <b-button class="csv_download_btn" style="margin-left:10px" v-on:click="clear">Clear Frame</b-button>
+            <b-button class="csv_download_btn" v-on:click='csvDownload'>Download All Spots CSV</b-button>
+        </div>
+        <TableView
+        :key="marks.length"
+        v-if='marks != []'
+        :headers="table_headers"
+        :rows="marks"   
+        :sort="{
+        field: 'first_name',
+        order: 'asc'
+        }"
+        :pagination="{
+        itemsPerPage: 10,
+        align: 'center',
+        visualStyle: 'select'
+        }"
+        css-style="my-css-style"
+    >
+        <template v-slot:items="{ row }">
+            <td>{{ row.id }}</td>  
+            <td>{{ row.x.toFixed(2) }}</td>              
+            <td>{{ row.y.toFixed(2) }}</td>
+            <td>{{ row.frame }}</td>            
+        </template>
+            <template v-slot:no-data>
+        <span>No data</span>
+        </template>
+    </TableView>
+    </div>
 </div>
 </template>
 
@@ -70,7 +74,8 @@ export default {
         TableView
     },
     data: () => ({
-        counter: 1,
+        experiment_id: '',
+        counter:0,
         pointProximity: 12,
         no_image: require('@/assets/no_image_found.png'),
         table_headers: [
@@ -85,6 +90,8 @@ export default {
             x: 0,
             y: 0
         },
+        marks_history: {}
+        ,
         pause_mark: {
             x: 0,
             y: 0
@@ -100,16 +107,11 @@ export default {
         current: null,
         menuDisplayed: false,
         menuType: 1,
-        details: null
+        details: null,
+        changed: false
     }),
     props: {
         id: String
-    },
-    computed: {
-        lcurrent(){
-            return this.current-1
-        }
-        
     },
     methods: {hideMenuDisplayed(e) {
             if (this.menuDisplayed == true) {
@@ -117,24 +119,44 @@ export default {
             }
             this.menuDisplayed = false;
         },
+        clear(){
+            if(confirm("Are you sure you want to clear the markings?")){
+                this.marks=[]
+                if(this.current > 0){
+                    this.marks_history[this.current]["accumulated_len"] = this.marks_history[this.current - 1]["accumulated_len"]
+                }else{
+                    this.marks_history[this.current]["accumulated_len"] = 1
+                }
+                this.marks_history[this.current]["marks"] = this.marks
+                this.draw()
+                this.changed=true;
+            }
+        },
         async normalizeMarks(){
             return new Promise((resolve, reject) =>{
                 try{
+                    let tmp_array = []
                     this.marks.forEach(mark => {
-                        mark.x =  mark.x / (this.width / this.details.width);
-                        mark.y =  mark.y / (this.height / this.details.height);
+                        let tmp = {
+                            x:  mark.x / (this.width / this.details.width),
+                            y:  mark.y / (this.height / this.details.height),
+                            frame: mark.frame,
+                            type: mark.type,
+                            id: mark.id
+                        }
+                        tmp_array.push(tmp)
                     })
-                    resolve('done')
+                    resolve(tmp_array)
                 }catch(error){
                     reject(error)
                 }
                 });
             },
         async saveCurrentFrameData(number){
-            number = number-1
+            number = number>0?number:0
             this.can_skip = false
-            this.normalizeMarks().then(()=>{
-            this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: this.marks})
+            this.normalizeMarks().then((results)=>{
+            this.axios.post(this.$root.API_BASE + 'experiments/updateCsvDataById/'+this.id+'/'+number, {rows: results})
             .then((response) => {
             this.can_skip = true
             }).catch((error)=>{
@@ -146,6 +168,7 @@ export default {
                 );
             });
             }).catch((error)=>{
+                console.log(error)
                 this.can_skip = true
                 this.$root.toast(
                     "Failed",
@@ -180,9 +203,9 @@ export default {
                     tmp.push(element)
                 }else{
                 }
+            });
                 this.marks = tmp
                 this.draw()
-            });
             }else{
                 this.menuDisplayed = false;
                 let newMark = {
@@ -196,7 +219,37 @@ export default {
                 await this.checkMarkProximity(newMark)
                 this.draw()
             }
-        },updateImage: async function(){
+            await this.saveCurrentFrameData(this.current)
+
+        },
+        channelSwitch: async function(){
+            if(this.details.second_ch && this.details.second_ch != ''){
+                this.experiment_id = this.details.second_ch
+                await this.fetchExperimentDetails(this.experiment_id);
+                if(this.prev != this.no_image){
+                    this.fetchImage(this.current - 1).then((results)=>{
+                        this.prev = results
+                    })
+                }
+                this.fetchImage(this.current).then((results)=>{
+                    this.src = results
+                    this.updateImage()
+                })
+                if(this.next != this.no_image){
+                    this.fetchImage(this.current + 1).then((results)=>{
+                        this.next = results
+                    })
+                }
+            }else{
+                this.$root.toast(
+                    "Failed to find channel",
+                    "No extra channel found",
+                    "danger"
+                );
+            }
+        }
+        ,
+        updateImage: async function(){
             try{
                 let canvas = document.getElementById('imageCanvas'),
                 context = canvas.getContext('2d');
@@ -222,6 +275,26 @@ export default {
             this.mark.x = e.offsetX;
             this.mark.y = e.offsetY;
         },
+        async csvDownload(){
+            let config = {
+                url: this.$root.API_BASE + 'experiments/experimentCSV/'+this.experiment_id,
+                method: 'GET',
+                responseType: 'blob'
+            }
+            // fetching Image
+            this.axios(config)
+            .then((response) => {
+                console.log("got it")
+                var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                var fileLink = document.createElement('a');
+                fileLink.href = fileURL;
+                fileLink.setAttribute('download', this.id+'.csv');
+                document.body.appendChild(fileLink);
+                fileLink.click();
+            }).catch((error)=>{
+                console.log(error)  
+            });
+        },
         async checkMarkProximity(mark){
             let tmp = []
             let is_replaced = false
@@ -234,7 +307,6 @@ export default {
                     if(is_replaced == false){
                         element.type = mark.type
                         element.color = this.typeColor(element.type)
-                        console.log(element.type)
                         is_replaced = true
                         tmp.push(element)
                     }
@@ -245,6 +317,10 @@ export default {
             });
             if(!mark.id){
                 mark.id = this.counter++
+            if(this.current in this.marks_history){
+                this.marks_history[this.current] = {"marks":this.marks,
+                                                    "accumulated_len": this.counter}
+            }
             }
             if(!is_replaced)
                 tmp.push(mark)
@@ -260,12 +336,14 @@ export default {
             const mark = {
                 x: x,
                 y: y,
-                frame:this.current-1,
+                frame:this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
             await this.checkMarkProximity(mark)
             this.menuDisplayed = true;
+            this.changed = true;
+            await this.saveCurrentFrameData(this.current)
             this.draw()
         },
         drawPoint(x, y){
@@ -273,7 +351,7 @@ export default {
                 id: this.counter++,
                 x: x,
                 y: y,
-                frame: this.current-1,
+                frame: this.current,
                 type: this.type,
                 color: this.typeColor(this.type)
             }
@@ -299,20 +377,17 @@ export default {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             this.marks.forEach((mark) => {
                 ctx.beginPath();
-                ctx.strokeStyle = mark.color // line color
-                ctx.fillStyle = mark.color; // line color
+                ctx.strokeStyle = mark.color;
+                ctx.fillStyle = mark.color;
                 ctx.arc(mark.x, mark.y, 6, 0, 2 * Math.PI);
-                // ctx.rect(mark.x + 12, mark.y - 29, 1, 22);
-                // ctx.font = "20px Arial";
-                // ctx.fillText(mark.type, mark.x + 16, mark.y - 15);
                 ctx.stroke();
             })
         },
         fetchImage: function(number){
-            number = number-1 //start images from 0 and not 1 for trackmate processing
+            number = number>0?number:0
             return new Promise((resolve, reject)=>{
                 let config = {
-                    url: this.$root.API_BASE + 'experiments/getImageById/'+this.id+'/'+number,
+                    url: this.$root.API_BASE + 'experiments/getImageById/'+this.experiment_id+'/'+number,
                     method: 'GET',
                     responseType: 'blob'
                 }
@@ -336,107 +411,155 @@ export default {
                 y: point.y * (this.height / this.details.height)
             }
             return norm_point
-        },fetchImageData: function(number){
-            number = number-1 //start images from 0 and not 1 for trackmate processing
+
+        },
+        fetchImageData: function(number){
+            number = number>0?number:0
             this.axios(this.$root.API_BASE + 'experiments/getCsvDataById/'+this.id+'/'+number)
             .then((results) => {
-                let max_id = 0
+                let tmp_id = 1
+                if(number > 0){
+                    if(this.marks_history[number]){
+                        tmp_id = this.marks_history[number]["accumulated_len"]
+                    }
+                }
                 results.data.forEach(element => {
                     const mark = {
-                        id: element.id,
+                        id: tmp_id,
                         x: element.x * (this.width / this.details.width),
                         y: element.y * (this.height / this.details.height),
                         frame: element.frame,
                         type: element.type,
                         color: this.typeColor(element.type)
                     }
-                    max_id = Math.max(max_id, element.id + 1)
+                    tmp_id += 1
                     this.marks.push(mark)
                 });
+                this.marks_history[this.current] = {"marks":this.marks,
+                                                    "accumulated_len": tmp_id}
+                this.counter = tmp_id
             this.draw()
             }).catch((error) => {
                 console.log(error)
                 this.marks = []       
             })
-        },onPrev(){
-            if(!this.can_skip){
+        },
+        onPrev(){
+            if(!this.can_skip || this.current == 0){
                 return;
             }
-            this.saveCurrentFrameData(this.current)
-            if(this.current > 1 ){
-                this.current--
-                this.fetchImage(this.current).then((result)=>{
-                    this.marks = []
-                    this.counter = 2
-                    this.next = this.src
-                    this.src = this.prev
-                    this.prev = result
-                    this.updateImage()
-                    this.draw()
-                    this.fetchImageData(this.current)
-                    if(this.current == 1){
-                    this.prev = this.no_image
-                    }
-                }).catch((error)=>{
+            else{
+                this.can_skip = false;
+                if(this.changed){
+                    this.saveCurrentFrameData(this.current)
+                    this.changed = false;
+                }
+                if(this.current > 0 ){
+                    this.current--
+                    this.fetchImage(this.current-1).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        let src = this.src
+                        let prev = this.prev
+                        this.next = src
+                        this.src = prev
+                        this.prev = result
+                        this.updateImage()
+                        this.fetchImageData(this.current)
+                        this.draw()
+                        if(this.current == 0){
+                        this.prev = this.no_image
+                        }
+                    this.can_skip = true;
+                    }).catch((error)=>{
+                        this.$root.toast(
+                            "Image loading Failed",
+                            "Failed to fetch image from server",
+                            "danger"
+                        );
+                        this.can_skip = true;
+                    })
+                }else{
                     this.$root.toast(
-                        "Image loading Failed",
-                        "Failed to fetch image from server",
+                        "Reached timelapse start!",
+                        "No more pictures to load!",
                         "danger"
                     );
-                })
-            }else{
-                this.$root.toast(
-                    "Reached timelapse start!",
-                    "No more pictures to load!",
-                    "danger"
-                );
+                }
             }
         },
         onNext(){
-            if(!this.can_skip){
+            if(!this.can_skip || this.current == this.details.num_pictures-1){
                 return;
             }
-            this.saveCurrentFrameData(this.current)
-            // load next picture
-            if(this.current < this.details.num_pictures){
-                this.current++
-                this.fetchImage(this.current).then((result)=>{
-                    this.marks = []
-                    this.counter = 2
-                    this.prev = this.src
-                    this.src = this.next
-                    this.next = result
-                    this.updateImage()
-                    this.draw()
-                    this.fetchImageData(this.current)
-                    if(this.current == this.details.num_pictures){
+            else{
+                this.can_skip = false;
+                if(this.changed){
+                    this.saveCurrentFrameData(this.current)
+                    this.changed = false;
+                }
+                // load next picture
+                if(this.current < this.details.num_pictures-1){
+                    this.current++
+                    if(this.current == this.details.num_pictures-1){
+                        this.prev = this.src
+                        this.src = this.next
                         this.next = this.no_image
+                        this.fetchImageData(this.current)
+                        this.updateImage()
+                        this.draw()
+                        this.can_skip = true;
                     }
-                }).catch((error)=>{
+                    else{
+                    this.fetchImage(this.current+1).then((result)=>{
+                        this.marks = []
+                        this.counter = 2
+                        let next = this.next
+                        let src = this.src
+                        this.prev = src
+                        this.src = next
+                        this.next = result
+                        this.updateImage()
+                        this.fetchImageData(this.current)
+                        if(this.current == this.details.num_pictures -1){
+                            this.next = this.no_image
+                        }
+                        this.draw()
+                    this.can_skip = true;
+                    }).catch((error)=>{
+                        this.$root.toast(
+                            "Image loading Failed",
+                            "Failed to fetch image from server",
+                            "danger"
+                        );
+                        this.can_skip = true;
+                    })
+                } }else {
                     this.$root.toast(
-                        "Image loading Failed",
-                        "Failed to fetch image from server",
+                        "Reached max!",
+                        "No more pictures to load!",
                         "danger"
                     );
-                })
-            } else {
-                this.$root.toast(
-                    "Reached max!",
-                    "No more pictures to load!",
-                    "danger"
-                );
+                }
+                
             }
-        }
-    },
-    async created() {
-        this.image = new Image();
+        },
+    async fetchExperimentDetails(id){
         let config = {
-            url: this.$root.API_BASE + "experiments/getDetails/"+this.id,
+            url: this.$root.API_BASE + "experiments/getDetails/"+id,
             method: 'GET'
         }
+        this.changed = false;
+        this.can_skip = true;
         await this.axios(config).then((response) =>{
             if(response.status && response.status === 200){
-                this.details = response.data
+                if(this.details){
+                    this.details.date = response.data.date
+                    this.details.experiment_id = response.data.experiment_id
+                    this.details.second_ch = response.data.second_ch
+                }else{
+                    this.details = response.data
+                }
             }else{
                 this.$root.toast(
                     "Error occurred",
@@ -444,11 +567,18 @@ export default {
                     "danger"
                 );
             }
-        })
-        // this.image.src = '@/assets/images/c2_ (1).png'; //   '../assets/images/c2_ (1).png';
+        }).catch((err)=>{console.log(err)})
+    }
     },
+    async created() {
+        this.image = new Image();
+        this.experiment_id = this.id
+        await this.fetchExperimentDetails(this.id);
+
+    }
+    ,
     async beforeMount(){
-        this.current = 1
+        this.current = 0
         this.prev = this.no_image
         this.fetchImage(this.current).then((result)=>{
             this.src = result
@@ -461,7 +591,7 @@ export default {
                 "danger"
             );
         })
-        this.fetchImage(this.current + 1).then((result)=>{
+        this.fetchImage(this.current+1).then((result)=>{
             this.next = result
         }).catch((error)=>{
             this.$root.toast(
@@ -470,8 +600,6 @@ export default {
                 "danger"
             );
         })
-        // this.src = result;
-        // this.updateImage()
     },
     async mounted() {
         let canvas = document.getElementById("frameCanvas");
@@ -481,11 +609,7 @@ export default {
         let menuBox = window.document.querySelector(".menu");
         document.addEventListener('mousemove', this.onMouseUpdate, false);
         canvas.addEventListener('click', this.onMouseClick, false);
-        // document.addEventListener('keydown', this.onKeyPress, true);
         this.draw()
-        //var img = document.getElementById("frame2");
-        //console.log(img)
-        //ctx.drawImage(img, 30, 30, 100, 100);
 
         canvas.addEventListener("contextmenu", this.menuContext, false);
         items.forEach((item) => {
@@ -497,86 +621,5 @@ export default {
 </script>
 
 <style>
-.menu {
-    background-color: white;
-    opacity: 0.85;
-    width: 160px;
-    box-shadow: 3px 3px 5px #888888;
-    border-style: solid;
-    border-width: 1px;
-    border-color: grey;
-    border-radius: 2px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    position: fixed;
-    display: none;
-    z-index: 10;
-}
-
-.menu-item {
-    background-color: white;
-    opacity: 1;
-    height: max-content;
-    font-size: 16px;
-}
-hr{
-    margin-top: 3px;
-    margin-bottom: 3px;
-}
-
-.menu-item:hover {
-    opacity: 1;
-    background-color: #6CB5FF;
-    cursor: pointer;
-}
-.Experiment-container{
-    width: 50%;
-    margin: 0 auto;
-}
-.Experiment-canvas{
-    border:1px solid #d3d3d3;
-}
-.navigation-button{
-    height: 300px;
-    width: 300px;
-    transition: 1s;
-}
-.navigation-button:hover{
-  transform: scale(2);
-}
-.prev-button{
-    margin-right:20px;
-    float: left;
-}
-.next-button{
-    margin-left:20px;
-    float: right;
-}
-.progress-bar{
-    background-color: white;
-    /* color: white; */
-    /* font-size: 1.25rem; */
-    width: 600px;
-}
-.outsideWrapper{
-    margin-top:50px;
-    display: flex;
-    align-items: center;
-    height: max-content;
-}
-.insideWrapper{
-    height: max-content;
-    width: max-content;
-    position: relative;
-}
-#frameCanvas{
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-#imageCanvas{
-    /* position: absolute; */
-}
+    @import './../scss/experiment.scss';
 </style>

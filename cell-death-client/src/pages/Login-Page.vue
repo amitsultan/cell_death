@@ -36,13 +36,15 @@
         </b-form-invalid-feedback>
       </b-form-group>
 
-      <b-button
+      <b-button @click="onLogin"
         type="submit"
         variant="primary"
         style="width:100px;display:block;"
         class="mx-auto w-100"
+        :disabled= "clickButton"
         >Login</b-button
       >
+
       <div class="mt-2">
         Do not have an account yet?
         <router-link to="register"> Register in here</router-link>
@@ -57,9 +59,6 @@
     >
       Login failed: {{ form.submitError }}
     </b-alert>
-    <!-- <b-card class="mt-3" header="Form Data Result">
-      <pre class="m-0">{{ form }}</pre>
-    </b-card> -->
   </div>
 </template>
 
@@ -73,6 +72,7 @@ export default {
         password: "",
         submitError: undefined,
       },
+      clickButton: false,
     };
   },
   validations: {
@@ -93,6 +93,12 @@ export default {
     async Login() {
       try {
         this.axios.defaults.withCredentials = true;
+        const fullNameResponse = await this.axios.post(
+          this.$root.API_BASE+"getFullNameByEmail",
+          {
+            email: this.form.email,
+          }
+        );
         const response = await this.axios.post(
           this.$root.API_BASE+"Login",
           {
@@ -100,15 +106,17 @@ export default {
             password: this.form.password,
           }
         );
-        if (response.status == 200) {
+        if (response.status == 200 && fullNameResponse.status == 200) {
           this.$root.toast(
             "successful",
             "User successfully logged in",
             "success"
           );
-          this.$root.store.login(this.form.email);
+          this.$root.store.login(this.form.email, fullNameResponse.data[0], fullNameResponse.data[1]);
+          this.clickButton = false;
           this.$router.push("/");
         } else {
+          this.clickButton = false;
           this.$root.toast(
             "Invalid credentials",
             "email or password are incorrect",
@@ -117,17 +125,21 @@ export default {
         }
       } catch (err) {
         console.log(err);
+        this.clickButton = false;
         this.$root.toast(
           "Invalid credentials",
           "email or password are incorrect",
           "danger"
         );
       }
+
     },
     onLogin() {
       this.form.submitError = undefined;
+      this.clickButton = true;
       this.$v.form.$touch();
       if (this.$v.form.$anyError) {
+        this.clickButton = false;
         return;
       }
       this.Login();

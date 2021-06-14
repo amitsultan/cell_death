@@ -1,4 +1,5 @@
 import Main from "./pages/Home-Page";
+// import Profile from "./pages/Profile-Page";
 import VueRouter from "vue-router";
 
 const routes = [
@@ -6,6 +7,11 @@ const routes = [
     path: "/Home",
     name: "Home",
     component: () => import("./pages/Home-Page"),
+  },
+  {
+    path: "/Profile",
+    name: "ProfilePage",
+    component: () => import("./pages/Profile-Page"),
   },
   {
     path: "/Login",

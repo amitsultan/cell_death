@@ -12,22 +12,14 @@ const pythonController = require('../controllers/pythonController')
 const mailController = require('../controllers/mailerController')
 const loggerController = require('../controllers/loggerController')
 const csvEditorController = require('../controllers/csvEditorController')
+const projectController = require('../controllers/projectController')
 var sizeOf = require('image-size');
-
-
+const {uploadProjectHandler} = require('../handlers/experiments.js') 
 var options = {
   logLevel: 0,
 };
 
 var converter = new ConvertTiff(options);
-
-
-// Helper function - return directories inside path
-const getDirectories = (source) =>
-  fs
-    .readdirSync(source, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
 
 
 function EditListOfData(listOfData) {
@@ -63,94 +55,48 @@ function EditListOfData(listOfData) {
 //     }
 //   });
 
-
-router.get("/nextImage/:experimentId/:imageId", (req, res) => {
-  //returns the next image of the $experimentId
-});
-
-router.get("/getImages/:experimentId/:numberOfImages", (req, res) => {
-  //returns $numberOfImages from $experimentId and total number of images in the experiment
-
-});
-
-// router.get("/saveData", (req, res) => {
-
-// });
-
-router.get("/getExperiments", (req, res) => {
-  try {
-    const directories_names = getDirectories(dataDirectory);
-    res.status(200).send(directories_names);
-  } catch (error) {
-    console.log(error)
-    res.status(500).send("Unable to load experiments");
+const createPNGs = async (serial, extension) => {
+  // return new Promise(async (resolve, reject) => {
+  try
+  {
+    if(!extension || extension == '-'){
+      extension = ''
+    }
+    let location = dataDirectory + "/" + serial + extension + "/images/";
+    let save_location = dataDirectory + "/" + serial + extension + "/images/images_png/";
+    if (!fs.existsSync(save_location)){
+      fs.mkdirSync(save_location);
+    }
+    let res = await pythonController.convertTifToPng(location, save_location)
+    return res
   }
-});
-
-const createPNGs = async (serial) => {
-  return new Promise(async (resolve, reject) => {
-    let location = dataDirectory + "/" + serial + "/images/";
-    let save_location = dataDirectory + "/" + serial + "/images/images_png";
-    fs.readdir(dataDirectory + "/" + serial + "/images", async (err, files) => {
-      if (err) {
-        reject(err)
-      } else {
-        // Filter tif files from others
-        let tif_array = [];
-        const tifFiles = files.filter((el) => /\.tif$/.test(el));
-        let is_dimensions_saved = false
-        let width = 0
-        let height = 0
-        tifFiles.forEach((file) => {
-          tif_array.push(location + file);
-          if (!is_dimensions_saved){
-            sizeOf(location + file, function (err, dimensions) {
-              if(err){
-                reject("Couldn't fetch image dimensions")
-              }else{
-                width = dimensions.width;
-                height = dimensions.height;
-              }
-            });
-            is_dimensions_saved = true
-          }
-        });
-        await converter.convertArray(tif_array, save_location).catch((err) => {
-          console.log(err)
-          reject(err)
-        });
-        let images_details = {
-          num_pictures: tifFiles.length,
-          width: width,
-          height: height
-        }
-        resolve(images_details)
-      }
-    });
-  })
+  catch(error)
+  {
+    throw error
+  }
 }
 
 router.get("/getImageById/:experimentId/:imageId", (req, res) => {
   try {
     if (!req.params.experimentId || !req.params.imageId) {
-      res.status(400).send("Missing params");
+      return res.status(400).send("Missing params");
     }
     const experimentId = req.params.experimentId;
     const imageId = req.params.imageId;
     const path = experimentId + "/images/images_png/" + experimentId + "_" + imageId + ".png";
     if (!fs.existsSync(dataDirectory + "/" + experimentId + "/images/images_png")) {
       createPNGs(experimentId).then(() => {
-        res.status(200).sendFile(path, { root: dataDirectory });
+        return res.status(200).sendFile(path, { root: dataDirectory });
       }).catch((err) => {
         console.log(err);
-        res.status(500).send("Unable to get image");
+        return res.status(500).send("Unable to get image");
       })
     } else {
-      res.status(200).sendFile(path, { root: dataDirectory });
+      return res.status(200).sendFile(path, { root: dataDirectory });
     }
   } catch (err) {
     console.log(err)
-    res.status(500).send("Unable to get image");
+    return res.status(500).send("Unable to get image");
   }
 });
 
@@ -166,7 +112,7 @@ router.get("/getDetails/:experimentId", (req, res) => {
         res.status(200).send(experiment[0])
       }
     }).catch((error) => {
-      throw error
+      res.status(500).send(" BD error - Unable to get fetch details for experiment");
     })
   }catch(err){
     console.log(err)
@@ -174,6 +120,35 @@ router.get("/getDetails/:experimentId", (req, res) => {
   }
 });
 
+router.get("/experimentCSV/:experimentId", (req, res) => {
+  let data_path = "../data/"
+  let experiment_id = req.params.experimentId
+  try{
+    if(!experiment_id){
+      loggerController.log('error','experimentCSV: No experiment ID folder', {experiment_id: experiment_id, error:err})
+      res.status(500).send("Unable to get csv file for experiment: "+experiment_id);
+    }else{
+      let m_path = require("path");
+      let path = m_path.resolve(data_path + experiment_id + "/" + experiment_id +".csv")
+      console.log(path)
+        fs.readFile(path, 'utf8', function (err,data) {
+          if (err) {
+            console.log(err)
+            loggerController.log('error','experimentCSV: Failed to read file', {experiment_id: experiment_id, error:err})
+            res.status(500).send("Unable to get csv file for experiment: "+experiment_id);
+          }else{
+            console.log("else")
+            res.setHeader('Content-disposition', 'attachment; filename='+experiment_id+'.csv');
+            res.set('Content-Type', 'text/csv');
+            res.status(200).send(data);
+          }
+        });
+    }
+  }catch(err){
+    loggerController.log('error','experimentCSV: Unexcpeted error', {experiment_id: experiment_id, error:err})
+    res.status(500).send("Unable to get csv file for experiment: "+experiment_id);
+  }
+});
 
 //important!!! make sure that the image id is the same as frame id!!!!!
 router.get("/getCsvDataById/:experimentId/:frameId", (req, res) => {
@@ -222,106 +197,9 @@ router.post("/updateCsvDataById/:experimentId/:frameId", (req, res) => {
 });
 
 // Reciving file should be located under projectRar name.
-router.post('/uploadProject', (req, res) => {
-  if(!req.session.userID){
-    loggerController.log('error', 'uploadProject: Unauthorized user', 'User must be logged in')
-    return res.status(500).send({ msg: "User must be logged in"})
-  }
-  try{
-    if (!req.files) {
-      loggerController.log('error', 'uploadProject: Bad request', 'file is not found')
-      return res.status(500).send({ msg: "file is not found"})
-    }
-    // accessing the file
-    const myFile = req.files.projectRar;
-    if (!req.files.projectRar){
-      return res.status(500).send({ msg: "No file found under rar" });
-    }
-      //  mv() method places the file inside public directory
-      myFile.mv(`../data/${myFile.name}`, function (err) {
-        if (err) {
-          console.log(err);
-          return res.status(500).send({ msg: "Error occured" });
-        }
-        let fileName = myFile.name;
-        let experiment_id = fileName.split('.').slice(0, -1).join('.');
-        res.status(200).send({ msg: 'Project rar recived! Email will be sent when processing done', success: true });
-        // check if the experiment is in the database
-        DButils.experimentDetails(experiment_id).then((results)=>{
-          if(results.length == 0){
-            // new project
-            // Call python to handle unrar\unzip of the project file
-            // After unziping the experiment pngs files will be avilable to watch
-            pythonController.unArchiveData(fileName).then((results)=>{
-              loggerController.log('info','uploadProject: unrar successesfully', experiment_id)
-              // check if python script excuted in success
-              // if not, we have a folder with the same experiment name
-              if(results.message &&  results.message == 'Images created successfully'){
-                let experiment_details = {
-                  experiment_id: experiment_id,
-                  date: new Date(),
-                  num_pictures: results.num_pictures,
-                  width: results.width,
-                  height: results.height,
-                  user_id: req.session.userID}
-                  DButils.addExperiment(experiment_details).then((results)=>{
-                    if(results && results.affectedRows && results.affectedRows == 1){
-                      loggerController.log('info','uploadProject: experiment added to db', experiment_id)
-                      // send email after successfully update the database with the experiment
-                      var start = new Date();
-                      pythonController.runTrackMate(experiment_id).then((results)=>{
-                        if(results.message && results.message == "Experiment processed successfully")
-                          var end = (new Date - start)/1000;
-                          loggerController.log('info', 'uploadProject: Trackmete finished succsessfully, execution time was ' + end + ' s', experiment_id)
-                          mailController.sendSuccessEmail(req.session.email, experiment_id)
-                          // return res.status(200).send({msg:"trackmete succsessfully"})
-                      }).catch((error)=>{
-                        let failure_message = 'Unexpected error in server side could not run trakmate'
-                        loggerController.log('error', 'uploadProject: run trackmate process failed',error)
-                        mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                      })
-                      
-                    }else{
-                      // already in database
-                      let failure_message = 'Experiment already found in our database'
-                      mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                    }
-                  }).catch((error)=>{
-                      let failure_message = 'Unexpected error in server side'
-                      loggerController.log('error', 'uploadProject: Adding experiment to database failed',error)
-                      mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                  })
-                // mail the user for success
-              }else if(results.message &&  results.message ==  'Experiment already exists'){
-                let failure_message = 'Experiment already found in our database'
-                mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-              }else{ // else for unexpceted cases
-                let failure_message = 'Unexpected error in server side'
-                mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-                loggerController.log('error', 'uploadProject: Python script failed unexpceted cases',results)
-              }
-            }).catch((error)=>{
-              let failure_message = 'Unexpected error in server side'
-              loggerController.log('error', 'uploadProject: Python script failed catch of unArchiveData',error)
-              mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-            })
-          }else{
-            let failure_message = 'Experiment already found in our database'
-            mailController.sendFailureEmail(req.session.email, experiment_id, failure_message)
-          }
-        }).catch((error)=>{
-          loggerController.log('error', 'uploadProject: Failed to fetch experiemtn data from database',error)
-          return res.status(500).send({ msg: "Error occured" });
-        })
-      });
-  }catch(error){
-    loggerController.log('error', 'uploadProject: Unexcpeted error',error)
-    return res.status(500).send({ msg: "Error occured" });
-  }
-})
 
+router.post('/uploadProject',uploadProjectHandler)
 
-
-
-module.exports = router;
-exports.createPNGs = createPNGs;
+module.exports = router
+exports.createPNGs = createPNGs
+// exports.getDirectories = getDirectories

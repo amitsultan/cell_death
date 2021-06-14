@@ -1,0 +1,116 @@
+.menu {
+    background-color: white;
+    opacity: 0.85;
+    width: 160px;
+    box-shadow: 3px 3px 5px #888888;
+    border-style: solid;
+    border-width: 1px;
+    border-color: grey;
+    border-radius: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    position: fixed;
+    display: none;
+    z-index: 10;
+}
+
+.menu-item {
+    background-color: white;
+    opacity: 1;
+    height: max-content;
+    font-size: 16px;
+}
+hr{
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.menu-item:hover {
+    opacity: 1;
+    background-color: #6CB5FF;
+    cursor: pointer;
+}
+.Experiment-container{
+    width: max-content;
+    margin: 0 auto;
+}
+.Experiment-canvas{
+    border:1px solid #d3d3d3;
+}
+.navigation-button{
+    height: 300px;
+    width: 300px;
+    transition: 1s;
+}
+.navigation-button:hover{
+  transform: scale(2);
+}
+.prev-button{
+    margin-right:20px;
+    float: left;
+}
+.next-button{
+    margin-left:20px;
+    float: right;
+}
+.progress-bar{
+    margin: inherit;
+    position: relative;
+    background-color: white;
+    /* color: white; */
+    /* font-size:.25rem; */
+    width: 600px;
+}
+.insideWrapper{
+    height: max-content;
+    width: max-content;
+    position: relative;
+}
+#frameCanvas{
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+#imageCanvas{
+    /* position: absolute; */
+}
+.table_header{
+    float: left;
+}
+.csv_download_btn, .csv_download_btn:hover, .csv_download_btn:focus, .csv_download_btn:active{
+    float: right;
+    background-color: #6CB5FF;
+}
+.table_top{
+    margin-bottom:2.5em;
+}
+b-progress-value{
+    margin: auto; /* Will not center vertically and won't work in IE6/7. */
+    left: 0;
+    right: 0;
+    position: absolute;
+    color: black;
+}
+.experiment_title{
+    text-shadow: 3px 3px 5px;
+}
+.outerDiv{
+    flex-direction: column;
+    align-items: center;
+}
+.channel_btn, .channel_btn:hover, .channel_btn:focus, .channel_btn:active{
+        background-color: #6CB5FF;
+    order: 0;  
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.outsideWrapper{
+    order: 1;
+    display: flex;
+    align-items: center;
+    height: max-content;
+}

@@ -11,7 +11,7 @@ router.post("/contactUs", (req, res) => {
             loggerController.log('error','contactUs: Missing params from client', {body:req.body})
             res.status(500).send("Failed to send mail, missing fields!")
         }else{
-            res.status(200).send('OK')
+            
             mailController.sendContactUs(req.body.client_name, req.body.client_email, req.body.subject, req.body.message).then((results)=>{
             }).catch((error)=>{
                 loggerController.log('error','contactUs: Unexcpeted error', {error: error})
@@ -20,6 +20,7 @@ router.post("/contactUs", (req, res) => {
             //TODO
             DButils.addContactRequest(req.body.client_name, req.body.client_email, req.body.subject, req.body.message).
             then((results)=>{
+                res.status(200).send('OK')
 
             }).catch((error)=>{
                 loggerController.log('error','contactUs: Failed to save to db!', {error: error})

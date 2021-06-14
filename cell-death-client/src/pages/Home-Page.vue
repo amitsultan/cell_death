@@ -1,5 +1,6 @@
 <template>
- <div class="shadow-lg p-3 mb-5 bg-white rounded left home_text" width=80%>
+
+ <div class="shadow-lg p-3 mb-5 bg-white rounded left" style="width:70%">
     <h1>
         Welcome to Cell Tracking Tool 
     </h1>
@@ -7,7 +8,7 @@
     Our cell tracking tool is a multi-purpose tool for various microscope images analysis.
     Our goal is to provide an easy way to detect certain states of cells or other moving organisms.
     Our tool will serve for phenomena as Cell Death and Calcium Signaling, hopefully for more in the future.
-     <br><br>Enjoy your visit in our site :) 
+     <br><br>
     </div>
     <br><br>
     <div class="bottom">
@@ -37,7 +38,6 @@ export default {
   margin-right: 200px;
 }
 .bottom {
-  margin-top: 200px;
   margin-left: 100px;
 }
 .gif {
@@ -52,6 +52,6 @@ transform: scale(1.1);
 .home_text{
   font-size: 6mm ;
   margin: 15px 0px 0px 20px;
-  width: 1000px
+  width:95%
 }
 </style>

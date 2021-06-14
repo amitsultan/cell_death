@@ -56,7 +56,7 @@
         <div class='buttons'>
 
             <b-button type="reset" variant="danger" style="width:240px;margin-right:5px;">Reset</b-button>
-            <b-button type="submit" variant="primary" style="width:240px; margin-left:5px;">Register</b-button>
+            <b-button type="submit" :disabled="clickButton" variant="primary" style="width:240px; margin-left:5px;">Register</b-button>
         </div>
         <div class="mt-2">
             You have an account already?
@@ -96,7 +96,8 @@ export default {
                 submitError: undefined
             },
             errors: [],
-            validated: false
+            validated: false,
+            clickButton: false,
         };
     },
     validations: {
@@ -141,22 +142,27 @@ export default {
                     }
                 );
                 if(response.status === 200){
+                    this.clickButton = false;
                     this.$root.toast(
                         "successful",
-                        "User successfully logged in",
+                        "User registerd successfully",
                         "success"
                     );
                     this.$router.push("/Login");
                 }else{
+                    this.clickButton = false;
                     this.form.submitError = response.data.message;   
                 }
             } catch (err) {
+                this.clickButton = false;
                 this.form.submitError = err.response.data.message;
             }
         },
         onRegister() {
             this.$v.form.$touch();
+            this.clickButton = true;
             if (this.$v.form.$anyError) {
+                this.clickButton = false;
                 return;
             }
             // console.log("register method go");
@@ -164,12 +170,12 @@ export default {
         },
         onReset() {
             this.form = {
-                username: "haim",
-                firstName: "Haim",
-                lastName: "Reyes",
-                password: "aA123456!",
-                confirmedPassword: "aA123456!",
-                email: "reyes@post.bgu.ac.il",
+                username: "",
+                firstName: "",
+                lastName: "",
+                password: "",
+                confirmedPassword: "",
+                email: "",
                 submitError: undefined
             };
             this.$nextTick(() => {
