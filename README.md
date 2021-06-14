@@ -1,55 +1,13 @@
-# cell_death
+# cell_death annotation tool using active learning
 
-#### Automated Instructions ####
-	1) $ docker-compose build --force-rm
-	2) $ docker-compose up -d // start process
-	3) $ docker-compose down // close porcess
+developers:
+Amit Sultan
+Yarin Hayun
+Haim Reyes
+Liat Cohen
 
-#### Manual Instructions ####
-### 	Build and run nodeJS container ###
-		1) make sure docker is running in the background
-			- you can check if docker is running by running the following command in cmd/shell:
-			   $ docker images
-			   if you get a list of images docker is running.
-		2) Run the following command inside the nodeJS folder
-			$ docker build -t cell-death-server .
-		3) After successfully building you can check again the docker images by running this command:
-			$ docker images
-			you should see our new image created
-		4) Run docker container with the following command:
-			$ docker run -p 3000:3000 -d cell-death-server
-			run the following command to check if the image run correctly:
-			$ docker logs <container id>
-			# Example output
-			Running on http://localhost:3000
+The system we developed is a two-phase platform for automating the cell tagging process. The first phase is basic image processing and initial tagging using an existent CNN based tool. As additional preparation for phase two the algorithm will also compute the cells’ routes (i.e. tracks) throughout the image stacks and extract relevant features from them. In the second phase the collection of features will serve as input to a classifier which classifies if the either cell died in the right frame (True positive) or it is an error locating or timing the cell’s death (False positive). 
+The model utilizes Active Learning, an iterative learning method that includes the researchers in the model’s learning process. The researchers will tag results with low confidence.
+The model will improve at tagging images with more “assistance” it receives, lowering the need for further manual intervention – saving the researcher’s precious time during research. The project is done in collaboration with Michael Overholtzer’s lab at Memorial Sloan Kettering Cancer Center, NY.
 
-### Build and run VueJS container ###
-	1) make sure docker is running in the background
-		- you can check if docker is running by running the following command in cmd/shell:
-		   $ docker images
-		   if you get a list of images docker is running.
-	2) Run the following command inside the VueJS folder
-		$ docker build -t cell-death-client . (Takes a while)
-	3) After successfully building you can check again the docker images by running this command:
-		$ docker images
-		you should see our new image created
-	4) Run docker container with the following command:
-		$ docker run -p 49161:8080 -d cell-death-client
-		run the following command to check if the image run correctly:
-		$ docker logs <container id>
-		# Example output
-		Running on http://localhost:8080
-		
-Link for a complete guide: https://nodejs.org/en/docs/guides/nodejs-docker-webapp/
 
-MYSQL:
-	start:
-	$ docker start cell-death-mysql
-	stop:
-	$ docker stop cell-death-mysql
-Notes:
-	To access container shell run:
-	# Enter the container
-	$ docker exec -it <container id> /bin/bash
-	# For mysql run
-	$ docker exec -it <container id> mysql -u root -p
