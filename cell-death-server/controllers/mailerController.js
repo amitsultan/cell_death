@@ -2,7 +2,7 @@
 const path = require('path');
 const loggerController = require('./loggerController')
 const script_path = path.join(__dirname,"../../Scripts")
-const sendMailFleg = 'false'
+const sendMailFleg = 'true'
 
 
 
