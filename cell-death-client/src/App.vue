@@ -30,7 +30,7 @@
            <b> {{ $root.store.firstName }} {{ $root.store.lastName }} </b>
           </b-nav-item>
           <b-nav-item-dropdown right v-if="$root.store.email">
-            <b-dropdown-item :to="{ name: 'ProfilePage' }">My Profile</b-dropdown-item>
+            <!-- <b-dropdown-item :to="{ name: 'ProfilePage' }">My Profile</b-dropdown-item> -->
             <b-dropdown-item v-on:click='Logout'>Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
